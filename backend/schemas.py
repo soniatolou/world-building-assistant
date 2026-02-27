@@ -1,6 +1,12 @@
 from pydantic import BaseModel, EmailStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
+class Settings(BaseSettings):
+    DB_URL: str
+    model_config = SettingsConfigDict(env_file=".env")
+
+settings = Settings()
 
 # Post & patch endpoint, för när användaren ska skicka in sin data, behövs endast för fler fält som hör ihop.
 # Grundmodell för klasser

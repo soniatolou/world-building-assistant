@@ -1,25 +1,14 @@
 import os
 import psycopg2
+import schemas
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
-DATABASE_NAME = os.getenv("DATABASE_NAME")
-PASSWORD = os.getenv("PASSWORD")
-USER = os.getenv("DATABASE_USER")
-HOST = os.getenv("DATABASE_HOST")
-PORT = os.getenv("DATABASE_PORT")
-
+settings = schemas.Settings()
 
 def get_connection():
-    return psycopg2.connect(
-        dbname=DATABASE_NAME,
-        user=USER,
-        password=PASSWORD,
-        host=HOST,
-        port=PORT,
-    )
-
+    return psycopg2.connect(settings.DB_URL)
 
 def create_tables():
     connection = get_connection()
@@ -249,7 +238,6 @@ def create_tables():
     connection.commit()
     cursor.close()
     connection.close()
-
 
 if __name__ == "__main__":
     create_tables()
