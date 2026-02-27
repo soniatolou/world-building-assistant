@@ -1,23 +1,23 @@
-# GET /users - hämta alla
-# GET /users/{id} - hämta en
-# POST /users - skapa
-# PATCH /users/{id} - uppdatera
-# DELETE /users/{id} - ta bort
+# GET /worlds - hämta alla
+# GET /worlds/{id} - hämta en
+# POST /worlds - skapa
+# PATCH /worlds/{id} - uppdatera
+# DELETE /worlds/{id} - ta bort
 
-# get_user()
-# get_all_users()
-# create_user()
-# update_user()
-# delete_user()
+# get_world()
+# get_all_worlds()
+# create_world()
+# update_world()
+# delete_world()
 
 import os
 import psycopg2
 from db_setup import get_connection
 from fastapi import FastAPI, HTTPException, status
 import schemas
+import db
 
 app = FastAPI()
-
 
 # Users - create account
 @app.post("/users", status_code=201)
