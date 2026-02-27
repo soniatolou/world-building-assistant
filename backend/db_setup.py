@@ -10,6 +10,7 @@ USER = os.getenv("DATABASE_USER")
 HOST = os.getenv("DATABASE_HOST")
 PORT = os.getenv("DATABASE_PORT")
 
+
 def get_connection():
     return psycopg2.connect(
         dbname=DATABASE_NAME,
@@ -19,11 +20,12 @@ def get_connection():
         port=PORT,
     )
 
+
 def create_tables():
     connection = get_connection()
     cursor = connection.cursor()
 
-# Users
+    # Users
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "users" (
@@ -39,7 +41,7 @@ def create_tables():
         """
     )
 
-# Worlds
+    # Worlds
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "worlds" (
@@ -52,7 +54,7 @@ def create_tables():
         """
     )
 
-# Events
+    # Events
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "events" (
@@ -66,7 +68,7 @@ def create_tables():
         """
     )
 
-# Items
+    # Items
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "items" (
@@ -88,7 +90,7 @@ def create_tables():
         """
     )
 
-# Species
+    # Species
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "species" (
@@ -110,7 +112,7 @@ def create_tables():
         """
     )
 
-# Notes
+    # Notes
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "notes" (
@@ -122,7 +124,7 @@ def create_tables():
         """
     )
 
-# Tags
+    # Tags
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "tags" (
@@ -133,7 +135,7 @@ def create_tables():
         """
     )
 
-# Entity_tags
+    # Entity_tags
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "entity_tags" (
@@ -144,17 +146,17 @@ def create_tables():
         """
     )
 
-# # Embeddings
-#     cursor.execute(
-#         """
-#         CREATE TABLE IF NOT EXISTS "embeddings" (
-#         embedding_id BIGSERIAL PRIMARY KEY NOT NULL,
-#         vector_data VECTOR(1536)
-#         );
-#         """
-#     )
+    # # Embeddings
+    #     cursor.execute(
+    #         """
+    #         CREATE TABLE IF NOT EXISTS "embeddings" (
+    #         embedding_id BIGSERIAL PRIMARY KEY NOT NULL,
+    #         vector_data VECTOR(1536)
+    #         );
+    #         """
+    #     )
 
-# Images
+    # Images
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "images" (
@@ -164,7 +166,7 @@ def create_tables():
         """
     )
 
-# Maps
+    # Maps
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "maps" (
@@ -178,7 +180,7 @@ def create_tables():
         """
     )
 
-# Locations
+    # Locations
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "locations" (
@@ -194,7 +196,7 @@ def create_tables():
         """
     )
 
-# Characters
+    # Characters
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "characters" (
@@ -212,7 +214,7 @@ def create_tables():
         """
     )
 
-# Relationships
+    # Relationships
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "relationships" (
@@ -224,7 +226,7 @@ def create_tables():
         """
     )
 
-# Junction table character_relationships
+    # Junction table character_relationships
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "character_relationships" (
@@ -234,7 +236,7 @@ def create_tables():
         """
     )
 
-# Junction table character_events
+    # Junction table character_events
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "character_events" (
@@ -248,8 +250,7 @@ def create_tables():
     cursor.close()
     connection.close()
 
+
 if __name__ == "__main__":
     create_tables()
     print("Tables created successfully.")
-
-
