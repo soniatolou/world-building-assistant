@@ -10,8 +10,6 @@
 # update_world()
 # delete_world()
 
-import os
-import psycopg2
 from db_setup import get_connection
 from fastapi import FastAPI, HTTPException, status
 import schemas
