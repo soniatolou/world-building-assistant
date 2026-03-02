@@ -20,7 +20,7 @@ import db
 app = FastAPI()
 
 # Users - create account
-@app.post("/users", status_code=201)
+@app.post("/users", status.HTTP_201_CREATED)
 def create_user(user: schemas.CreateUser):
     try:
         connection = get_connection()
@@ -35,7 +35,7 @@ def create_user(user: schemas.CreateUser):
         )
         return new_user
     except Exception as error:
-        raise HTTPException(status_code=500, detail=f"Something went wrong:{error}")
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Something went wrong:{error}")
 
 
 @app.get("/users/{user_id}")
@@ -46,7 +46,7 @@ def get_user_by_id(user_id: int):
         # Returns dictionary with all user data
         return user_by_id
     except Exception as error:
-        raise HTTPException(status_code=500, detail=f"Something went wrong {error}")
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Something went wrong {error}")
 
 
 # Radera användaren
@@ -60,7 +60,7 @@ def delete_user(user_id: int):
     except HTTPException:
         raise
     except Exception as error:
-        raise HTTPException(status_code=500, detail=f"Something went wrong {error}")
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Something went wrong {error}")
 
 
 # Uppdatera användare (ändra senare tillfälle - ändra lösenord ska bli egen funktion för säk.skull)
@@ -80,7 +80,7 @@ def update_user(user_id: int, user: schemas.UserUpdate):
         )
         return updated_user
     except Exception as error:
-        raise HTTPException(status_code=500, detail=f"Something went wrong {error}")
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Something went wrong {error}")
 
 
 # Logga in
@@ -90,10 +90,10 @@ def login(data: schemas.UserLogin):
     user = db.get_user_by_email(connection, data.email)
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
 
     if user["password"] != data.password:
-        raise HTTPException(status_code=401, detail="Wrong password")
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Wrong password")
 
     return {"message": "Login successful"}
 
