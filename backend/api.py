@@ -21,7 +21,7 @@ app = FastAPI()
 
 # Users - create account
 @app.post("/users", status_code=201)
-def create_user(user: schemas.UserCreate):
+def create_user(user: schemas.CreateUser):
     try:
         connection = get_connection()
         new_user = db.create_user(
