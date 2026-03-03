@@ -2,6 +2,9 @@ from pydantic import BaseModel, EmailStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
+# Using Pydantic setting to load and validate .env variables at startup
+# Raises an error directly if a variable is missing
+# Without this, missing variables return None and crash later in the code
 class Settings(BaseSettings):
     DB_URL: str
     model_config = SettingsConfigDict(env_file=".env")
@@ -33,3 +36,24 @@ class UserUpdate(BaseModel):
 class UserLogin(BaseModel):
     email: str
     password: str
+
+
+# Worlds
+class CreateWorld(BaseModel):
+    world_name: str
+    world_description: str
+
+class UpdateWorld(BaseModel):
+    # Optional allows None as a value, = None makes the field not required
+    world_name: Optional[str] = None
+    world_description: Optional[str] = None
+
+# Characters
+
+# Relationships
+
+# Events
+
+# Character_events
+
+# Maps
