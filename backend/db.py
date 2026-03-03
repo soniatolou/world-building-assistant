@@ -13,7 +13,8 @@ def create_world(connection, world_name, world_description):
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                INSERT INTO worlds (world_name, world_description)
+                INSERT 
+                INTO worlds (world_name, world_description)
                 VALUES (%s, %s) -- Placeholders to prevent SQL injection, psycopg2 inserts values safely --
                 RETURNING *; -- Returns all columns of the newly created row --
                 """,
@@ -83,13 +84,15 @@ def delete_world(connection, world_id):
             deleted_world = cursor.fetchone()
         return deleted_world
 
+
 # Characters
 def create_character(connection, world_id, character_name, character_description, is_alive=True, image_id=None, species_id=None, item_id=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                INSERT INTO characters (world_id, character_name, character_description, is_alive, image_id, species_id, item_id)
+                INSERT 
+                INTO characters (world_id, character_name, character_description, is_alive, image_id, species_id, item_id)
                 VALUES (%s, %s, %s, %s, %s, %s, %s) 
                 RETURNING *; 
                 """,
@@ -165,11 +168,75 @@ def delete_character(connection, character_id):
         return deleted_character
 
 
-# Maps
-
 # Relationships 
 
+def create_relationship(connection, relationship_type, character_a_id, character_b_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT 
+                INTO relationships (relationship_type, character_a_id, character_b_id)
+                VALUES (%s, %s, %s)
+                RETURNING *;
+                """,
+                (relationship_type, character_a_id, character_b_id)
+            )
+            new_relationship = cursor.fetchone()
+        return new_relationship
+
+
+def get_relationship_by_character(connection, character_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM relationships
+                WHERE character_a_id = %s OR character_b_id = %s;
+                """,
+                (character_id, character_id)
+            )
+            relationships_by_character = cursor.fetchall()
+        return relationships_by_character
+
+
+def update_relationship(connection, relationship_id, relationship_type=None, character_a_id=None, character_b_id=None):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                UPDATE relationships
+                SET relationship_type = COALESCE (%s, relationship_type),
+                character_a_id = COALESCE (%s, character_a_id),
+                character_b_id = COALESCE (%s, character_b_id)
+                WHERE relationship_id = %s
+                RETURNING *;
+                """,
+                (relationship_type, character_a_id, character_b_id, relationship_id)
+            )
+            updated_relationship = cursor.fetchone()
+        return updated_relationship
+
+
+def delete_relationship(connection, relationship_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                DELETE
+                FROM relationships
+                WHERE relationship_id = %s
+                RETURNING *;
+                """,
+                (relationship_id)
+            )
+            deleted_relationship = cursor.fetchone()
+        return deleted_relationship
+
 # Character_relationship
+
+# Maps
 
 # Events
 
