@@ -80,7 +80,7 @@ def delete_world(connection, world_id):
                 WHERE world_id = %s
                 RETURNING *;
                 """,
-                (world_id)
+                (world_id,)
             )
             deleted_world = cursor.fetchone()
         return deleted_world
@@ -171,14 +171,13 @@ def delete_character(connection, character_id):
                 WHERE character_id = %s
                 RETURNING *;
                 """,
-                (character_id)
+                (character_id,)
             )
             deleted_character = cursor.fetchone()
         return deleted_character
 
 
 # Relationships 
-
 def create_relationship(connection, relationship_type, character_a_id, character_b_id):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -243,7 +242,7 @@ def delete_relationship(connection, relationship_id):
                 WHERE relationship_id = %s
                 RETURNING *;
                 """,
-                (relationship_id)
+                (relationship_id,)
             )
             deleted_relationship = cursor.fetchone()
         return deleted_relationship
@@ -251,7 +250,6 @@ def delete_relationship(connection, relationship_id):
 # Character_relationship - ta ev bort
 
 # Events
-
 def create_event(connection, world_id, event_name, event_description, event_date):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -332,11 +330,71 @@ def delete_event(connection, event_id):
                 WHERE event_id = %s
                 RETURNING *;
                 """,
-                (event_id)
+                (event_id,)
             )
             deleted_event = cursor.fetchone()
         return deleted_event
 
 # Character_events
+def add_character_to_event(connection, event_id, character_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT
+                INTO character_events (event_id, character_id)
+                VALUES (%s, %s)
+                RETURNING *;
+                """,
+                (event_id, character_id)
+            )
+            added_character_to_event = cursor.fetchone()
+        return added_character_to_event
+
+
+def remove_character_from_event(connection, event_id, character_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                DELETE
+                FROM character_events (
+                WHERE event_id = %s AND character_id = %s)
+                RETURNING *;
+                """,
+                (event_id, character_id)
+            )
+            removed_character_from_event = cursor.fetchone()
+        return removed_character_from_event
+
+
+def get_all_characters_for_event(connection, event_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM character_events
+                WHERE event_id = %s;
+                """,
+                (event_id,)
+            )
+            all_characters_in_event = cursor.fetchall()
+        return all_characters_in_event
+
+
+def get_all_events_for_one_character(connection, character_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM character_events
+                WHERE character_id = %s;
+                """,
+                (character_id,)
+            )
+            all_events_for_one_character = cursor.fetchall()
+        return all_events_for_one_character
 
 # Maps
