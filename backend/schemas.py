@@ -21,7 +21,6 @@ class CreateUser(BaseModel):
     last_name: str
     phone: Optional[str] = None
 
-
 # Uppdatering av konto
 class UserUpdate(BaseModel):
     username: Optional[str] = None
@@ -31,12 +30,10 @@ class UserUpdate(BaseModel):
     last_name: Optional[str] = None
     phone: Optional[str] = None
 
-
 # Logga in
 class UserLogin(BaseModel):
     email: str
     password: str
-
 
 # Worlds
 class CreateWorld(BaseModel):
@@ -49,6 +46,21 @@ class UpdateWorld(BaseModel):
     world_description: Optional[str] = None
 
 # Characters
+class CreateCharacter(BaseModel):
+    character_name: str
+    character_description: str
+    is_alive: bool = True
+    image_id: Optional[int] = None
+    species_id: Optional[int] = None
+    item_id: Optional[int] = None
+
+class UpdateCharacter(BaseModel):
+    character_name: Optional[str] = None
+    character_description: Optional[str] = None
+    is_alive: Optional[bool] = True
+    image_id: Optional[int] = None
+    species_id: Optional[int] = None
+    item_id: Optional[int] = None
 
 # Relationships
 
