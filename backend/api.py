@@ -100,3 +100,10 @@ def login(data: schemas.UserLogin):
 @app.post("/logout")
 def logout():
     return {"message": "Logged out successfully"}
+
+# Worlds
+@app.delete("/worlds/{world_id}")
+def delete_world(world_id: int):
+    with get_connection() as conn:
+        deleted_world = db.delete_world(conn, world_id)
+        return {"message": "World deleted successfully"}
