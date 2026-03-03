@@ -397,4 +397,89 @@ def get_all_events_for_one_character(connection, character_id):
             all_events_for_one_character = cursor.fetchall()
         return all_events_for_one_character
 
+
 # Maps
+def create_map(connection, world_id, map_name, map_url, scale_factor=None):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT 
+                INTO maps (
+                    world_id, 
+                    map_name,
+                    map_url,
+                    scale_factor
+                )
+                VALUES (%s, %s, %s, %s) 
+                RETURNING *; 
+                """,
+                (world_id, map_name, map_url, scale_factor)
+            )
+            new_map = cursor.fetchone()
+        return new_map 
+
+
+def get_all_maps_for_one_world(connection, world_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM maps
+                WHERE world_id = %s;
+                """,
+                (world_id,)
+            )
+            all_maps = cursor.fetchall()
+        return all_maps
+
+
+def get_map_by_id(connection, map_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM maps
+                WHERE map_id = %s;
+                """,
+                (map_id,)
+            )
+            map_by_id = cursor.fetchone()
+        return map_by_id
+
+
+def update_map(connection, map_id, map_name=None, map_url=None, scale_factor=None):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                UPDATE maps
+                SET
+                    map_name = COALESCE (%s, map_name),
+                    map_url = COALESCE (%s, map_url),
+                    scale_factor = COALESCE (%s, scale_factor),
+                WHERE map_id = %s
+                RETURNING *; 
+                """,
+                (map_name, map_url, scale_factor, map_id)
+            )
+            updated_map = cursor.fetchone()
+        return updated_map 
+
+
+def delete_map(connection, map_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                DELETE
+                FROM maps
+                WHERE map_id = %s
+                RETURNING *;
+                """,
+                (map_id,)
+            )
+            deleted_map = cursor.fetchone()
+        return deleted_map
