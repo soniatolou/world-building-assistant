@@ -58,8 +58,9 @@ def update_world(connection, world_id, world_name=None, world_description=None):
             cursor.execute(
                 """
                 UPDATE worlds
-                SET world_name = COALESCE (%s, world_name), -- COALESCE: use the new value if updated, otherwise keep the old one --
-                world_description = COALESCE (%s, world_description)
+                SET 
+                    world_name = COALESCE (%s, world_name), -- COALESCE: use the new value if updated, otherwise keep the old one --
+                    world_description = COALESCE (%s, world_description)
                 WHERE world_id = %s
                 RETURNING *;
                 """,
@@ -92,7 +93,15 @@ def create_character(connection, world_id, character_name, character_description
             cursor.execute(
                 """
                 INSERT 
-                INTO characters (world_id, character_name, character_description, is_alive, image_id, species_id, item_id)
+                INTO characters (
+                    world_id, 
+                    character_name, 
+                    character_description, 
+                    is_alive, 
+                    image_id, 
+                    species_id, 
+                    item_id
+                )
                 VALUES (%s, %s, %s, %s, %s, %s, %s) 
                 RETURNING *; 
                 """,
@@ -176,7 +185,11 @@ def create_relationship(connection, relationship_type, character_a_id, character
             cursor.execute(
                 """
                 INSERT 
-                INTO relationships (relationship_type, character_a_id, character_b_id)
+                INTO relationships (
+                    relationship_type, 
+                    character_a_id, 
+                    character_b_id
+                )
                 VALUES (%s, %s, %s)
                 RETURNING *;
                 """,
@@ -207,9 +220,10 @@ def update_relationship(connection, relationship_id, relationship_type=None, cha
             cursor.execute(
                 """
                 UPDATE relationships
-                SET relationship_type = COALESCE (%s, relationship_type),
-                character_a_id = COALESCE (%s, character_a_id),
-                character_b_id = COALESCE (%s, character_b_id)
+                SET 
+                    relationship_type = COALESCE (%s, relationship_type),
+                    character_a_id = COALESCE (%s, character_a_id),
+                    character_b_id = COALESCE (%s, character_b_id)
                 WHERE relationship_id = %s
                 RETURNING *;
                 """,
@@ -234,10 +248,95 @@ def delete_relationship(connection, relationship_id):
             deleted_relationship = cursor.fetchone()
         return deleted_relationship
 
-# Character_relationship
-
-# Maps
+# Character_relationship - ta ev bort
 
 # Events
 
+def create_event(connection, world_id, event_name, event_description, event_date):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT 
+                INTO events (
+                    world_id, 
+                    event_name, 
+                    event_description, 
+                    event_date
+                )
+                VALUES (%s, %s, %s, %s) 
+                RETURNING *; 
+                """,
+                (world_id, event_name, event_description, event_date)
+            )
+            new_event = cursor.fetchone()
+        return new_event 
+
+
+def update_event(connection, event_id, event_name=None, event_description=None, event_date=None):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                UPDATE events
+                SET
+                    event_name = COALESCE (%s, event_name),
+                    event_description = COALESCE (%s, event_description),
+                    event_date = COALESCE (%s, event_date),
+                WHERE event_id = %s
+                RETURNING *; 
+                """,
+                (event_name, event_description, event_date, event_id)
+            )
+            updated_event = cursor.fetchone()
+        return updated_event 
+
+
+def get_all_events(connection, world_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM events
+                WHERE world_id = %s
+                """,
+                (world_id,)
+            )
+            all_events = cursor.fetchall()
+        return all_events
+
+
+def get_event_by_id(connection, event_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM events
+                WHERE event_id = %s;
+                """,
+                (event_id,)
+            )
+            event = cursor.fetchone()
+        return event
+
+
+def delete_event(connection, event_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                DELETE
+                FROM events
+                WHERE event_id = %s
+                RETURNING *;
+                """,
+                (event_id)
+            )
+            deleted_event = cursor.fetchone()
+        return deleted_event
+
 # Character_events
+
+# Maps
