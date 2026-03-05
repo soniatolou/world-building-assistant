@@ -63,6 +63,15 @@ class UpdateCharacter(BaseModel):
     item_id: Optional[int] = None
 
 # Relationships
+class CreateRelationship(BaseModel):
+    relationship_type: str
+    character_a_id: int
+    character_b_id: int
+
+class UpdateRelationship(BaseModel):
+    relationship_type: Optional[str] = None
+    character_a_id: Optional[int] = None
+    character_b_id: Optional[int] = None
 
 # Events
 
