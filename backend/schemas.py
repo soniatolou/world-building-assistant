@@ -74,6 +74,15 @@ class UpdateRelationship(BaseModel):
     character_b_id: Optional[int] = None
 
 # Events
+class CreateEvent(BaseModel):
+    event_name: str
+    event_description: str
+    event_date: str
+
+class UpdateEvent(BaseModel):
+    event_name: Optional[str] = None
+    event_description: Optional[str] = None
+    event_date: Optional[str] = None
 
 # Character_events
 
