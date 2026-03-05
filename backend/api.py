@@ -12,10 +12,21 @@
 
 from db_setup import get_connection
 from fastapi import FastAPI, HTTPException, status
+from fastapi import Depends
+from fastapi import Depends
 import schemas
 import db
 
 app = FastAPI()
+
+
+def get_db():
+    connection = get_connection()
+    try:
+        yield connection
+    finally:
+        connection.close()
+
 
 # Users - create account
 @app.post("/users", status.HTTP_201_CREATED)
@@ -33,7 +44,10 @@ def create_user(user: schemas.CreateUser):
         )
         return new_user
     except Exception as error:
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Something went wrong:{error}")
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong:{error}",
+        )
 
 
 @app.get("/users/{user_id}")
@@ -44,7 +58,10 @@ def get_user_by_id(user_id: int):
         # Returns dictionary with all user data
         return user_by_id
     except Exception as error:
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Something went wrong {error}")
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong {error}",
+        )
 
 
 # Radera användaren
@@ -58,7 +75,10 @@ def delete_user(user_id: int):
     except HTTPException:
         raise
     except Exception as error:
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Something went wrong {error}")
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong {error}",
+        )
 
 
 # Uppdatera användare (ändra senare tillfälle - ändra lösenord ska bli egen funktion för säk.skull)
@@ -78,7 +98,10 @@ def update_user(user_id: int, user: schemas.UserUpdate):
         )
         return updated_user
     except Exception as error:
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Something went wrong {error}")
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong {error}",
+        )
 
 
 # Logga in
@@ -101,9 +124,30 @@ def login(data: schemas.UserLogin):
 def logout():
     return {"message": "Logged out successfully"}
 
+
 # Worlds
 @app.delete("/worlds/{world_id}")
 def delete_world(world_id: int):
     with get_connection() as conn:
         deleted_world = db.delete_world(conn, world_id)
         return {"message": "World deleted successfully"}
+
+
+# Locations - skapa plats
+@app.post("/locations", status_code=status.HTTP_201_CREATED)
+def create_location(location: schemas.CreateLocation, connection=Depends(get_db)):
+    try:
+        new_location = db.create_location(
+            connection,
+            location.location_name,
+            location.location_description,
+            location.world_id,
+            location.map_id,
+            location.location_type,
+        )
+        return new_location
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
