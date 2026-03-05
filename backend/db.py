@@ -90,3 +90,13 @@ def delete_world(connection, world_id):
 # Events
 
 # Character_events
+
+# Locations - Sonia
+
+# Items - Sonia
+
+# Species - Sonia
+
+# Notes - Sonia
+
+# 

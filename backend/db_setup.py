@@ -7,8 +7,10 @@ load_dotenv(override=True)
 
 settings = schemas.Settings()
 
+
 def get_connection():
     return psycopg2.connect(settings.DB_URL)
+
 
 def create_tables():
     connection = get_connection()
@@ -174,7 +176,7 @@ def create_tables():
         """
         CREATE TABLE IF NOT EXISTS "locations" (
         location_id BIGSERIAL PRIMARY KEY NOT NULL,
-        loaction_name VARCHAR(255) NOT NULL,
+        location_name VARCHAR(255) NOT NULL,
         location_description TEXT NOT NULL,
         location_type VARCHAR(100),
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -238,6 +240,7 @@ def create_tables():
     connection.commit()
     cursor.close()
     connection.close()
+
 
 if __name__ == "__main__":
     create_tables()
