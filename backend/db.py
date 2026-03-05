@@ -198,19 +198,27 @@ def create_relationship(connection, relationship_type, character_a_id, character
         return new_relationship
 
 
-def get_relationship_by_character(connection, character_id):
+def get_relationships_for_character(connection, character_id):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                SELECT *
+                SELECT 
+                    relationships.relationship_id,
+                    relationships.relationship_type
+                    a.character_name AS character_a_name, -- Gets the name on character a, renames the column to character_a_name --
+                    b.character_name AS character_b_name
                 FROM relationships
-                WHERE character_a_id = %s OR character_b_id = %s;
+                JOIN characters a -- Joins characters-table, renames it a (character a) --
+                ON relationships.character_a_id = a.character_id -- Connects it via character_a_id --
+                JOIN characters b 
+                ON relationships.character_b_id = b.character_id
+                WHERE relationships.character_a_id = %s OR relationships.character_b_id = %s;
                 """,
                 (character_id, character_id)
             )
-            relationships_by_character = cursor.fetchall()
-        return relationships_by_character
+            relationships_for_character = cursor.fetchall()
+        return relationships_for_character
 
 
 def update_relationship(connection, relationship_id, relationship_type=None, character_a_id=None, character_b_id=None):
@@ -375,7 +383,9 @@ def get_all_characters_for_event(connection, event_id):
                 """
                 SELECT *
                 FROM character_events
-                WHERE event_id = %s;
+                JOIN characters
+                ON character_events.character_id = characters.character_id
+                WHERE character_events.event_id = %s;
                 """,
                 (event_id,)
             )
@@ -390,7 +400,9 @@ def get_all_events_for_one_character(connection, character_id):
                 """
                 SELECT *
                 FROM character_events
-                WHERE character_id = %s;
+                JOIN events
+                ON character_events.event_id = events.event_id
+                WHERE character_events.character_id = %s;
                 """,
                 (character_id,)
             )
