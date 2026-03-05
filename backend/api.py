@@ -13,7 +13,6 @@
 from db_setup import get_connection
 from fastapi import FastAPI, HTTPException, status
 from fastapi import Depends
-from fastapi import Depends
 import schemas
 import db
 
@@ -151,3 +150,90 @@ def create_location(location: schemas.CreateLocation, connection=Depends(get_db)
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
+
+
+# Locations - hämta alla platser
+@app.get("/locations")
+def get_all_locations(connection=Depends(get_db)):
+    try:
+        all_locations = db.get_all_locations(connection)
+        return all_locations
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+# Locations - hämta specifik plats med id
+@app.get("/locations/{location_id}")
+def get_location_by_id(location_id: int, connection=Depends(get_db)):
+    try:
+        location = db.get_location_by_id(connection, location_id)
+        if not location:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Location not found")
+        return location
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+# Locations - uppdatera plats
+@app.patch("/locations/{location_id}")
+def update_location(
+    location_id: int, location: schemas.LocationUpdate, connection=Depends(get_db)
+):
+    try:
+        updated_location = db.update_location(
+            connection,
+            location_id,
+            location.location_name,
+            location.location_description,
+            location.location_type,
+            location.map_id,
+        )
+        if not updated_location:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Location not found")
+        return updated_location
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+# Locations - radera en plats
+@app.delete("/locations/{location_id}")
+def delete_location(location_id: int, connection=Depends(get_db)):
+    try:
+        deleted_location = db.delete_location(connection, location_id)
+        if not deleted_location:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Location not found")
+        return {
+            "message": "Location deleted successfully",
+            "location": deleted_location,
+        }
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+# Items - Skapa föremål
+
+# Items - Hämta alla föremål
+
+# Items - Hämta specifikt föremål med id
+
+# Items - Uppdatera föremål
+
+# Items - Radera föremål
