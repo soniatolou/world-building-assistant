@@ -229,11 +229,103 @@ def delete_location(location_id: int, connection=Depends(get_db)):
 
 
 # Items - Skapa föremål
+@app.post("/items", status_code=status.HTTP_201_CREATED)
+def create_item(item: schemas.CreateItem, connection=Depends(get_db)):
+    try:
+        new_item = db.create_item(
+            connection, item.item_name, item.item_description, item.world_id
+        )
+        return new_item
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
 
 # Items - Hämta alla föremål
+@app.get("/items")
+def get_all_items(connection=Depends(get_db)):
+    try:
+        all_items = db.get_all_items(connection)
+        return all_items
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
 
 # Items - Hämta specifikt föremål med id
+@app.get("/items/{item_id}")
+def get_item_by_id(item_id: int, connection=Depends(get_db)):
+    try:
+        item = db.get_item_by_id(connection, item_id)
+        if not item:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Item not found")
+        return item
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
 
 # Items - Uppdatera föremål
+@app.patch("/items/{item_id}")
+def update_item(item_id: int, item: schemas.ItemUpdate, connection=Depends(get_db)):
+    try:
+        updated_item = db.update_item(
+            connection, item_id, item.item_name, item.item_description
+        )
+        if not updated_item:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Item not found")
+        return updated_item
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
 
 # Items - Radera föremål
+@app.delete("/items/{item_id}")
+def delete_item(item_id: int, connection=Depends(get_db)):
+    try:
+        deleted_item = db.delete_item(connection, item_id)
+        if not deleted_item:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Item not found")
+        return {"message": "Item deleted successfully", "item": deleted_item}
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+# Species - Skapa varelse
+
+# Species - Hämta alla varelser
+
+# Species - Hämta specifikt varelse med id
+
+# Species - Uppdatera varelse
+
+# Species - Radera varelse
+
+
+# Notes - Skapa anteckning
+
+# Notes - Hämta alla anteckningar
+
+# Notes - Hämta specifik anteckning med id
+
+# Notes - Uppdatera anteckningar
+
+# Notes - Radera anteckning
