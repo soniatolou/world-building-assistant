@@ -310,22 +310,167 @@ def delete_item(item_id: int, connection=Depends(get_db)):
 
 
 # Species - Skapa varelse
+@app.post("/species", status_code=status.HTTP_201_CREATED)
+def create_species(species: schemas.CreateSpecies, connection=Depends(get_db)):
+    try:
+        new_species = db.create_species(
+            connection,
+            species.species_name,
+            species.species_description,
+            species.world_id,
+        )
+        return new_species
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
 
 # Species - Hämta alla varelser
+@app.get("/species")
+def get_all_species(connection=Depends(get_db)):
+    try:
+        all_species = db.get_all_species(connection)
+        return all_species
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
 
 # Species - Hämta specifikt varelse med id
+@app.get("/species/{species_id}")
+def get_species_by_id(species_id: int, connection=Depends(get_db)):
+    try:
+        species = db.get_species_by_id(connection, species_id)
+        if not species:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Species not found")
+        return species
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
 
 # Species - Uppdatera varelse
+@app.patch("/species/{species_id}")
+def update_species(
+    species_id: int, species: schemas.SpeciesUpdate, connection=Depends(get_db)
+):
+    try:
+        updated_species = db.update_species(
+            connection, species_id, species.species_name, species.species_description
+        )
+        if not updated_species:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Species not found")
+        return updated_species
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
 
 # Species - Radera varelse
+@app.delete("/species/{species_id}")
+def delete_species(species_id: int, connection=Depends(get_db)):
+    try:
+        deleted_species = db.delete_species(connection, species_id)
+        if not deleted_species:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Species not found")
+        return {"message": "Species deleted successfully", "species": deleted_species}
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
 
 
 # Notes - Skapa anteckning
+@app.post("/notes", status_code=status.HTTP_201_CREATED)
+def create_note(note: schemas.CreateNote, connection=Depends(get_db)):
+    try:
+        new_note = db.create_note(
+            connection, note.note_name, note.note_text, note.user_id
+        )
+        return new_note
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
 
 # Notes - Hämta alla anteckningar
+@app.get("/notes")
+def get_all_notes(connection=Depends(get_db)):
+    try:
+        all_notes = db.get_all_notes(connection)
+        return all_notes
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
 
 # Notes - Hämta specifik anteckning med id
+@app.get("/notes/{notes_id}")
+def get_note_by_id(notes_id: int, connection=Depends(get_db)):
+    try:
+        note = db.get_note_by_id(connection, notes_id)
+        if not note:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Note not found")
+        return note
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
 
 # Notes - Uppdatera anteckningar
+@app.patch("/notes/{notes_id}")
+def update_note(notes_id: int, note: schemas.NoteUpdate, connection=Depends(get_db)):
+    try:
+        updated_note = db.update_note(
+            connection, notes_id, note.note_name, note.note_text
+        )
+        if not updated_note:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Note not found")
+        return updated_note
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
 
 # Notes - Radera anteckning
+@app.delete("/notes/{notes_id}")
+def delete_note(notes_id: int, connection=Depends(get_db)):
+    try:
+        deleted_note = db.delete_note(connection, notes_id)
+        if not deleted_note:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Note not found")
+        return {"message": "Note deleted successfully", "note": deleted_note}
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
