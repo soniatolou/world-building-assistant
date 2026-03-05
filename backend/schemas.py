@@ -84,6 +84,13 @@ class UpdateEvent(BaseModel):
     event_description: Optional[str] = None
     event_date: Optional[str] = None
 
-# Character_events
-
 # Maps
+class CreateMap(BaseModel):
+    map_name: str
+    map_url: str
+    scale_factor: float
+
+class UpdateMap(BaseModel):
+    map_name: Optional[str] = None
+    map_url: Optional[str] = None
+    scale_factor: Optional[float] = None
