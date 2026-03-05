@@ -1,4 +1,3 @@
-import os
 import psycopg2
 import schemas
 from dotenv import load_dotenv
