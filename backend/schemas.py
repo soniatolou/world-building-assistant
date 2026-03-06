@@ -35,7 +35,6 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
-<<<<<<< HEAD
 
 # Skapa plats
 class CreateLocation(BaseModel):
@@ -90,7 +89,7 @@ class NoteUpdate(BaseModel):
     note_name: Optional[str] = None
     note_text: Optional[str] = None
 
-=======
+
 # Worlds
 class CreateWorld(BaseModel):
     world_name: str
@@ -150,4 +149,3 @@ class UpdateMap(BaseModel):
     map_name: Optional[str] = None
     map_url: Optional[str] = None
     scale_factor: Optional[float] = None
->>>>>>> bellas
