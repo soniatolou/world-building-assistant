@@ -165,7 +165,6 @@ def create_tables():
         map_name VARCHAR(255) NOT NULL,
         scale_factor FLOAT,
         map_url VARCHAR(2048),
-        image_id BIGINT NOT NULL REFERENCES "images"(image_id),
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
         );
         """

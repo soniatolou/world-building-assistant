@@ -474,3 +474,127 @@ def delete_note(notes_id: int, connection=Depends(get_db)):
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
+
+
+# --------Junction Tables-----------
+
+
+# ------Wordl-Items junction------
+# World-Items junction - Koppla item till en värld
+@app.post("/worlds/{world_id}/items/{item_id}", status_code=status.HTTP_201_CREATED)
+def add_item_to_world(world_id: int, item_id: int, connection=Depends(get_db)):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO world_items (world_id, item_id)
+                VALUES (%s, %s)
+                """,
+                (world_id, item_id),
+            )
+            connection.commit()
+        return {"message": "Item added to world successfully"}
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+# World-Items junction - Ta bort kopplingen
+@app.delete("/worlds/{world_id}/items/{item_id}")
+def remove_item_from_world(world_id: int, item_id: int, connection=Depends(get_db)):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE FROM world_items
+                WHERE world_id = %s AND item_id = %s
+                """,
+                (world_id, item_id),
+            )
+            connection.commit()
+        return {"message": "Item removed from world successfully"}
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+# World-Items junction - Hämta alla items för en värld
+@app.get("/worlds/{world_id}/items")
+def get_world_items(world_id: int, connection=Depends(get_db)):
+    try:
+        all_items = db.get_items_by_world(connection, world_id)
+        return all_items
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+# World-Species junction - Koppla species till en värld
+@app.post(
+    "/worlds/{world_id}/species/{species_id}", status_code=status.HTTP_201_CREATED
+)
+
+# --------World-species Junction----------
+# World-Species junction - Koppla species till värld
+@app.post(
+    "/worlds/{world_id}/species/{species_id}", status_code=status.HTTP_201_CREATED
+)
+def add_species_to_world(world_id: int, species_id: int, connection=Depends(get_db)):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO world_species (world_id, species_id)
+                VALUES (%s, %s)
+                """,
+                (world_id, species_id),
+            )
+            connection.commit()
+        return {"message": "Species added to world successfully"}
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+# World-Species junction - Ta bort koppling
+@app.delete("/worlds/{world_id}/species/{species_id}")
+def remove_species_from_world(
+    world_id: int, species_id: int, connection=Depends(get_db)
+):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE FROM world_species
+                WHERE world_id = %s AND species_id = %s
+                """,
+                (world_id, species_id),
+            )
+            connection.commit()
+        return {"message": "Species removed from world successfully"}
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+# World-Species junction - Hämta alla species för en värld
+@app.get("/worlds/{world_id}/species")
+def get_world_species(world_id: int, connection=Depends(get_db)):
+    try:
+        all_species = db.get_species_by_world(connection, world_id)
+        return all_species
+    except Exception as error:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
