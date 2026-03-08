@@ -77,7 +77,8 @@ def create_tables():
         """
         CREATE TABLE IF NOT EXISTS "world_items" (
         item_id BIGINT NOT NULL REFERENCES "items"(item_id),
-        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
+        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id),
+        PRIMARY KEY (item_id, world_id)
         );
         """
     )
@@ -99,7 +100,8 @@ def create_tables():
         """
         CREATE TABLE IF NOT EXISTS "world_species" (
         species_id BIGINT NOT NULL REFERENCES "species"(species_id),
-        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
+        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id),
+        PRIMARY KEY (species_id, world_id)
         );
         """
     )
@@ -166,6 +168,7 @@ def create_tables():
         map_name VARCHAR(255) NOT NULL,
         scale_factor FLOAT,
         map_url VARCHAR(2048),
+        map_description TEXT,
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
         );
         """
@@ -233,7 +236,8 @@ def create_tables():
         """
         CREATE TABLE IF NOT EXISTS "character_events" (
         character_id BIGINT NOT NULL REFERENCES "characters"(character_id),
-        event_id BIGINT NOT NULL REFERENCES "events"(event_id)
+        event_id BIGINT NOT NULL REFERENCES "events"(event_id),
+        PRIMARY KEY (character_id, event_id)
         );
         """
     )
