@@ -40,6 +40,7 @@ def create_tables():
         world_name VARCHAR(255) NOT NULL,
         world_description TEXT NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        image_url VARCHAR (2048),
         user_id BIGINT NOT NULL REFERENCES "users"(user_id)
         );
         """
@@ -196,6 +197,7 @@ def create_tables():
         is_alive BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        image_url VARCHAR (2048),
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id),
         image_id BIGINT NOT NULL REFERENCES "images"(image_id),
         species_id BIGINT NOT NULL REFERENCES "species"(species_id),
