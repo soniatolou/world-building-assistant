@@ -185,7 +185,7 @@ def create_tables():
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id),
-        map_id BIGINT NOT NULL REFERENCES "maps"(map_id)
+        map_id BIGINT REFERENCES "maps"(map_id)
         );
         """
     )
@@ -202,9 +202,9 @@ def create_tables():
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         image_url VARCHAR (2048),
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id),
-        image_id BIGINT NOT NULL REFERENCES "images"(image_id),
-        species_id BIGINT NOT NULL REFERENCES "species"(species_id),
-        item_id BIGINT NOT NULL REFERENCES "items"(item_id)
+        image_id BIGINT REFERENCES "images"(image_id),
+        species_id BIGINT REFERENCES "species"(species_id),
+        item_id BIGINT REFERENCES "items"(item_id)
         );
         """
     )
