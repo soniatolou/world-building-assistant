@@ -11,13 +11,11 @@
 # delete_world()
 
 from db_setup import get_connection
-from fastapi import FastAPI, HTTPException, status
-from fastapi import Depends
+from fastapi import FastAPI, HTTPException, status, Depends
 import schemas
 import db
 
 app = FastAPI()
-
 
 def get_db():
     connection = get_connection()
@@ -28,10 +26,9 @@ def get_db():
 
 
 # Users - create account
-@app.post("/users", status.HTTP_201_CREATED)
-def create_user(user: schemas.CreateUser):
+@app.post("/users", status_code=status.HTTP_201_CREATED)
+def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
     try:
-        connection = get_connection()
         new_user = db.create_user(
             connection,
             user.username,
@@ -44,30 +41,28 @@ def create_user(user: schemas.CreateUser):
         return new_user
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong:{error}",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong:{error}"
         )
 
 
 @app.get("/users/{user_id}")
-def get_user_by_id(user_id: int):
+def get_user_by_id(user_id: int, connection=Depends(get_db)):
     try:
-        connection = get_connection()
         user_by_id = db.get_user_by_id(connection, user_id)
         # Returns dictionary with all user data
         return user_by_id
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong {error}",
         )
 
 
 # Radera användaren
 @app.delete("/users/{user_id}")
-def delete_user(user_id: int):
+def delete_user(user_id: int, connection=Depends(get_db)):
     try:
-        connection = get_connection()
         deleted_user = db.delete_user(connection, user_id)
         # Returns dictionary with deleted user's data, returns None if user doesn't exist
         return deleted_user
@@ -75,16 +70,15 @@ def delete_user(user_id: int):
         raise
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong {error}",
         )
 
 
 # Uppdatera användare (ändra senare tillfälle - ändra lösenord ska bli egen funktion för säk.skull)
 @app.patch("/users/{user_id}")
-def update_user(user_id: int, user: schemas.UserUpdate):
+def update_user(user_id: int, user: schemas.UserUpdate, connection=Depends(get_db)):
     try:
-        connection = get_connection()
         updated_user = db.update_user(
             connection,
             user_id,
@@ -98,22 +92,21 @@ def update_user(user_id: int, user: schemas.UserUpdate):
         return updated_user
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong {error}",
         )
 
 
 # Logga in
 @app.post("/login")
-def login(data: schemas.UserLogin):
-    connection = get_connection()
+def login(data: schemas.UserLogin, connection=Depends(get_db)):
     user = db.get_user_by_email(connection, data.email)
 
     if not user:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     if user["password"] != data.password:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Wrong password")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong password")
 
     return {"message": "Login successful"}
 
@@ -147,7 +140,7 @@ def create_location(location: schemas.CreateLocation, connection=Depends(get_db)
         return new_location
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -160,7 +153,7 @@ def get_all_locations(connection=Depends(get_db)):
         return all_locations
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -171,13 +164,13 @@ def get_location_by_id(location_id: int, connection=Depends(get_db)):
     try:
         location = db.get_location_by_id(connection, location_id)
         if not location:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Location not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Location not found")
         return location
     except HTTPException:
         raise
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -197,13 +190,13 @@ def update_location(
             location.map_id,
         )
         if not updated_location:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Location not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Location not found")
         return updated_location
     except HTTPException:
         raise
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -214,7 +207,7 @@ def delete_location(location_id: int, connection=Depends(get_db)):
     try:
         deleted_location = db.delete_location(connection, location_id)
         if not deleted_location:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Location not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Location not found")
         return {
             "message": "Location deleted successfully",
             "location": deleted_location,
@@ -223,7 +216,7 @@ def delete_location(location_id: int, connection=Depends(get_db)):
         raise
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -238,7 +231,7 @@ def create_item(item: schemas.CreateItem, connection=Depends(get_db)):
         return new_item
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -251,7 +244,7 @@ def get_all_items(connection=Depends(get_db)):
         return all_items
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -262,13 +255,13 @@ def get_item_by_id(item_id: int, connection=Depends(get_db)):
     try:
         item = db.get_item_by_id(connection, item_id)
         if not item:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Item not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
         return item
     except HTTPException:
         raise
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -281,13 +274,13 @@ def update_item(item_id: int, item: schemas.ItemUpdate, connection=Depends(get_d
             connection, item_id, item.item_name, item.item_description
         )
         if not updated_item:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Item not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
         return updated_item
     except HTTPException:
         raise
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -298,13 +291,13 @@ def delete_item(item_id: int, connection=Depends(get_db)):
     try:
         deleted_item = db.delete_item(connection, item_id)
         if not deleted_item:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Item not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
         return {"message": "Item deleted successfully", "item": deleted_item}
     except HTTPException:
         raise
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -322,7 +315,7 @@ def create_species(species: schemas.CreateSpecies, connection=Depends(get_db)):
         return new_species
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -335,7 +328,7 @@ def get_all_species(connection=Depends(get_db)):
         return all_species
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -346,13 +339,13 @@ def get_species_by_id(species_id: int, connection=Depends(get_db)):
     try:
         species = db.get_species_by_id(connection, species_id)
         if not species:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Species not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Species not found")
         return species
     except HTTPException:
         raise
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -367,13 +360,13 @@ def update_species(
             connection, species_id, species.species_name, species.species_description
         )
         if not updated_species:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Species not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Species not found")
         return updated_species
     except HTTPException:
         raise
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -384,13 +377,13 @@ def delete_species(species_id: int, connection=Depends(get_db)):
     try:
         deleted_species = db.delete_species(connection, species_id)
         if not deleted_species:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Species not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Species not found")
         return {"message": "Species deleted successfully", "species": deleted_species}
     except HTTPException:
         raise
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -405,7 +398,7 @@ def create_note(note: schemas.CreateNote, connection=Depends(get_db)):
         return new_note
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -418,7 +411,7 @@ def get_all_notes(connection=Depends(get_db)):
         return all_notes
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -429,13 +422,13 @@ def get_note_by_id(notes_id: int, connection=Depends(get_db)):
     try:
         note = db.get_note_by_id(connection, notes_id)
         if not note:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Note not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Note not found")
         return note
     except HTTPException:
         raise
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -448,13 +441,13 @@ def update_note(notes_id: int, note: schemas.NoteUpdate, connection=Depends(get_
             connection, notes_id, note.note_name, note.note_text
         )
         if not updated_note:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Note not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Note not found")
         return updated_note
     except HTTPException:
         raise
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -465,13 +458,13 @@ def delete_note(notes_id: int, connection=Depends(get_db)):
     try:
         deleted_note = db.delete_note(connection, notes_id)
         if not deleted_note:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Note not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Note not found")
         return {"message": "Note deleted successfully", "note": deleted_note}
     except HTTPException:
         raise
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -496,7 +489,7 @@ def add_item_to_world(world_id: int, item_id: int, connection=Depends(get_db)):
         return {"message": "Item added to world successfully"}
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -517,7 +510,7 @@ def remove_item_from_world(world_id: int, item_id: int, connection=Depends(get_d
         return {"message": "Item removed from world successfully"}
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -530,7 +523,7 @@ def get_world_items(world_id: int, connection=Depends(get_db)):
         return all_items
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -559,7 +552,7 @@ def add_species_to_world(world_id: int, species_id: int, connection=Depends(get_
         return {"message": "Species added to world successfully"}
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -582,7 +575,7 @@ def remove_species_from_world(
         return {"message": "Species removed from world successfully"}
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
@@ -595,6 +588,6 @@ def get_world_species(world_id: int, connection=Depends(get_db)):
         return all_species
     except Exception as error:
         raise HTTPException(
-            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
