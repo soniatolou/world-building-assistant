@@ -2,20 +2,14 @@ from pydantic import BaseModel, EmailStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
-<<<<<<< HEAD
-
-=======
 # Using Pydantic setting to load and validate .env variables at startup
 # Raises an error directly if a variable is missing
 # Without this, missing variables return None and crash later in the code
->>>>>>> origin/develop
 class Settings(BaseSettings):
     DB_URL: str
     model_config = SettingsConfigDict(env_file=".env")
 
-
 settings = Settings()
-
 
 # Post & patch endpoint, för när användaren ska skicka in sin data, behövs endast för fler fält som hör ihop.
 # Grundmodell för klasser
@@ -41,7 +35,6 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
-
 # Skapa plats
 class CreateLocation(BaseModel):
     location_name: str
@@ -50,7 +43,6 @@ class CreateLocation(BaseModel):
     world_id: int
     map_id: int
 
-
 # Uppdatera plats
 class LocationUpdate(BaseModel):
     location_name: Optional[str] = None
@@ -58,19 +50,16 @@ class LocationUpdate(BaseModel):
     location_type: Optional[str] = None
     map_id: Optional[int] = None
 
-
 # Items- skapa egna Items
 class CreateItem(BaseModel):
     item_name: str
     item_description: str
     world_id: int
 
-
 # Uppdatera sina Items
 class ItemUpdate(BaseModel):
     item_name: Optional[str] = None
     item_description: Optional[str] = None
-
 
 # Skapa karaktärer/varelser Species
 class CreateSpecies(BaseModel):
@@ -78,12 +67,10 @@ class CreateSpecies(BaseModel):
     species_description: str
     world_id: int
 
-
 # Uppdatera varelse
 class SpeciesUpdate(BaseModel):
     species_name: Optional[str] = None
     species_description: Optional[str] = None
-
 
 # Skapa anteckningar
 class CreateNote(BaseModel):
@@ -91,30 +78,29 @@ class CreateNote(BaseModel):
     note_text: str
     user_id: int
 
-
 # Uppdatera anteckningar
 class NoteUpdate(BaseModel):
     note_name: Optional[str] = None
     note_text: Optional[str] = None
-<<<<<<< HEAD
-=======
-
 
 # Worlds
 class CreateWorld(BaseModel):
     world_name: str
     world_description: str
+    image_url: str
 
 class UpdateWorld(BaseModel):
     # Optional allows None as a value, = None makes the field not required
     world_name: Optional[str] = None
     world_description: Optional[str] = None
+    image_url: Optional[str] = None
 
 # Characters
 class CreateCharacter(BaseModel):
     character_name: str
     character_description: str
     is_alive: bool = True
+    image_url: Optional[str] = None
     image_id: Optional[int] = None
     species_id: Optional[int] = None
     item_id: Optional[int] = None
@@ -123,6 +109,7 @@ class UpdateCharacter(BaseModel):
     character_name: Optional[str] = None
     character_description: Optional[str] = None
     is_alive: Optional[bool] = True
+    image_url: Optional[str] = None
     image_id: Optional[int] = None
     species_id: Optional[int] = None
     item_id: Optional[int] = None
@@ -154,9 +141,10 @@ class CreateMap(BaseModel):
     map_name: str
     map_url: str
     scale_factor: float
+    map_description: str
 
 class UpdateMap(BaseModel):
     map_name: Optional[str] = None
     map_url: Optional[str] = None
     scale_factor: Optional[float] = None
->>>>>>> origin/develop
+    map_description: Optional[str] = None
