@@ -25,7 +25,6 @@ def get_db():
         connection.close()
 
 
-# Users - create account
 @app.post("/users", status_code=status.HTTP_201_CREATED)
 def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
     try:
@@ -59,7 +58,6 @@ def get_user_by_id(user_id: int, connection=Depends(get_db)):
         )
 
 
-# Radera användaren
 @app.delete("/users/{user_id}")
 def delete_user(user_id: int, connection=Depends(get_db)):
     try:
@@ -97,7 +95,6 @@ def update_user(user_id: int, user: schemas.UserUpdate, connection=Depends(get_d
         )
 
 
-# Logga in
 @app.post("/login")
 def login(data: schemas.UserLogin, connection=Depends(get_db)):
     user = db.get_user_by_email(connection, data.email)
@@ -118,11 +115,501 @@ def logout():
 
 
 # Worlds
+@app.post("/users/{user_id}/worlds", status_code=status.HTTP_201_CREATED)
+def create_world(user_id: int, world: schemas.CreateWorld, connection=Depends(get_db)):
+    try:
+        new_world = db.create_world(
+            connection,
+            user_id,
+            world.world_name,
+            world.world_description,
+            world.image_url,
+        )
+        return new_world
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}"
+        )
+
+
+@app.get("/users/{user_id}/worlds")
+def get_all_worlds(user_id: int, connection=Depends(get_db)):
+    try:
+        all_worlds = db.get_all_worlds(connection, user_id)
+        return all_worlds
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.get("/users/{user_id}/worlds/{world_id}")
+def get_world_by_id(world_id: int, connection=Depends(get_db)):
+    try:
+        world = db.get_world_by_id(connection, world_id)
+        if not world:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="World not found")
+        return world
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.patch("/worlds/{world_id}")
+def update_world(world_id: int, world: schemas.UpdateWorld, connection=Depends(get_db)):
+    try:
+        updated_world = db.update_world(
+            connection,
+            world_id,
+            world.world_name,
+            world.world_description,
+            world.image_url
+        )
+        if not updated_world:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="World not found")
+        return updated_world
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
 @app.delete("/worlds/{world_id}")
-def delete_world(world_id: int):
-    with get_connection() as conn:
-        deleted_world = db.delete_world(conn, world_id)
+def delete_world(world_id: int, connection=Depends(get_db)):
+    try:
+        deleted_world = db.delete_world(connection, world_id)
+        if not deleted_world:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="World not found")
         return {"message": "World deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+# Characters
+@app.post("/worlds/{world_id}/characters")
+def create_character(world_id: int, character: schemas.CreateCharacter, connection=Depends(get_db)):
+    try:
+        new_character = db.create_character(
+            connection,
+            world_id,
+            character.character_name,
+            character.character_description,
+            character.is_alive,
+            character.image_url,
+            character.image_id,
+            character.species_id,
+            character.item_id,
+        )
+        return new_character
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}"
+        )
+
+
+# Characters
+@app.get("/worlds/{world_id}/characters")
+def get_all_characters(world_id: int, connection=Depends(get_db)):
+    try:
+        all_characters = db.get_all_characters(connection, world_id)
+        return all_characters
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.get("/characters/{character_id}")
+def get_character_by_id(character_id: int, connection=Depends(get_db)):
+    try:
+        character = db.get_character_by_id(connection, character_id)
+        if not character:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Character not found")
+        return character
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.patch("/characters/{character_id}")
+def update_character(character_id: int, character: schemas.UpdateCharacter, connection=Depends(get_db)):
+    try:
+        updated_character = db.update_character(
+            connection,
+            character_id,
+            character.character_name,
+            character.character_description,
+            character.is_alive,
+            character.image_url,
+            character.image_id,
+            character.species_id,
+            character.item_id,
+        )
+        if not updated_character:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Character not found")
+        return updated_character
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.delete("/characters/{character_id}")
+def delete_character(character_id: int, connection=Depends(get_db)):
+    try:
+        deleted_character = db.delete_character(connection, character_id)
+        if not deleted_character:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Character not found")
+        return {"message": "Character deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+# Relationships
+@app.post("/characters/{character_id}/relationships", status_code=status.HTTP_201_CREATED)
+def create_relationship(character_id: int, relationship: schemas.CreateRelationship, connection=Depends(get_db)):
+    try:
+        new_relationship = db.create_relationship(
+            connection,
+            relationship.relationship_type,
+            relationship.character_a_id,
+            relationship.character_b_id,
+        )
+        return new_relationship
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.get("/characters/{character_id}/relationships")
+def get_relationships_for_character(character_id: int, connection=Depends(get_db)):
+    try:
+        relationships = db.get_relationships_for_character(connection, character_id)
+        return relationships
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.patch("/relationships/{relationship_id}")
+def update_relationship(relationship_id: int, relationship: schemas.UpdateRelationship, connection=Depends(get_db)):
+    try:
+        updated_relationship = db.update_relationship(
+            connection,
+            relationship_id,
+            relationship.relationship_type,
+            relationship.character_a_id,
+            relationship.character_b_id,
+        )
+        if not updated_relationship:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Relationship not found")
+        return updated_relationship
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.delete("/relationships/{relationship_id}")
+def delete_relationship(relationship_id: int, connection=Depends(get_db)):
+    try:
+        deleted_relationship = db.delete_relationship(connection, relationship_id)
+        if not deleted_relationship:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Relationship not found")
+        return {"message": "Relationship deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+# Events
+@app.post("/worlds/{world_id}/events", status_code=status.HTTP_201_CREATED)
+def create_event(world_id: int, event: schemas.CreateEvent, connection=Depends(get_db)):
+    try:
+        new_event = db.create_event(
+            connection,
+            world_id,
+            event.event_name,
+            event.event_description,
+            event.event_date,
+        )
+        return new_event
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.get("/worlds/{world_id}/events")
+def get_all_events(world_id: int, connection=Depends(get_db)):
+    try:
+        all_events = db.get_all_events(connection, world_id)
+        return all_events
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.get("/events/{event_id}")
+def get_event_by_id(event_id: int, connection=Depends(get_db)):
+    try:
+        event = db.get_event_by_id(connection, event_id)
+        if not event:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+        return event
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.patch("/events/{event_id}")
+def update_event(event_id: int, event: schemas.UpdateEvent, connection=Depends(get_db)):
+    try:
+        updated_event = db.update_event(
+            connection,
+            event_id,
+            event.event_name,
+            event.event_description,
+            event.event_date,
+        )
+        if not updated_event:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+        return updated_event
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.delete("/events/{event_id}")
+def delete_event(event_id: int, connection=Depends(get_db)):
+    try:
+        deleted_event = db.delete_event(connection, event_id)
+        if not deleted_event:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+        return {"message": "Event deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+# Character_events
+@app.post("/events/{event_id}/characters/{character_id}", status_code=status.HTTP_201_CREATED)
+def add_character_to_event(event_id: int, character_id: int, connection=Depends(get_db)):
+    try:
+        added_to_event = db.add_character_to_event(connection, event_id, character_id)
+        return added_to_event
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.delete("/events/{event_id}/characters/{character_id}")
+def remove_character_from_event(event_id: int, character_id: int, connection=Depends(get_db)):
+    try:
+        removed_from_event = db.remove_character_from_event(connection, event_id, character_id)
+        if not removed_from_event:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Character not found in event")
+        return {"message": "Character removed successfully"}
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.get("/events/{event_id}/characters")
+def get_all_characters_for_event(event_id: int, connection=Depends(get_db)):
+    try:
+        characters = db.get_all_characters_for_event(connection, event_id)
+        return characters
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.get("/characters/{character_id}/events")
+def get_all_events_for_one_character(character_id: int, connection=Depends(get_db)):
+    try:
+        events = db.get_all_events_for_one_character(connection, character_id)
+        return events
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+# Maps
+@app.post("/worlds/{world_id}/maps", status_code=status.HTTP_201_CREATED)
+def create_map(world_id: int, map_input: schemas.CreateMap, connection=Depends(get_db)):
+    try:
+        new_map = db.create_map(
+            connection,
+            world_id,
+            map_input.map_name,
+            map_input.map_url,
+            map_input.map_description,
+            map_input.scale_factor,
+        )
+        return new_map
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.get("/worlds/{world_id}/maps")
+def get_all_maps_for_one_world(world_id: int, connection=Depends(get_db)):
+    try:
+        all_maps = db.get_all_maps_for_one_world(connection, world_id)
+        return all_maps
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.get("/maps/{map_id}")
+def get_map_by_id(map_id: int, connection=Depends(get_db)):
+    try:
+        map_by_id = db.get_map_by_id(connection, map_id)
+        if not map_by_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Map not found")
+        return map_by_id
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.patch("/maps/{map_id}")
+def update_map(map_id: int, map_input: schemas.UpdateMap, connection=Depends(get_db)):
+    try:
+        updated_map = db.update_map(
+            connection,
+            map_id,
+            map_input.map_name,
+            map_input.map_url,
+            map_input.map_description,
+            map_input.scale_factor,
+        )
+        if not updated_map:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Map not found")
+        return updated_map
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
+
+
+@app.delete("/maps/{map_id}")
+def delete_map(map_id: int, connection=Depends(get_db)):
+    try:
+        deleted_map = db.delete_map(connection, map_id)
+        if not deleted_map:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Map not found")
+        return {"message": "Map deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}",
+        )
 
 
 # Locations - skapa plats
