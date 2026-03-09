@@ -32,6 +32,17 @@ def create_tables():
         """
     )
 
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS "sessions" (
+        session_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP + INTERVAL '1 days'
+        );
+        """
+    )
+
     # Worlds
     cursor.execute(
         """
