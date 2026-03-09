@@ -1,4 +1,5 @@
 from psycopg2.extras import RealDictCursor
+import bcrypt
 
 # RealDictCursor returns dicts instead of tuples, so that the values can be accessed by name instead of index
 # Since API returns JSON, it is easier to work with dicts
@@ -7,6 +8,154 @@ from psycopg2.extras import RealDictCursor
 Database functions for World Building Assistant API.
 Each function execute a query and returns the result.
 """
+
+# Sessions
+def create_session(connection, user_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT
+                INTO sessions (user_id)
+                VALUES (%s)
+                RETURNING session_id;
+                """,
+                (user_id,)
+            )
+            new_session = cursor.fetchone()
+        return str(new_session["session_id"])
+
+
+def get_session(connection, session_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT user_id
+                FROM sessions
+                WHERE session_id = %s
+                AND expires_at > CURRENT_TIMESTAMP;
+                """,
+                (session_id,)
+            )
+            session = cursor.fetchone()
+        return session
+
+
+# Log out
+def delete_session(connection, session_id):
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                DELETE
+                FROM sessions
+                WHERE session_id = %s
+                RETURNING *;
+                """,
+                (session_id,)
+            )
+
+
+# Users
+def create_user(connection, username, email, password, first_name, last_name, phone=None):
+    hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT
+                INTO users (username, email, password, first_name, last_name, phone)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING *;
+                """,
+                (username, email, hashed, first_name, last_name, phone)
+            )
+            new_user = cursor.fetchone()
+        return new_user
+
+
+def get_user_by_id(connection, user_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM users
+                WHERE user_id %s;
+                """,
+                (user_id,)
+            )
+            user_by_id = cursor.fetchone()
+        return user_by_id
+
+
+def get_user_by_username(connection, user_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM users
+                WHERE user_id %s;
+                """,
+                (user_id,)
+            )
+            user_by_username = cursor.fetchone()
+        return user_by_username
+
+
+def update_user(connection, user_id, username=None, email=None, first_name=None, last_name=None, phone=None):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                UPDATE users
+                SET 
+                    username = COALESCE (%s, username), 
+                    email = COALESCE (%s, email),
+                    first_name = COALESCE (%s, first_name),
+                    last_name = COALESCE (%s, last_name),
+                    phone = COALESCE (%s, phone)
+                WHERE user_id = %s
+                RETURNING *;
+                """,
+                (username, email, first_name, last_name, phone, user_id)
+            )
+            updated_user = cursor.fetchone()
+        return updated_user
+
+
+def delete_user(connection, user_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                DELETE
+                FROM users
+                WHERE user_id = %s
+                RETURNING *;
+                """,
+                (user_id,)
+            )
+            deleted_user = cursor.fetchone()
+        return deleted_user
+
+
+def change_password(connection, user_id, new_password):
+    hashed = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE users
+                SET password = %s
+                WHERE user_id = %s
+                RETURNING *;
+                """,
+                (hashed, user_id)
+            )
+
 
 # Worlds
 def create_world(connection, user_id, world_name, world_description, image_url=None):
