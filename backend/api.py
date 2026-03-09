@@ -58,6 +58,19 @@ def get_user_by_id(user_id: int, connection=Depends(get_db)):
         )
 
 
+@app.get("/users/{user_id}")
+def get_user_by_username(user_id: int, connection=Depends(get_db)):
+    try:
+        user_by_username = db.get_user_by_username(connection, user_id)
+        # Returns dictionary with all user data
+        return user_by_username
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong {error}",
+        )
+
+
 @app.delete("/users/{user_id}")
 def delete_user(user_id: int, connection=Depends(get_db)):
     try:
@@ -73,7 +86,6 @@ def delete_user(user_id: int, connection=Depends(get_db)):
         )
 
 
-# Uppdatera användare (ändra senare tillfälle - ändra lösenord ska bli egen funktion för säk.skull)
 @app.patch("/users/{user_id}")
 def update_user(user_id: int, user: schemas.UserUpdate, connection=Depends(get_db)):
     try:
@@ -83,7 +95,6 @@ def update_user(user_id: int, user: schemas.UserUpdate, connection=Depends(get_d
             user.email,
             user.phone,
             user.username,
-            user.password,
             user.first_name,
             user.last_name,
         )

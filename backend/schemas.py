@@ -33,7 +33,6 @@ class UserResponse(BaseModel):
 class UserUpdate(BaseModel):
     username: Optional[str] = None
     email: Optional[str] = None
-    password: Optional[str] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     phone: Optional[str] = None
