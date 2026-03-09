@@ -9,6 +9,7 @@ Database functions for World Building Assistant API.
 Each function execute a query and returns the result.
 """
 
+
 # Sessions
 def create_session(connection, user_id):
     with connection:
@@ -20,7 +21,7 @@ def create_session(connection, user_id):
                 VALUES (%s)
                 RETURNING session_id;
                 """,
-                (user_id,)
+                (user_id,),
             )
             new_session = cursor.fetchone()
         return str(new_session["session_id"])
@@ -36,7 +37,7 @@ def get_session(connection, session_id):
                 WHERE session_id = %s
                 AND expires_at > CURRENT_TIMESTAMP;
                 """,
-                (session_id,)
+                (session_id,),
             )
             session = cursor.fetchone()
         return session
@@ -53,7 +54,7 @@ def delete_session(connection, session_id):
                 WHERE session_id = %s
                 RETURNING *;
                 """,
-                (session_id,)
+                (session_id,),
             )
 
 
@@ -69,7 +70,7 @@ def create_user(connection, username, first_name, last_name, email, password):
                 VALUES (%s, %s, %s, %s, %s)
                 RETURNING *;
                 """,
-                (username, first_name, last_name, email, hashed)
+                (username, first_name, last_name, email, hashed),
             )
             new_user = cursor.fetchone()
         return new_user
@@ -84,7 +85,7 @@ def get_user_by_id(connection, user_id):
                 FROM users
                 WHERE user_id = %s;
                 """,
-                (user_id,)
+                (user_id,),
             )
             user_by_id = cursor.fetchone()
         return user_by_id
@@ -99,13 +100,15 @@ def get_user_by_email(connection, email):
                 FROM users
                 WHERE email = %s;
                 """,
-                (email,)
+                (email,),
             )
             user_by_email = cursor.fetchone()
         return user_by_email
 
 
-def update_user(connection, user_id, username=None, first_name=None, last_name=None, email=None):
+def update_user(
+    connection, user_id, username=None, first_name=None, last_name=None, email=None
+):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -119,7 +122,7 @@ def update_user(connection, user_id, username=None, first_name=None, last_name=N
                 WHERE user_id = %s
                 RETURNING *;
                 """,
-                (username, first_name, last_name, email, user_id)
+                (username, first_name, last_name, email, user_id),
             )
             updated_user = cursor.fetchone()
         return updated_user
@@ -135,7 +138,7 @@ def delete_user(connection, user_id):
                 WHERE user_id = %s
                 RETURNING *;
                 """,
-                (user_id,)
+                (user_id,),
             )
             deleted_user = cursor.fetchone()
         return deleted_user
@@ -152,7 +155,7 @@ def change_password(connection, user_id, new_password):
                 WHERE user_id = %s
                 RETURNING *;
                 """,
-                (hashed, user_id)
+                (hashed, user_id),
             )
 
 
@@ -167,10 +170,10 @@ def create_world(connection, user_id, world_name, world_description, image_url=N
                 VALUES (%s, %s, %s, %s) -- Placeholders to prevent SQL injection, psycopg2 inserts values safely --
                 RETURNING *; -- Returns all columns of the newly created row --
                 """,
-                (user_id, world_name, world_description, image_url)
+                (user_id, world_name, world_description, image_url),
             )
             new_world = cursor.fetchone()
-        return new_world 
+        return new_world
 
 
 def get_all_worlds(connection, user_id):
@@ -179,10 +182,10 @@ def get_all_worlds(connection, user_id):
             cursor.execute(
                 """
                 SELECT *
-                FROM worlds;
+                FROM worlds
                 WHERE user_id = %s;
                 """,
-                (user_id,)
+                (user_id,),
             )
             all_worlds = cursor.fetchall()
         return all_worlds
@@ -197,13 +200,15 @@ def get_world_by_id(connection, world_id):
                 FROM worlds
                 WHERE world_id = %s;
                 """,
-                (world_id,)
+                (world_id,),
             )
             world = cursor.fetchone()
         return world
 
 
-def update_world(connection, world_id, world_name=None, world_description=None, image_url=None):
+def update_world(
+    connection, world_id, world_name=None, world_description=None, image_url=None
+):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -216,7 +221,7 @@ def update_world(connection, world_id, world_name=None, world_description=None, 
                 WHERE world_id = %s
                 RETURNING *;
                 """,
-                (world_name, world_description, image_url, world_id)
+                (world_name, world_description, image_url, world_id),
             )
             updated_world = cursor.fetchone()
         return updated_world
@@ -232,14 +237,24 @@ def delete_world(connection, world_id):
                 WHERE world_id = %s
                 RETURNING *;
                 """,
-                (world_id,)
+                (world_id,),
             )
             deleted_world = cursor.fetchone()
         return deleted_world
 
 
 # Characters
-def create_character(connection, world_id, character_name, character_description, is_alive=True, image_url=None, image_id=None, species_id=None, item_id=None):
+def create_character(
+    connection,
+    world_id,
+    character_name,
+    character_description,
+    is_alive=True,
+    image_url=None,
+    image_id=None,
+    species_id=None,
+    item_id=None,
+):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -258,10 +273,19 @@ def create_character(connection, world_id, character_name, character_description
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s) 
                 RETURNING *; 
                 """,
-                (world_id, character_name, character_description, is_alive, image_url, image_id, species_id, item_id)
+                (
+                    world_id,
+                    character_name,
+                    character_description,
+                    is_alive,
+                    image_url,
+                    image_id,
+                    species_id,
+                    item_id,
+                ),
             )
             new_character = cursor.fetchone()
-        return new_character 
+        return new_character
 
 
 def get_all_characters(connection, world_id):
@@ -273,7 +297,7 @@ def get_all_characters(connection, world_id):
                 FROM characters
                 WHERE world_id = %s;
                 """,
-                (world_id,)
+                (world_id,),
             )
             all_characters = cursor.fetchall()
         return all_characters
@@ -288,13 +312,23 @@ def get_character_by_id(connection, character_id):
                 FROM characters
                 WHERE character_id = %s;
                 """,
-                (character_id,)
+                (character_id,),
             )
             character = cursor.fetchone()
         return character
 
 
-def update_character(connection, character_id, character_name=None, character_description=None, is_alive=None, image_url=None, image_id=None, species_id=None, item_id=None):
+def update_character(
+    connection,
+    character_id,
+    character_name=None,
+    character_description=None,
+    is_alive=None,
+    image_url=None,
+    image_id=None,
+    species_id=None,
+    item_id=None,
+):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -311,7 +345,16 @@ def update_character(connection, character_id, character_name=None, character_de
                 WHERE character_id = %s
                 RETURNING *;
                 """,
-                (character_name, character_description, is_alive, image_url, image_id, species_id, item_id, character_id)
+                (
+                    character_name,
+                    character_description,
+                    is_alive,
+                    image_url,
+                    image_id,
+                    species_id,
+                    item_id,
+                    character_id,
+                ),
             )
             updated_character = cursor.fetchone()
         return updated_character
@@ -327,13 +370,13 @@ def delete_character(connection, character_id):
                 WHERE character_id = %s
                 RETURNING *;
                 """,
-                (character_id,)
+                (character_id,),
             )
             deleted_character = cursor.fetchone()
         return deleted_character
 
 
-# Relationships 
+# Relationships
 def create_relationship(connection, relationship_type, character_a_id, character_b_id):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -348,7 +391,7 @@ def create_relationship(connection, relationship_type, character_a_id, character
                 VALUES (%s, %s, %s)
                 RETURNING *;
                 """,
-                (relationship_type, character_a_id, character_b_id)
+                (relationship_type, character_a_id, character_b_id),
             )
             new_relationship = cursor.fetchone()
         return new_relationship
@@ -371,13 +414,19 @@ def get_relationships_for_character(connection, character_id):
                 ON relationships.character_b_id = b.character_id
                 WHERE relationships.character_a_id = %s OR relationships.character_b_id = %s;
                 """,
-                (character_id, character_id)
+                (character_id, character_id),
             )
             relationships_for_character = cursor.fetchall()
         return relationships_for_character
 
 
-def update_relationship(connection, relationship_id, relationship_type=None, character_a_id=None, character_b_id=None):
+def update_relationship(
+    connection,
+    relationship_id,
+    relationship_type=None,
+    character_a_id=None,
+    character_b_id=None,
+):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -390,7 +439,7 @@ def update_relationship(connection, relationship_id, relationship_type=None, cha
                 WHERE relationship_id = %s
                 RETURNING *;
                 """,
-                (relationship_type, character_a_id, character_b_id, relationship_id)
+                (relationship_type, character_a_id, character_b_id, relationship_id),
             )
             updated_relationship = cursor.fetchone()
         return updated_relationship
@@ -406,7 +455,7 @@ def delete_relationship(connection, relationship_id):
                 WHERE relationship_id = %s
                 RETURNING *;
                 """,
-                (relationship_id,)
+                (relationship_id,),
             )
             deleted_relationship = cursor.fetchone()
         return deleted_relationship
@@ -428,13 +477,15 @@ def create_event(connection, world_id, event_name, event_description, event_date
                 VALUES (%s, %s, %s, %s) 
                 RETURNING *; 
                 """,
-                (world_id, event_name, event_description, event_date)
+                (world_id, event_name, event_description, event_date),
             )
             new_event = cursor.fetchone()
-        return new_event 
+        return new_event
 
 
-def update_event(connection, event_id, event_name=None, event_description=None, event_date=None):
+def update_event(
+    connection, event_id, event_name=None, event_description=None, event_date=None
+):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -447,10 +498,10 @@ def update_event(connection, event_id, event_name=None, event_description=None, 
                 WHERE event_id = %s
                 RETURNING *; 
                 """,
-                (event_name, event_description, event_date, event_id)
+                (event_name, event_description, event_date, event_id),
             )
             updated_event = cursor.fetchone()
-        return updated_event 
+        return updated_event
 
 
 def get_all_events(connection, world_id):
@@ -462,7 +513,7 @@ def get_all_events(connection, world_id):
                 FROM events
                 WHERE world_id = %s
                 """,
-                (world_id,)
+                (world_id,),
             )
             all_events = cursor.fetchall()
         return all_events
@@ -477,7 +528,7 @@ def get_event_by_id(connection, event_id):
                 FROM events
                 WHERE event_id = %s;
                 """,
-                (event_id,)
+                (event_id,),
             )
             event = cursor.fetchone()
         return event
@@ -493,10 +544,11 @@ def delete_event(connection, event_id):
                 WHERE event_id = %s
                 RETURNING *;
                 """,
-                (event_id,)
+                (event_id,),
             )
             deleted_event = cursor.fetchone()
         return deleted_event
+
 
 # Character_events
 def add_character_to_event(connection, event_id, character_id):
@@ -509,7 +561,7 @@ def add_character_to_event(connection, event_id, character_id):
                 VALUES (%s, %s)
                 RETURNING *;
                 """,
-                (event_id, character_id)
+                (event_id, character_id),
             )
             added_character_to_event = cursor.fetchone()
         return added_character_to_event
@@ -525,7 +577,7 @@ def remove_character_from_event(connection, event_id, character_id):
                 WHERE event_id = %s AND character_id = %s
                 RETURNING *;
                 """,
-                (event_id, character_id)
+                (event_id, character_id),
             )
             removed_character_from_event = cursor.fetchone()
         return removed_character_from_event
@@ -542,7 +594,7 @@ def get_all_characters_for_event(connection, event_id):
                 ON character_events.character_id = characters.character_id
                 WHERE character_events.event_id = %s;
                 """,
-                (event_id,)
+                (event_id,),
             )
             all_characters_in_event = cursor.fetchall()
         return all_characters_in_event
@@ -559,14 +611,16 @@ def get_all_events_for_one_character(connection, character_id):
                 ON character_events.event_id = events.event_id
                 WHERE character_events.character_id = %s;
                 """,
-                (character_id,)
+                (character_id,),
             )
             all_events_for_one_character = cursor.fetchall()
         return all_events_for_one_character
 
 
 # Maps
-def create_map(connection, world_id, map_name, map_url, map_description=None, scale_factor=None):
+def create_map(
+    connection, world_id, map_name, map_url, map_description=None, scale_factor=None
+):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -582,10 +636,10 @@ def create_map(connection, world_id, map_name, map_url, map_description=None, sc
                 VALUES (%s, %s, %s, %s, %s) 
                 RETURNING *; 
                 """,
-                (world_id, map_name, map_url, map_description, scale_factor)
+                (world_id, map_name, map_url, map_description, scale_factor),
             )
             new_map = cursor.fetchone()
-        return new_map 
+        return new_map
 
 
 def get_all_maps_for_one_world(connection, world_id):
@@ -597,7 +651,7 @@ def get_all_maps_for_one_world(connection, world_id):
                 FROM maps
                 WHERE world_id = %s;
                 """,
-                (world_id,)
+                (world_id,),
             )
             all_maps = cursor.fetchall()
         return all_maps
@@ -612,13 +666,20 @@ def get_map_by_id(connection, map_id):
                 FROM maps
                 WHERE map_id = %s;
                 """,
-                (map_id,)
+                (map_id,),
             )
             map_by_id = cursor.fetchone()
         return map_by_id
 
 
-def update_map(connection, map_id, map_name=None, map_url=None, map_description=None, scale_factor=None):
+def update_map(
+    connection,
+    map_id,
+    map_name=None,
+    map_url=None,
+    map_description=None,
+    scale_factor=None,
+):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -632,10 +693,10 @@ def update_map(connection, map_id, map_name=None, map_url=None, map_description=
                 WHERE map_id = %s
                 RETURNING *; 
                 """,
-                (map_name, map_url, map_description, scale_factor, map_id)
+                (map_name, map_url, map_description, scale_factor, map_id),
             )
             updated_map = cursor.fetchone()
-        return updated_map 
+        return updated_map
 
 
 def delete_map(connection, map_id):
@@ -648,7 +709,7 @@ def delete_map(connection, map_id):
                 WHERE map_id = %s
                 RETURNING *;
                 """,
-                (map_id,)
+                (map_id,),
             )
             deleted_map = cursor.fetchone()
         return deleted_map
@@ -677,14 +738,16 @@ def create_location(
         return new_location
 
 
-def get_all_locations(connection):
+def get_all_locations(connection, world_id):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 SELECT *
-                FROM locations;
-                """
+                FROM locations
+                WHERE world_id = %s;
+                """,
+                (world_id,),
             )
             all_locations = cursor.fetchall()
         return all_locations
@@ -770,14 +833,16 @@ def create_item(connection, item_name, item_description, world_id):
         return new_item
 
 
-def get_all_items(connection):
+def get_all_items(connection, world_id):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 SELECT *
-                FROM items;
-                """
+                FROM items
+                WHERE world_id = %s;
+                """,
+                (world_id,),
             )
             all_items = cursor.fetchall()
         return all_items
@@ -847,14 +912,16 @@ def create_species(connection, species_name, species_description, world_id):
         return new_species
 
 
-def get_all_species(connection):
+def get_all_species(connection, world_id):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 SELECT *
-                FROM species;
-                """
+                FROM species
+                WHERE world_id = %s;
+                """,
+                (world_id,),
             )
             all_species = cursor.fetchall()
         return all_species
@@ -924,14 +991,16 @@ def create_note(connection, note_name, note_text, user_id):
         return new_note
 
 
-def get_all_notes(connection):
+def get_all_notes(connection, user_id):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 SELECT *
-                FROM notes;
-                """
+                FROM notes
+                WHERE user_id = %s;
+                """,
+                (user_id,),
             )
             all_notes = cursor.fetchall()
         return all_notes
