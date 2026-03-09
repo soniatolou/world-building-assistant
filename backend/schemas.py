@@ -32,7 +32,7 @@ class UserUpdate(BaseModel):
 
 # Logga in
 class UserLogin(BaseModel):
-    email: str
+    username: str
     password: str
 
 # Skapa plats
