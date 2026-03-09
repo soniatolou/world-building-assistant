@@ -27,7 +27,6 @@ class UserResponse(BaseModel):
     email: str
     first_name: str
     last_name: str
-    phone: Optional[str] = None
 
 # Uppdatering av konto
 class UserUpdate(BaseModel):
@@ -35,11 +34,10 @@ class UserUpdate(BaseModel):
     email: Optional[str] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    phone: Optional[str] = None
 
 # Logga in
 class UserLogin(BaseModel):
-    username: str
+    email: str
     password: str
 
 # Skapa plats

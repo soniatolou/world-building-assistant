@@ -58,18 +58,18 @@ def delete_session(connection, session_id):
 
 
 # Users
-def create_user(connection, username, email, password, first_name, last_name, phone=None):
+def create_user(connection, username, email, password, first_name, last_name):
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 INSERT
-                INTO users (username, email, password, first_name, last_name, phone)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                INTO users (username, email, password, first_name, last_name)
+                VALUES (%s, %s, %s, %s, %s)
                 RETURNING *;
                 """,
-                (username, email, hashed, first_name, last_name, phone)
+                (username, email, hashed, first_name, last_name)
             )
             new_user = cursor.fetchone()
         return new_user
@@ -90,22 +90,22 @@ def get_user_by_id(connection, user_id):
         return user_by_id
 
 
-def get_user_by_username(connection, user_id):
+def get_user_by_email(connection, email):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 SELECT *
                 FROM users
-                WHERE user_id %s;
+                WHERE email = %s;
                 """,
-                (user_id,)
+                (email,)
             )
-            user_by_username = cursor.fetchone()
-        return user_by_username
+            user_by_email = cursor.fetchone()
+        return user_by_email
 
 
-def update_user(connection, user_id, username=None, email=None, first_name=None, last_name=None, phone=None):
+def update_user(connection, user_id, username=None, email=None, first_name=None, last_name=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -116,11 +116,10 @@ def update_user(connection, user_id, username=None, email=None, first_name=None,
                     email = COALESCE (%s, email),
                     first_name = COALESCE (%s, first_name),
                     last_name = COALESCE (%s, last_name),
-                    phone = COALESCE (%s, phone)
                 WHERE user_id = %s
                 RETURNING *;
                 """,
-                (username, email, first_name, last_name, phone, user_id)
+                (username, email, first_name, last_name, user_id)
             )
             updated_user = cursor.fetchone()
         return updated_user

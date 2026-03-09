@@ -25,7 +25,7 @@ def create_tables():
         first_name VARCHAR(255) NOT NULL,
         last_name VARCHAR (255) NOT NULL,
         email VARCHAR(255) NOT NULL UNIQUE,
-        phone VARCHAR(20) UNIQUE,
+        password VARCHAR(60) NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         is_active BOOLEAN NOT NULL DEFAULT TRUE
         );
