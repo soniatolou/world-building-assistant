@@ -11,11 +11,15 @@
 # delete_world()
 
 from db_setup import get_connection
-from fastapi import FastAPI, HTTPException, status, Depends
+from fastapi import FastAPI, HTTPException, status, Depends, Cookie, Response
 import schemas
 import db
+import bcrypt
+from typing import Optional
+
 
 app = FastAPI()
+
 
 def get_db():
     connection = get_connection()
@@ -25,7 +29,21 @@ def get_db():
         connection.close()
 
 
-@app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
+# Dependency
+def get_current_user(
+    session_id: Optional[str] = Cookie(None), connection=Depends(get_db)
+):
+    if not session_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+    session = db.get_session(connection, session_id)
+    if not session:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+    return session["user_id"]
+
+
+@app.post(
+    "/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse
+)
 def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
     try:
         new_user = db.create_user(
@@ -41,7 +59,7 @@ def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong:{error}"
+            detail=f"Something went wrong:{error}",
         )
 
 
@@ -111,18 +129,31 @@ def login(data: schemas.UserLogin, connection=Depends(get_db)):
     user = db.get_user_by_email(connection, data.email)
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
-    if user["password"] != data.password:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Wrong password")
-
+    username, hashed_password = user
+    if not bcrypt.checkpw(data.password.encode(), hashed_password.encode()):
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password"
+        )
     return {"message": "Login successful"}
 
+    session_id = db.create_session(connection, user_id)
+    response.set_cookie(key="session_id", value=session_id, httponly=True)
 
-# Logga ut (egentligen inte nödvnändig för backend)
-@app.post("/logout")
-def logout():
-    return {"message": "Logged out successfully"}
+
+# Logga ut
+@app.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(
+    response: Response,
+    session_id: Optional[str] = Cookie(None),
+    connection=Depends(get_db),
+):
+    if session_id:
+        db.delete_session(connection, session_id)
+        response.delete_cookie("session_id")
 
 
 # Worlds
@@ -142,7 +173,7 @@ def create_world(user_id: int, world: schemas.CreateWorld, connection=Depends(ge
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}"
+            detail=f"Something went wrong: {error}",
         )
 
 
@@ -165,7 +196,9 @@ def get_world_by_id(world_id: int, connection=Depends(get_db)):
     try:
         world = db.get_world_by_id(connection, world_id)
         if not world:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="World not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="World not found"
+            )
         return world
     except HTTPException:
         raise
@@ -184,10 +217,12 @@ def update_world(world_id: int, world: schemas.UpdateWorld, connection=Depends(g
             world_id,
             world.world_name,
             world.world_description,
-            world.image_url
+            world.image_url,
         )
         if not updated_world:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="World not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="World not found"
+            )
         return updated_world
     except HTTPException:
         raise
@@ -203,7 +238,9 @@ def delete_world(world_id: int, connection=Depends(get_db)):
     try:
         deleted_world = db.delete_world(connection, world_id)
         if not deleted_world:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="World not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="World not found"
+            )
         return {"message": "World deleted successfully"}
     except HTTPException:
         raise
@@ -216,7 +253,9 @@ def delete_world(world_id: int, connection=Depends(get_db)):
 
 # Characters
 @app.post("/worlds/{world_id}/characters")
-def create_character(world_id: int, character: schemas.CreateCharacter, connection=Depends(get_db)):
+def create_character(
+    world_id: int, character: schemas.CreateCharacter, connection=Depends(get_db)
+):
     try:
         new_character = db.create_character(
             connection,
@@ -235,7 +274,7 @@ def create_character(world_id: int, character: schemas.CreateCharacter, connecti
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}"
+            detail=f"Something went wrong: {error}",
         )
 
 
@@ -259,7 +298,9 @@ def get_character_by_id(character_id: int, connection=Depends(get_db)):
     try:
         character = db.get_character_by_id(connection, character_id)
         if not character:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Character not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Character not found"
+            )
         return character
     except HTTPException:
         raise
@@ -271,7 +312,9 @@ def get_character_by_id(character_id: int, connection=Depends(get_db)):
 
 
 @app.patch("/characters/{character_id}")
-def update_character(character_id: int, character: schemas.UpdateCharacter, connection=Depends(get_db)):
+def update_character(
+    character_id: int, character: schemas.UpdateCharacter, connection=Depends(get_db)
+):
     try:
         updated_character = db.update_character(
             connection,
@@ -285,7 +328,9 @@ def update_character(character_id: int, character: schemas.UpdateCharacter, conn
             character.item_id,
         )
         if not updated_character:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Character not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Character not found"
+            )
         return updated_character
     except HTTPException:
         raise
@@ -301,7 +346,9 @@ def delete_character(character_id: int, connection=Depends(get_db)):
     try:
         deleted_character = db.delete_character(connection, character_id)
         if not deleted_character:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Character not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Character not found"
+            )
         return {"message": "Character deleted successfully"}
     except HTTPException:
         raise
@@ -313,8 +360,14 @@ def delete_character(character_id: int, connection=Depends(get_db)):
 
 
 # Relationships
-@app.post("/characters/{character_id}/relationships", status_code=status.HTTP_201_CREATED)
-def create_relationship(character_id: int, relationship: schemas.CreateRelationship, connection=Depends(get_db)):
+@app.post(
+    "/characters/{character_id}/relationships", status_code=status.HTTP_201_CREATED
+)
+def create_relationship(
+    character_id: int,
+    relationship: schemas.CreateRelationship,
+    connection=Depends(get_db),
+):
     try:
         new_relationship = db.create_relationship(
             connection,
@@ -347,7 +400,11 @@ def get_relationships_for_character(character_id: int, connection=Depends(get_db
 
 
 @app.patch("/relationships/{relationship_id}")
-def update_relationship(relationship_id: int, relationship: schemas.UpdateRelationship, connection=Depends(get_db)):
+def update_relationship(
+    relationship_id: int,
+    relationship: schemas.UpdateRelationship,
+    connection=Depends(get_db),
+):
     try:
         updated_relationship = db.update_relationship(
             connection,
@@ -357,7 +414,9 @@ def update_relationship(relationship_id: int, relationship: schemas.UpdateRelati
             relationship.character_b_id,
         )
         if not updated_relationship:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Relationship not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Relationship not found"
+            )
         return updated_relationship
     except HTTPException:
         raise
@@ -373,7 +432,9 @@ def delete_relationship(relationship_id: int, connection=Depends(get_db)):
     try:
         deleted_relationship = db.delete_relationship(connection, relationship_id)
         if not deleted_relationship:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Relationship not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Relationship not found"
+            )
         return {"message": "Relationship deleted successfully"}
     except HTTPException:
         raise
@@ -424,7 +485,9 @@ def get_event_by_id(event_id: int, connection=Depends(get_db)):
     try:
         event = db.get_event_by_id(connection, event_id)
         if not event:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
+            )
         return event
     except HTTPException:
         raise
@@ -446,7 +509,9 @@ def update_event(event_id: int, event: schemas.UpdateEvent, connection=Depends(g
             event.event_date,
         )
         if not updated_event:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
+            )
         return updated_event
     except HTTPException:
         raise
@@ -462,7 +527,9 @@ def delete_event(event_id: int, connection=Depends(get_db)):
     try:
         deleted_event = db.delete_event(connection, event_id)
         if not deleted_event:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
+            )
         return {"message": "Event deleted successfully"}
     except HTTPException:
         raise
@@ -474,8 +541,12 @@ def delete_event(event_id: int, connection=Depends(get_db)):
 
 
 # Character_events
-@app.post("/events/{event_id}/characters/{character_id}", status_code=status.HTTP_201_CREATED)
-def add_character_to_event(event_id: int, character_id: int, connection=Depends(get_db)):
+@app.post(
+    "/events/{event_id}/characters/{character_id}", status_code=status.HTTP_201_CREATED
+)
+def add_character_to_event(
+    event_id: int, character_id: int, connection=Depends(get_db)
+):
     try:
         added_to_event = db.add_character_to_event(connection, event_id, character_id)
         return added_to_event
@@ -489,11 +560,18 @@ def add_character_to_event(event_id: int, character_id: int, connection=Depends(
 
 
 @app.delete("/events/{event_id}/characters/{character_id}")
-def remove_character_from_event(event_id: int, character_id: int, connection=Depends(get_db)):
+def remove_character_from_event(
+    event_id: int, character_id: int, connection=Depends(get_db)
+):
     try:
-        removed_from_event = db.remove_character_from_event(connection, event_id, character_id)
+        removed_from_event = db.remove_character_from_event(
+            connection, event_id, character_id
+        )
         if not removed_from_event:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Character not found in event")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Character not found in event",
+            )
         return {"message": "Character removed successfully"}
     except HTTPException:
         raise
@@ -573,7 +651,9 @@ def get_map_by_id(map_id: int, connection=Depends(get_db)):
     try:
         map_by_id = db.get_map_by_id(connection, map_id)
         if not map_by_id:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Map not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Map not found"
+            )
         return map_by_id
     except HTTPException:
         raise
@@ -596,7 +676,9 @@ def update_map(map_id: int, map_input: schemas.UpdateMap, connection=Depends(get
             map_input.scale_factor,
         )
         if not updated_map:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Map not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Map not found"
+            )
         return updated_map
     except HTTPException:
         raise
@@ -612,7 +694,9 @@ def delete_map(map_id: int, connection=Depends(get_db)):
     try:
         deleted_map = db.delete_map(connection, map_id)
         if not deleted_map:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Map not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Map not found"
+            )
         return {"message": "Map deleted successfully"}
     except HTTPException:
         raise
@@ -662,7 +746,9 @@ def get_location_by_id(location_id: int, connection=Depends(get_db)):
     try:
         location = db.get_location_by_id(connection, location_id)
         if not location:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Location not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Location not found"
+            )
         return location
     except HTTPException:
         raise
@@ -688,7 +774,9 @@ def update_location(
             location.map_id,
         )
         if not updated_location:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Location not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Location not found"
+            )
         return updated_location
     except HTTPException:
         raise
@@ -705,7 +793,9 @@ def delete_location(location_id: int, connection=Depends(get_db)):
     try:
         deleted_location = db.delete_location(connection, location_id)
         if not deleted_location:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Location not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Location not found"
+            )
         return {
             "message": "Location deleted successfully",
             "location": deleted_location,
@@ -753,7 +843,9 @@ def get_item_by_id(item_id: int, connection=Depends(get_db)):
     try:
         item = db.get_item_by_id(connection, item_id)
         if not item:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
+            )
         return item
     except HTTPException:
         raise
@@ -772,7 +864,9 @@ def update_item(item_id: int, item: schemas.ItemUpdate, connection=Depends(get_d
             connection, item_id, item.item_name, item.item_description
         )
         if not updated_item:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
+            )
         return updated_item
     except HTTPException:
         raise
@@ -789,7 +883,9 @@ def delete_item(item_id: int, connection=Depends(get_db)):
     try:
         deleted_item = db.delete_item(connection, item_id)
         if not deleted_item:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
+            )
         return {"message": "Item deleted successfully", "item": deleted_item}
     except HTTPException:
         raise
@@ -837,7 +933,9 @@ def get_species_by_id(species_id: int, connection=Depends(get_db)):
     try:
         species = db.get_species_by_id(connection, species_id)
         if not species:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Species not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Species not found"
+            )
         return species
     except HTTPException:
         raise
@@ -858,7 +956,9 @@ def update_species(
             connection, species_id, species.species_name, species.species_description
         )
         if not updated_species:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Species not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Species not found"
+            )
         return updated_species
     except HTTPException:
         raise
@@ -875,7 +975,9 @@ def delete_species(species_id: int, connection=Depends(get_db)):
     try:
         deleted_species = db.delete_species(connection, species_id)
         if not deleted_species:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Species not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Species not found"
+            )
         return {"message": "Species deleted successfully", "species": deleted_species}
     except HTTPException:
         raise
@@ -920,7 +1022,9 @@ def get_note_by_id(notes_id: int, connection=Depends(get_db)):
     try:
         note = db.get_note_by_id(connection, notes_id)
         if not note:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Note not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Note not found"
+            )
         return note
     except HTTPException:
         raise
@@ -939,7 +1043,9 @@ def update_note(notes_id: int, note: schemas.NoteUpdate, connection=Depends(get_
             connection, notes_id, note.note_name, note.note_text
         )
         if not updated_note:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Note not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Note not found"
+            )
         return updated_note
     except HTTPException:
         raise
@@ -956,7 +1062,9 @@ def delete_note(notes_id: int, connection=Depends(get_db)):
     try:
         deleted_note = db.delete_note(connection, notes_id)
         if not deleted_note:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Note not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Note not found"
+            )
         return {"message": "Note deleted successfully", "note": deleted_note}
     except HTTPException:
         raise
