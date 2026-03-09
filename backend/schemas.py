@@ -21,6 +21,14 @@ class CreateUser(BaseModel):
     last_name: str
     phone: Optional[str] = None
 
+class UserResponse(BaseModel):
+    user_id: int
+    username: str
+    email: str
+    first_name: str
+    last_name: str
+    phone: Optional[str] = None
+
 # Uppdatering av konto
 class UserUpdate(BaseModel):
     username: Optional[str] = None
