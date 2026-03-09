@@ -8,33 +8,33 @@ Database functions for World Building Assistant API.
 Each function execute a query and returns the result.
 """
 
-
 # Worlds
-def create_world(connection, world_name, world_description):
+def create_world(connection, user_id, world_name, world_description, image_url=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 INSERT 
-                INTO worlds (world_name, world_description)
-                VALUES (%s, %s) -- Placeholders to prevent SQL injection, psycopg2 inserts values safely --
+                INTO worlds (user_id, world_name, world_description, image_url)
+                VALUES (%s, %s, %s, %s) -- Placeholders to prevent SQL injection, psycopg2 inserts values safely --
                 RETURNING *; -- Returns all columns of the newly created row --
                 """,
-                (world_name, world_description),
+                (user_id, world_name, world_description, image_url)
             )
             new_world = cursor.fetchone()
-        return new_world
+        return new_world 
 
 
-
-def get_all_worlds(connection):
+def get_all_worlds(connection, user_id):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 SELECT *
                 FROM worlds;
-                """
+                WHERE user_id = %s;
+                """,
+                (user_id,)
             )
             all_worlds = cursor.fetchall()
         return all_worlds
@@ -49,13 +49,13 @@ def get_world_by_id(connection, world_id):
                 FROM worlds
                 WHERE world_id = %s;
                 """,
-                (world_id,),
+                (world_id,)
             )
             world = cursor.fetchone()
         return world
 
 
-def update_world(connection, world_id, world_name=None, world_description=None):
+def update_world(connection, world_id, world_name=None, world_description=None, image_url=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -63,15 +63,12 @@ def update_world(connection, world_id, world_name=None, world_description=None):
                 UPDATE worlds
                 SET 
                     world_name = COALESCE (%s, world_name), -- COALESCE: use the new value if updated, otherwise keep the old one --
-                    world_description = COALESCE (%s, world_description)
+                    world_description = COALESCE (%s, world_description),
+                    image_url = COALESCE (%s, image_url)
                 WHERE world_id = %s
                 RETURNING *;
                 """,
-<<<<<<< HEAD
-                (world_id, world_name, world_description),
-=======
-                (world_name, world_description, world_id)
->>>>>>> origin/develop
+                (world_name, world_description, image_url, world_id)
             )
             updated_world = cursor.fetchone()
         return updated_world
@@ -87,23 +84,14 @@ def delete_world(connection, world_id):
                 WHERE world_id = %s
                 RETURNING *;
                 """,
-<<<<<<< HEAD
-                (world_id),
-=======
                 (world_id,)
->>>>>>> origin/develop
             )
             deleted_world = cursor.fetchone()
         return deleted_world
 
-<<<<<<< HEAD
-
-# Maps
-=======
->>>>>>> origin/develop
 
 # Characters
-def create_character(connection, world_id, character_name, character_description, is_alive=True, image_id=None, species_id=None, item_id=None):
+def create_character(connection, world_id, character_name, character_description, is_alive=True, image_url=None, image_id=None, species_id=None, item_id=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -114,27 +102,30 @@ def create_character(connection, world_id, character_name, character_description
                     character_name, 
                     character_description, 
                     is_alive, 
+                    image_url,
                     image_id, 
                     species_id, 
                     item_id
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s) 
                 RETURNING *; 
                 """,
-                (world_id, character_name, character_description, is_alive, image_id, species_id, item_id)
+                (world_id, character_name, character_description, is_alive, image_url, image_id, species_id, item_id)
             )
             new_character = cursor.fetchone()
         return new_character 
 
 
-def get_all_characters(connection):
+def get_all_characters(connection, world_id):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 SELECT *
-                FROM characters;
-                """
+                FROM characters
+                WHERE world_id = %s;
+                """,
+                (world_id,)
             )
             all_characters = cursor.fetchall()
         return all_characters
@@ -155,7 +146,7 @@ def get_character_by_id(connection, character_id):
         return character
 
 
-def update_character(connection, character_id, character_name=None, character_description=None, is_alive=None, image_id=None, species_id=None, item_id=None):
+def update_character(connection, character_id, character_name=None, character_description=None, is_alive=None, image_url=None, image_id=None, species_id=None, item_id=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -165,13 +156,14 @@ def update_character(connection, character_id, character_name=None, character_de
                     character_name = COALESCE (%s, character_name),
                     character_description = COALESCE (%s, character_description),
                     is_alive = COALESCE (%s, is_alive),
+                    image_url = COALESCE (%s, image_url),
                     image_id = COALESCE (%s, image_id),
                     species_id = COALESCE (%s, species_id),
                     item_id = COALESCE (%s, item_id)
                 WHERE character_id = %s
                 RETURNING *;
                 """,
-                (character_name, character_description, is_alive, image_id, species_id, item_id, character_id)
+                (character_name, character_description, is_alive, image_url, image_id, species_id, item_id, character_id)
             )
             updated_character = cursor.fetchone()
         return updated_character
@@ -193,9 +185,6 @@ def delete_character(connection, character_id):
         return deleted_character
 
 
-<<<<<<< HEAD
-# Relationships
-=======
 # Relationships 
 def create_relationship(connection, relationship_type, character_a_id, character_b_id):
     with connection:
@@ -215,7 +204,6 @@ def create_relationship(connection, relationship_type, character_a_id, character
             )
             new_relationship = cursor.fetchone()
         return new_relationship
->>>>>>> origin/develop
 
 
 def get_relationships_for_character(connection, character_id):
@@ -225,7 +213,7 @@ def get_relationships_for_character(connection, character_id):
                 """
                 SELECT 
                     relationships.relationship_id,
-                    relationships.relationship_type
+                    relationships.relationship_type,
                     a.character_name AS character_a_name, -- Gets the name on character a, renames the column to character_a_name --
                     b.character_name AS character_b_name
                 FROM relationships
@@ -275,7 +263,6 @@ def delete_relationship(connection, relationship_id):
             deleted_relationship = cursor.fetchone()
         return deleted_relationship
 
-# Character_relationship - ta ev bort
 
 # Events
 def create_event(connection, world_id, event_name, event_description, event_date):
@@ -298,7 +285,225 @@ def create_event(connection, world_id, event_name, event_description, event_date
             new_event = cursor.fetchone()
         return new_event 
 
+
+def update_event(connection, event_id, event_name=None, event_description=None, event_date=None):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                UPDATE events
+                SET
+                    event_name = COALESCE (%s, event_name),
+                    event_description = COALESCE (%s, event_description),
+                    event_date = COALESCE (%s, event_date)
+                WHERE event_id = %s
+                RETURNING *; 
+                """,
+                (event_name, event_description, event_date, event_id)
+            )
+            updated_event = cursor.fetchone()
+        return updated_event 
+
+
+def get_all_events(connection, world_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM events
+                WHERE world_id = %s
+                """,
+                (world_id,)
+            )
+            all_events = cursor.fetchall()
+        return all_events
+
+
+def get_event_by_id(connection, event_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM events
+                WHERE event_id = %s;
+                """,
+                (event_id,)
+            )
+            event = cursor.fetchone()
+        return event
+
+
+def delete_event(connection, event_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                DELETE
+                FROM events
+                WHERE event_id = %s
+                RETURNING *;
+                """,
+                (event_id,)
+            )
+            deleted_event = cursor.fetchone()
+        return deleted_event
+
 # Character_events
+def add_character_to_event(connection, event_id, character_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT
+                INTO character_events (event_id, character_id)
+                VALUES (%s, %s)
+                RETURNING *;
+                """,
+                (event_id, character_id)
+            )
+            added_character_to_event = cursor.fetchone()
+        return added_character_to_event
+
+
+def remove_character_from_event(connection, event_id, character_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                DELETE
+                FROM character_events
+                WHERE event_id = %s AND character_id = %s
+                RETURNING *;
+                """,
+                (event_id, character_id)
+            )
+            removed_character_from_event = cursor.fetchone()
+        return removed_character_from_event
+
+
+def get_all_characters_for_event(connection, event_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM character_events
+                JOIN characters
+                ON character_events.character_id = characters.character_id
+                WHERE character_events.event_id = %s;
+                """,
+                (event_id,)
+            )
+            all_characters_in_event = cursor.fetchall()
+        return all_characters_in_event
+
+
+def get_all_events_for_one_character(connection, character_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM character_events
+                JOIN events
+                ON character_events.event_id = events.event_id
+                WHERE character_events.character_id = %s;
+                """,
+                (character_id,)
+            )
+            all_events_for_one_character = cursor.fetchall()
+        return all_events_for_one_character
+
+
+# Maps
+def create_map(connection, world_id, map_name, map_url, map_description=None, scale_factor=None):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT 
+                INTO maps (
+                    world_id, 
+                    map_name,
+                    map_url,
+                    map_description,
+                    scale_factor
+                )
+                VALUES (%s, %s, %s, %s, %s) 
+                RETURNING *; 
+                """,
+                (world_id, map_name, map_url, map_description, scale_factor)
+            )
+            new_map = cursor.fetchone()
+        return new_map 
+
+
+def get_all_maps_for_one_world(connection, world_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM maps
+                WHERE world_id = %s;
+                """,
+                (world_id,)
+            )
+            all_maps = cursor.fetchall()
+        return all_maps
+
+
+def get_map_by_id(connection, map_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM maps
+                WHERE map_id = %s;
+                """,
+                (map_id,)
+            )
+            map_by_id = cursor.fetchone()
+        return map_by_id
+
+
+def update_map(connection, map_id, map_name=None, map_url=None, map_description=None, scale_factor=None):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                UPDATE maps
+                SET
+                    map_name = COALESCE (%s, map_name),
+                    map_url = COALESCE (%s, map_url),
+                    map_description = COALESCE (%s, map_description),
+                    scale_factor = COALESCE (%s, scale_factor)
+                WHERE map_id = %s
+                RETURNING *; 
+                """,
+                (map_name, map_url, map_description, scale_factor, map_id)
+            )
+            updated_map = cursor.fetchone()
+        return updated_map 
+
+
+def delete_map(connection, map_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                DELETE
+                FROM maps
+                WHERE map_id = %s
+                RETURNING *;
+                """,
+                (map_id,)
+            )
+            deleted_map = cursor.fetchone()
+        return deleted_map
 
 
 # Locations - Sonia
@@ -402,8 +607,6 @@ def delete_location(connection, location_id):
 
 
 # Items - Sonia
-
-
 def create_item(connection, item_name, item_description, world_id):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -572,39 +775,13 @@ def create_note(connection, note_name, note_text, user_id):
             new_note = cursor.fetchone()
         return new_note
 
-<<<<<<< HEAD
 
 def get_all_notes(connection):
-=======
-# 
-
-def update_event(connection, event_id, event_name=None, event_description=None, event_date=None):
-    with connection:
-        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute(
-                """
-                UPDATE events
-                SET
-                    event_name = COALESCE (%s, event_name),
-                    event_description = COALESCE (%s, event_description),
-                    event_date = COALESCE (%s, event_date),
-                WHERE event_id = %s
-                RETURNING *; 
-                """,
-                (event_name, event_description, event_date, event_id)
-            )
-            updated_event = cursor.fetchone()
-        return updated_event 
-
-
-def get_all_events(connection, world_id):
->>>>>>> origin/develop
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 SELECT *
-<<<<<<< HEAD
                 FROM notes;
                 """
             )
@@ -613,24 +790,11 @@ def get_all_events(connection, world_id):
 
 
 def get_note_by_id(connection, notes_id):
-=======
-                FROM events
-                WHERE world_id = %s
-                """,
-                (world_id,)
-            )
-            all_events = cursor.fetchall()
-        return all_events
-
-
-def get_event_by_id(connection, event_id):
->>>>>>> origin/develop
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 SELECT *
-<<<<<<< HEAD
                 FROM notes
                 WHERE notes_id = %s;
                 """,
@@ -646,8 +810,8 @@ def update_note(connection, notes_id, note_name=None, note_text=None):
             cursor.execute(
                 """
                 UPDATE notes
-                SET note_name = COALESCE (%s, note_name), -- COALESCE: use the new value if updated, otherwise keep the old one --
-                note_text = COALESCE (%s, note_text)
+                SET note_name = COALESCE (%s, note_name),
+                    note_text = COALESCE (%s, note_text)
                 WHERE notes_id = %s
                 RETURNING *;
                 """,
@@ -658,24 +822,11 @@ def update_note(connection, notes_id, note_name=None, note_text=None):
 
 
 def delete_note(connection, notes_id):
-=======
-                FROM events
-                WHERE event_id = %s;
-                """,
-                (event_id,)
-            )
-            event = cursor.fetchone()
-        return event
-
-
-def delete_event(connection, event_id):
->>>>>>> origin/develop
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 DELETE
-<<<<<<< HEAD
                 FROM notes
                 WHERE notes_id = %s
                 RETURNING *;
@@ -686,27 +837,12 @@ def delete_event(connection, event_id):
         return deleted_note
 
 
-# Images - Sonia
+# Images
 def create_image(connection, image_url):
-    """Spara image URL i databasen efter file upload"""
-=======
-                FROM events
-                WHERE event_id = %s
-                RETURNING *;
-                """,
-                (event_id,)
-            )
-            deleted_event = cursor.fetchone()
-        return deleted_event
-
-# Character_events
-def add_character_to_event(connection, event_id, character_id):
->>>>>>> origin/develop
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-<<<<<<< HEAD
                 INSERT INTO images (image_url)
                 VALUES (%s)
                 RETURNING *;
@@ -762,26 +898,11 @@ def update_image(connection, image_id, image_url):
 
 
 def delete_image(connection, image_id):
-=======
-                INSERT
-                INTO character_events (event_id, character_id)
-                VALUES (%s, %s)
-                RETURNING *;
-                """,
-                (event_id, character_id)
-            )
-            added_character_to_event = cursor.fetchone()
-        return added_character_to_event
-
-
-def remove_character_from_event(connection, event_id, character_id):
->>>>>>> origin/develop
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 DELETE
-<<<<<<< HEAD
                 FROM images
                 WHERE image_id = %s
                 RETURNING *;
@@ -792,27 +913,12 @@ def remove_character_from_event(connection, event_id, character_id):
         return deleted_image
 
 
-# Junction tables queries
+# Junction tables
 def get_items_by_world(connection, world_id):
-    """Hämta alla items som tillhör en specifik värld via junction table"""
-=======
-                FROM character_events (
-                WHERE event_id = %s AND character_id = %s)
-                RETURNING *;
-                """,
-                (event_id, character_id)
-            )
-            removed_character_from_event = cursor.fetchone()
-        return removed_character_from_event
-
-
-def get_all_characters_for_event(connection, event_id):
->>>>>>> origin/develop
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-<<<<<<< HEAD
                 SELECT i.*
                 FROM items i
                 INNER JOIN world_items wi ON i.item_id = wi.item_id
@@ -825,27 +931,10 @@ def get_all_characters_for_event(connection, event_id):
 
 
 def get_species_by_world(connection, world_id):
-    """Hämta alla species som tillhör en specifik värld via junction table"""
-=======
-                SELECT *
-                FROM character_events
-                JOIN characters
-                ON character_events.character_id = characters.character_id
-                WHERE character_events.event_id = %s;
-                """,
-                (event_id,)
-            )
-            all_characters_in_event = cursor.fetchall()
-        return all_characters_in_event
-
-
-def get_all_events_for_one_character(connection, character_id):
->>>>>>> origin/develop
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-<<<<<<< HEAD
                 SELECT s.*
                 FROM species s
                 INNER JOIN world_species ws ON s.species_id = ws.species_id
@@ -855,103 +944,3 @@ def get_all_events_for_one_character(connection, character_id):
             )
             species = cursor.fetchall()
         return species
-=======
-                SELECT *
-                FROM character_events
-                JOIN events
-                ON character_events.event_id = events.event_id
-                WHERE character_events.character_id = %s;
-                """,
-                (character_id,)
-            )
-            all_events_for_one_character = cursor.fetchall()
-        return all_events_for_one_character
-
-
-# Maps
-def create_map(connection, world_id, map_name, map_url, scale_factor=None):
-    with connection:
-        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute(
-                """
-                INSERT 
-                INTO maps (
-                    world_id, 
-                    map_name,
-                    map_url,
-                    scale_factor
-                )
-                VALUES (%s, %s, %s, %s) 
-                RETURNING *; 
-                """,
-                (world_id, map_name, map_url, scale_factor)
-            )
-            new_map = cursor.fetchone()
-        return new_map 
-
-
-def get_all_maps_for_one_world(connection, world_id):
-    with connection:
-        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute(
-                """
-                SELECT *
-                FROM maps
-                WHERE world_id = %s;
-                """,
-                (world_id,)
-            )
-            all_maps = cursor.fetchall()
-        return all_maps
-
-
-def get_map_by_id(connection, map_id):
-    with connection:
-        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute(
-                """
-                SELECT *
-                FROM maps
-                WHERE map_id = %s;
-                """,
-                (map_id,)
-            )
-            map_by_id = cursor.fetchone()
-        return map_by_id
-
-
-def update_map(connection, map_id, map_name=None, map_url=None, scale_factor=None):
-    with connection:
-        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute(
-                """
-                UPDATE maps
-                SET
-                    map_name = COALESCE (%s, map_name),
-                    map_url = COALESCE (%s, map_url),
-                    scale_factor = COALESCE (%s, scale_factor),
-                WHERE map_id = %s
-                RETURNING *; 
-                """,
-                (map_name, map_url, scale_factor, map_id)
-            )
-            updated_map = cursor.fetchone()
-        return updated_map 
-
-
-def delete_map(connection, map_id):
-    with connection:
-        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute(
-                """
-                DELETE
-                FROM maps
-                WHERE map_id = %s
-                RETURNING *;
-                """,
-                (map_id,)
-            )
-            deleted_map = cursor.fetchone()
-        return deleted_map
-
->>>>>>> origin/develop
