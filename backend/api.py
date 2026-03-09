@@ -12,14 +12,12 @@
 
 from db_setup import get_connection
 from fastapi import FastAPI, HTTPException, status, Depends, Cookie, Response
+from typing import Optional
+import bcrypt
 import schemas
 import db
-import bcrypt
-from typing import Optional
-
 
 app = FastAPI()
-
 
 def get_db():
     connection = get_connection()
@@ -41,9 +39,7 @@ def get_current_user(
     return session["user_id"]
 
 
-@app.post(
-    "/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse
-)
+@app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
 def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
     try:
         new_user = db.create_user(
@@ -53,14 +49,12 @@ def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
             user.last_name,
             user.email,
             user.password,
-            user.phone,
         )
         return new_user
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong:{error}",
-        )
+            detail=f"Something went wrong:{error}")
 
 
 @app.get("/users/{user_id}")
@@ -72,21 +66,19 @@ def get_user_by_id(user_id: int, connection=Depends(get_db)):
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong {error}",
-        )
+            detail=f"Something went wrong {error}")
 
 
-@app.get("/users/{user_id}")
-def get_user_by_username(user_id: int, connection=Depends(get_db)):
-    try:
-        user_by_username = db.get_user_by_username(connection, user_id)
-        # Returns dictionary with all user data
-        return user_by_username
-    except Exception as error:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong {error}",
-        )
+# @app.get("/users/email")
+# def get_user_by_email(user_id: int, connection=Depends(get_db)):
+#     try:
+#         user_by_email = db.get_user_by_email(connection, user_id)
+#         # Returns dictionary with all user data
+#         return user_by_email
+#     except Exception as error:
+#         raise HTTPException(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             detail=f"Something went wrong {error}")
 
 
 @app.delete("/users/{user_id}")
@@ -100,8 +92,7 @@ def delete_user(user_id: int, connection=Depends(get_db)):
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong {error}",
-        )
+            detail=f"Something went wrong {error}")
 
 
 @app.patch("/users/{user_id}")
@@ -110,22 +101,20 @@ def update_user(user_id: int, user: schemas.UserUpdate, connection=Depends(get_d
         updated_user = db.update_user(
             connection,
             user_id,
-            user.email,
-            user.phone,
             user.username,
             user.first_name,
             user.last_name,
+            user.email
         )
         return updated_user
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong {error}",
-        )
+            detail=f"Something went wrong {error}")
 
 
 @app.post("/login")
-def login(data: schemas.UserLogin, connection=Depends(get_db)):
+def login(data: schemas.UserLogin, response: Response, connection=Depends(get_db)):
     user = db.get_user_by_email(connection, data.email)
 
     if not user:
@@ -133,15 +122,14 @@ def login(data: schemas.UserLogin, connection=Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
 
-    username, hashed_password = user
-    if not bcrypt.checkpw(data.password.encode(), hashed_password.encode()):
+    if not bcrypt.checkpw(data.password.encode(), user["password"].encode()):
         raise HTTPException(
-            status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password"
+            status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password"
         )
-    return {"message": "Login successful"}
-
-    session_id = db.create_session(connection, user_id)
+    
+    session_id = db.create_session(connection, user["user_id"])
     response.set_cookie(key="session_id", value=session_id, httponly=True)
+    return {"message": "Login successful"}
 
 
 # Logga ut

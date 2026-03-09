@@ -15,25 +15,24 @@ settings = Settings()
 # Grundmodell för klasser
 class CreateUser(BaseModel):
     username: str
-    email: str
-    password: str
     first_name: str
     last_name: str
-    phone: Optional[str] = None
+    email: str
+    password: str
 
 class UserResponse(BaseModel):
     user_id: int
     username: str
-    email: str
     first_name: str
     last_name: str
+    email: str
 
 # Uppdatering av konto
 class UserUpdate(BaseModel):
     username: Optional[str] = None
-    email: Optional[str] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    email: Optional[str] = None
 
 # Logga in
 class UserLogin(BaseModel):

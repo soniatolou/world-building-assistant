@@ -58,18 +58,18 @@ def delete_session(connection, session_id):
 
 
 # Users
-def create_user(connection, username, email, password, first_name, last_name):
+def create_user(connection, username, first_name, last_name, email, password):
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 INSERT
-                INTO users (username, email, password, first_name, last_name)
+                INTO users (username, first_name, last_name, email, password)
                 VALUES (%s, %s, %s, %s, %s)
                 RETURNING *;
                 """,
-                (username, email, hashed, first_name, last_name)
+                (username, first_name, last_name, email, hashed)
             )
             new_user = cursor.fetchone()
         return new_user
@@ -82,7 +82,7 @@ def get_user_by_id(connection, user_id):
                 """
                 SELECT *
                 FROM users
-                WHERE user_id %s;
+                WHERE user_id = %s;
                 """,
                 (user_id,)
             )
@@ -105,7 +105,7 @@ def get_user_by_email(connection, email):
         return user_by_email
 
 
-def update_user(connection, user_id, username=None, email=None, first_name=None, last_name=None):
+def update_user(connection, user_id, username=None, first_name=None, last_name=None, email=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -113,13 +113,13 @@ def update_user(connection, user_id, username=None, email=None, first_name=None,
                 UPDATE users
                 SET 
                     username = COALESCE (%s, username), 
-                    email = COALESCE (%s, email),
                     first_name = COALESCE (%s, first_name),
                     last_name = COALESCE (%s, last_name),
+                    email = COALESCE (%s, email)
                 WHERE user_id = %s
                 RETURNING *;
                 """,
-                (username, email, first_name, last_name, user_id)
+                (username, first_name, last_name, email, user_id)
             )
             updated_user = cursor.fetchone()
         return updated_user
