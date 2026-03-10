@@ -232,16 +232,6 @@ def create_tables():
         """
     )
 
-    # Junction table character_relationships
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS "character_relationships" (
-        character_id BIGINT NOT NULL REFERENCES "characters"(character_id),
-        relationship_id BIGINT NOT NULL REFERENCES "relationships"(relationship_id)
-        );
-        """
-    )
-
     # Junction table character_events
     cursor.execute(
         """
@@ -256,7 +246,6 @@ def create_tables():
     connection.commit()
     cursor.close()
     connection.close()
-
 
 if __name__ == "__main__":
     create_tables()
