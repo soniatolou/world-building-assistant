@@ -14,6 +14,7 @@ from db_setup import get_connection
 from fastapi import FastAPI, HTTPException, status, Depends, Cookie, Response
 from typing import Optional
 import bcrypt
+import consistency
 import schemas
 import db
 
@@ -26,8 +27,7 @@ def get_db():
     finally:
         connection.close()
 
-
-# Dependency
+# Dependency function, to protect endpoints 
 # Verifies that there is a valid session connected to the request
 def get_current_user(session_id: Optional[str] = Cookie(None), connection=Depends(get_db)):
     if not session_id:
@@ -36,7 +36,6 @@ def get_current_user(session_id: Optional[str] = Cookie(None), connection=Depend
     if not session:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED)
     return session["user_id"]
-
 
 @app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
 def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
@@ -1136,3 +1135,9 @@ def get_world_species(world_id: int, connection=Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
+
+
+@app.post("/worlds/{world_id}/consistency-check")
+def consistency_check(world_id: int, connection=Depends(get_db)):
+    result = consistency.run_consistency_check(world_id, connection)
+    return result
