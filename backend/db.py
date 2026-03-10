@@ -9,7 +9,6 @@ Database functions for World Building Assistant API.
 Each function execute a query and returns the result.
 """
 
-
 # Sessions
 def create_session(connection, user_id):
     with connection:
@@ -106,9 +105,7 @@ def get_user_by_email(connection, email):
         return user_by_email
 
 
-def update_user(
-    connection, user_id, username=None, first_name=None, last_name=None, email=None
-):
+def update_user(connection, user_id, username=None, first_name=None, last_name=None, email=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -206,9 +203,7 @@ def get_world_by_id(connection, world_id):
         return world
 
 
-def update_world(
-    connection, world_id, world_name=None, world_description=None, image_url=None
-):
+def update_world(connection, world_id, world_name=None, world_description=None, image_url=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(

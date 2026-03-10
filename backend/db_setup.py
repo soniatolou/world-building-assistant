@@ -1,11 +1,10 @@
 import psycopg2
-import schemas
+import settings
 
-settings = schemas.Settings()
+settings = settings.Settings()
 
 def get_connection():
     return psycopg2.connect(settings.DB_URL)
-
 
 def create_tables():
     connection = get_connection()
