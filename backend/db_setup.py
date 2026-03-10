@@ -1,12 +1,7 @@
-import os
 import psycopg2
 import schemas
-from dotenv import load_dotenv
-
-load_dotenv(override=True)
 
 settings = schemas.Settings()
-
 
 def get_connection():
     return psycopg2.connect(settings.DB_URL)
