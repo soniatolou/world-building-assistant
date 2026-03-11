@@ -27,6 +27,7 @@ def get_db():
     finally:
         connection.close()
 
+
 # Dependency function, to protect endpoints 
 # Verifies that there is a valid session connected to the request
 def get_current_user(session_id: Optional[str] = Cookie(None), connection=Depends(get_db)):
@@ -36,6 +37,7 @@ def get_current_user(session_id: Optional[str] = Cookie(None), connection=Depend
     if not session:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED)
     return session["user_id"]
+
 
 @app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
 def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
@@ -122,7 +124,7 @@ def login(data: schemas.UserLogin, response: Response, connection=Depends(get_db
 
     if not bcrypt.checkpw(data.password.encode(), user["password"].encode()):
         raise HTTPException(
-            status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password"
+            status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password"
         )
     
     session_id = db.create_session(connection, user["user_id"])
@@ -130,13 +132,9 @@ def login(data: schemas.UserLogin, response: Response, connection=Depends(get_db
     return {"message": "Login successful"}
 
 
-# Logga ut
+# Log out
 @app.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-def logout(
-    response: Response,
-    session_id: Optional[str] = Cookie(None),
-    connection=Depends(get_db),
-):
+def logout(response: Response, session_id: Optional[str] = Cookie(None), connection=Depends(get_db),):
     if session_id:
         db.delete_session(connection, session_id)
         response.delete_cookie("session_id")
@@ -232,6 +230,76 @@ def delete_world(world_id: int, connection=Depends(get_db), current_user: int = 
             detail=f"Something went wrong: {error}")
 
 
+# World_rules
+@app.post("/users/worlds/{world_id}/world_rules", status_code=status.HTTP_201_CREATED)
+def create_rule(world_id: int, rule: schemas.CreateRule, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+    try:
+        new_rule = db.create_rule(
+            connection,
+            world_id,
+            current_user,
+            rule.rule_text,
+        )
+        return new_rule
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}")
+
+
+@app.get("/worlds/{world_id}/world_rules")
+def get_all_rules(world_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+    try:
+        all_rules = db.get_all_rules(connection, world_id)
+        return all_rules
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}")
+
+
+@app.patch("/world_rules/{rule_id}")
+def update_rule(rule_id: int, rule: schemas.UpdateRule, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+    try:
+        updated_rule = db.update_rule(
+            connection,
+            rule_id,
+            rule.rule_text,
+        )
+        if not updated_rule:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="rule not found"
+            )
+        return updated_rule
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}")
+
+
+@app.delete("/world_rules/{rule_id}")
+def delete_rule(rule_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+    try:
+        deleted_rule = db.delete_rule(connection, rule_id)
+        if not deleted_rule:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="World rule not found"
+            )
+        return {"message": "World rule deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}")
+
+
 # Characters
 @app.post("/worlds/{world_id}/characters")
 def create_character(world_id: int, character: schemas.CreateCharacter, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
@@ -256,7 +324,6 @@ def create_character(world_id: int, character: schemas.CreateCharacter, connecti
             detail=f"Something went wrong: {error}")
 
 
-# Characters
 @app.get("/worlds/{world_id}/characters")
 def get_all_characters(world_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
