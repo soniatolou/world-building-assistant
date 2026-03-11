@@ -83,6 +83,13 @@ class CreateWorld(BaseModel):
     world_description: str
     image_url: str
 
+# World_rules
+class CreateRule(BaseModel):
+    rule_text: str
+
+class UpdateRule(BaseModel):
+    rule_text: Optional[str] = None
+
 class UpdateWorld(BaseModel):
     # Optional allows None as a value, = None makes the field not required
     world_name: Optional[str] = None
