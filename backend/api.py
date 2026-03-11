@@ -301,7 +301,7 @@ def delete_rule(rule_id: int, connection=Depends(get_db), current_user: int = De
 
 
 # Characters
-@app.post("/worlds/{world_id}/characters")
+@app.post("/worlds/{world_id}/characters", status_code=status.HTTP_201_CREATED)
 def create_character(world_id: int, character: schemas.CreateCharacter, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         new_character = db.create_character(
@@ -1081,8 +1081,6 @@ def delete_note(notes_id: int, connection=Depends(get_db)):
 
 
 # --------Junction Tables-----------
-
-
 # ------Wordl-Items junction------
 # World-Items junction - Koppla item till en värld
 @app.post("/worlds/{world_id}/items/{item_id}", status_code=status.HTTP_201_CREATED)
@@ -1204,7 +1202,12 @@ def get_world_species(world_id: int, connection=Depends(get_db)):
         )
 
 
-@app.post("/worlds/{world_id}/consistency-check")
+@app.post("/worlds/{world_id}/consistency-check", status_code=status.HTTP_200_OK)
 def consistency_check(world_id: int, connection=Depends(get_db)):
-    result = consistency.run_consistency_check(world_id, connection)
-    return result
+    try:
+        result = consistency.run_consistency_check(world_id, connection)
+        return result
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong: {error}")
