@@ -274,7 +274,7 @@ def update_rule(connection, rule_id, rule_text):
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                UPDATE rules
+                UPDATE world_rules
                 SET rule_text = COALESCE (%s, rule_text)
                 WHERE rule_id = %s
                 RETURNING *;
