@@ -51,6 +51,16 @@ def create_tables():
         """
     )
 
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS "world_rules" (
+        rule_id BIGSERIAL PRIMARY KEY NOT NULL,
+        rule_text TEXT NOT NULL,
+        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
+        );
+        """
+    )
+
     # Events
     cursor.execute(
         """
@@ -58,6 +68,8 @@ def create_tables():
         event_id BIGSERIAL PRIMARY KEY NOT NULL,
         event_name VARCHAR(255) NOT NULL,
         event_description TEXT NOT NULL,
+        start_year VARCHAR(20),
+        end_year VARCHAR (20),
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
@@ -202,6 +214,7 @@ def create_tables():
         character_id BIGSERIAL PRIMARY KEY NOT NULL,
         character_name VARCHAR(255) NOT NULL,
         character_description TEXT NOT NULL,
+        birth_year VARCHAR(20),
         is_alive BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
