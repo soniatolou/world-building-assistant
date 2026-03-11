@@ -149,8 +149,7 @@ def change_password(connection, user_id, new_password):
                 """
                 UPDATE users
                 SET password = %s
-                WHERE user_id = %s
-                RETURNING *;
+                WHERE user_id = %s;
                 """,
                 (hashed, user_id),
             )
@@ -236,6 +235,70 @@ def delete_world(connection, world_id):
             )
             deleted_world = cursor.fetchone()
         return deleted_world
+
+
+# World_rules
+def create_rule(connection, world_id, rule_text):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                INSERT 
+                INTO world_rules (world_id, rule_text)
+                VALUES (%s, %s)
+                RETURNING *; 
+                """,
+                (world_id, rule_text),
+            )
+            new_rule = cursor.fetchone()
+        return new_rule
+
+
+def get_all_rules(connection, world_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM world_rules
+                WHERE world_id = %s;
+                """,
+                (world_id,),
+            )
+            all_rules = cursor.fetchall()
+        return all_rules
+
+
+def update_rule(connection, rule_id, rule_text):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                UPDATE rules
+                SET rule_text = COALESCE (%s, rule_text)
+                WHERE rule_id = %s
+                RETURNING *;
+                """,
+                (rule_text, rule_id)
+            )
+            updated_rule = cursor.fetchone()
+        return updated_rule
+
+
+def delete_rule(connection, rule_id):
+    with connection:
+        with connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """
+                DELETE
+                FROM world_rules
+                WHERE rule_id = %s
+                RETURNING *;
+                """,
+                (rule_id,),
+            )
+            deleted_rule = cursor.fetchone()
+        return deleted_rule
 
 
 # Characters
