@@ -87,7 +87,6 @@ def update_user(user_id: int, user: schemas.UserUpdate, connection=Depends(get_d
         updated_user = db.update_user(
             connection,
             user_id,
-            current_user,
             user.username,
             user.first_name,
             user.last_name,
