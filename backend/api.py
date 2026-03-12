@@ -81,6 +81,25 @@ def get_user_by_id(user_id: int, connection=Depends(get_db), current_user: int =
 #             detail=f"Something went wrong {error}")
 
 
+@app.patch("/users/{user_id}")
+def update_user(user_id: int, user: schemas.UserUpdate, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+    try:
+        updated_user = db.update_user(
+            connection,
+            user_id,
+            current_user,
+            user.username,
+            user.first_name,
+            user.last_name,
+            user.email
+        )
+        return updated_user
+    except Exception as error:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Something went wrong {error}")
+
+
 @app.delete("/users/{user_id}")
 def delete_user(user_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
@@ -89,24 +108,6 @@ def delete_user(user_id: int, connection=Depends(get_db), current_user: int = De
         return deleted_user
     except HTTPException:
         raise
-    except Exception as error:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong {error}")
-
-
-@app.patch("/users/{user_id}")
-def update_user(user_id: int, user: schemas.UserUpdate, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
-    try:
-        updated_user = db.update_user(
-            connection,
-            user_id,
-            user.username,
-            user.first_name,
-            user.last_name,
-            user.email
-        )
-        return updated_user
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
