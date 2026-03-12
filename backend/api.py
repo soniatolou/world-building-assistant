@@ -712,9 +712,75 @@ def delete_map(map_id: int, connection=Depends(get_db), current_user: int = Depe
             detail=f"Something went wrong: {error}")
 
 
+Bella
+wickedbells
+Online
+
+Bella — Igår 16:57
+Innan isf, vi kanske kan sitta typ 10-12? 🥰
+Sonia — Igår 17:06
+Ja det blir bra 😍
+Ska få det gjort ikv då!!
+Bella — Igår 17:33
+Skriv om du inte skulle hinna då kan vi köra på fredag ist annars kör vi imorgon 🥰
+Sonia — Igår 17:34
+Ja jag säger till i tid så du vet! 🤭🖤
+Sonia — Igår 21:05
+jag sitter med det nu, jag kommer absolut få det gjort ikväll så vi kör på 10 imorgon 😍
+Sonia — Igår 21:53
+Jag har stötte på merge problem igen.. vi får lösa det imorgon, gjorde som förra gången att jag skrev över mina ändringar i en separat fil ist och gick tillbaka till pushade versionen som du gjorde tidigare idag!
+Eller om det var VScode som buggade pga flera timmars användning 😛 men vi fixar det imorgon, vi hörs på teams kl 10! 🥰
+Bella — Igår 21:57
+Konstigt, ja vi kollar på det imorgon 🥰
+Sonia — 10:00
+jag ska bara kissa, akut kissnödig lol. Sen redo !
+Redo nu hehe
+Sonia — 10:53
+sonia@Sonia backend % git status
+On branch develop
+Your branch and 'origin/develop' have diverged,
+and have 1 and 16 different commits each, respectively.
+  (use "git pull" if you want to integrate the remote branch with yours)
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   api.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        backupapi.py
+
+sonia@Sonia backend %
+Bella — 10:55
+git restore --staged api.py
+git restore api.py
+git reset --hard origin/develop
+Sonia — 11:16
+# ------- LOCATIONS - SONIA --------
+
+
 # Locations - skapa plats
 @app.post("/locations", status_code=status.HTTP_201_CREATED)
-def create_location(location: schemas.CreateLocation, connection=Depends(get_db)):
+def create_location(
+
+soniasendpoints.py
+20 KB
+Bella — 11:26
+git fetch
+git reset --hard origin/develop
+﻿
+Sonia
+soniponpon
+# ------- LOCATIONS - SONIA --------
+
+
+# Locations - skapa plats
+@app.post("/locations", status_code=status.HTTP_201_CREATED)
+def create_location(
+    location: schemas.CreateLocation,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         new_location = db.create_location(
             connection,
@@ -725,19 +791,27 @@ def create_location(location: schemas.CreateLocation, connection=Depends(get_db)
             location.location_type,
         )
         return new_location
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
-)
+        )
 
 
 # Locations - hämta alla platser
-@app.get("/locations")
-def get_all_locations(connection=Depends(get_db)):
+@app.get("/worlds/{world_id}/locations")
+def get_all_locations(
+    world_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
-        all_locations = db.get_all_locations(connection)
+        all_locations = db.get_all_locations(connection, world_id)
         return all_locations
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -747,7 +821,11 @@ def get_all_locations(connection=Depends(get_db)):
 
 # Locations - hämta specifik plats med id
 @app.get("/locations/{location_id}")
-def get_location_by_id(location_id: int, connection=Depends(get_db)):
+def get_location_by_id(
+    location_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         location = db.get_location_by_id(connection, location_id)
         if not location:
@@ -767,7 +845,10 @@ def get_location_by_id(location_id: int, connection=Depends(get_db)):
 # Locations - uppdatera plats
 @app.patch("/locations/{location_id}")
 def update_location(
-    location_id: int, location: schemas.LocationUpdate, connection=Depends(get_db)
+    location_id: int,
+    location: schemas.LocationUpdate,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
 ):
     try:
         updated_location = db.update_location(
@@ -792,19 +873,20 @@ def update_location(
         )
 
 
-# Locations - radera en plats
+# Locations - radera en location
 @app.delete("/locations/{location_id}")
-def delete_location(location_id: int, connection=Depends(get_db)):
+def delete_location(
+    location_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         deleted_location = db.delete_location(connection, location_id)
         if not deleted_location:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Location not found"
             )
-        return {
-            "message": "Location deleted successfully",
-            "location": deleted_location,
-        }
+        return {"message": "Location deleted successfully"}
     except HTTPException:
         raise
     except Exception as error:
@@ -814,14 +896,23 @@ def delete_location(location_id: int, connection=Depends(get_db)):
         )
 
 
+# -----------ITEMS - SONIA--------
+
+
 # Items - Skapa föremål
 @app.post("/items", status_code=status.HTTP_201_CREATED)
-def create_item(item: schemas.CreateItem, connection=Depends(get_db)):
+def create_item(
+    item: schemas.CreateItem,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         new_item = db.create_item(
             connection, item.item_name, item.item_description, item.world_id
         )
         return new_item
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -830,11 +921,17 @@ def create_item(item: schemas.CreateItem, connection=Depends(get_db)):
 
 
 # Items - Hämta alla föremål
-@app.get("/items")
-def get_all_items(connection=Depends(get_db)):
+@app.get("/worlds/{world_id}/items")
+def get_all_items(
+    world_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
-        all_items = db.get_all_items(connection)
+        all_items = db.get_all_items(connection, world_id)
         return all_items
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -844,7 +941,11 @@ def get_all_items(connection=Depends(get_db)):
 
 # Items - Hämta specifikt föremål med id
 @app.get("/items/{item_id}")
-def get_item_by_id(item_id: int, connection=Depends(get_db)):
+def get_item_by_id(
+    item_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         item = db.get_item_by_id(connection, item_id)
         if not item:
@@ -863,7 +964,12 @@ def get_item_by_id(item_id: int, connection=Depends(get_db)):
 
 # Items - Uppdatera föremål
 @app.patch("/items/{item_id}")
-def update_item(item_id: int, item: schemas.ItemUpdate, connection=Depends(get_db)):
+def update_item(
+    item_id: int,
+    item: schemas.ItemUpdate,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         updated_item = db.update_item(
             connection, item_id, item.item_name, item.item_description
@@ -884,14 +990,18 @@ def update_item(item_id: int, item: schemas.ItemUpdate, connection=Depends(get_d
 
 # Items - Radera föremål
 @app.delete("/items/{item_id}")
-def delete_item(item_id: int, connection=Depends(get_db)):
+def delete_item(
+    item_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         deleted_item = db.delete_item(connection, item_id)
         if not deleted_item:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Item not found"
             )
-        return {"message": "Item deleted successfully", "item": deleted_item}
+        return {"message": "Item deleted successfully"}
     except HTTPException:
         raise
     except Exception as error:
@@ -901,9 +1011,16 @@ def delete_item(item_id: int, connection=Depends(get_db)):
         )
 
 
+# ----------- SPECIES - SONIA -------
+
+
 # Species - Skapa varelse
 @app.post("/species", status_code=status.HTTP_201_CREATED)
-def create_species(species: schemas.CreateSpecies, connection=Depends(get_db)):
+def create_species(
+    species: schemas.CreateSpecies,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         new_species = db.create_species(
             connection,
@@ -912,6 +1029,8 @@ def create_species(species: schemas.CreateSpecies, connection=Depends(get_db)):
             species.world_id,
         )
         return new_species
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -920,11 +1039,17 @@ def create_species(species: schemas.CreateSpecies, connection=Depends(get_db)):
 
 
 # Species - Hämta alla varelser
-@app.get("/species")
-def get_all_species(connection=Depends(get_db)):
+@app.get("/worlds/{world_id}/species")
+def get_all_species(
+    world_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
-        all_species = db.get_all_species(connection)
+        all_species = db.get_all_species(connection, world_id)
         return all_species
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -934,7 +1059,11 @@ def get_all_species(connection=Depends(get_db)):
 
 # Species - Hämta specifikt varelse med id
 @app.get("/species/{species_id}")
-def get_species_by_id(species_id: int, connection=Depends(get_db)):
+def get_species_by_id(
+    species_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         species = db.get_species_by_id(connection, species_id)
         if not species:
@@ -954,7 +1083,10 @@ def get_species_by_id(species_id: int, connection=Depends(get_db)):
 # Species - Uppdatera varelse
 @app.patch("/species/{species_id}")
 def update_species(
-    species_id: int, species: schemas.SpeciesUpdate, connection=Depends(get_db)
+    species_id: int,
+    species: schemas.SpeciesUpdate,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
 ):
     try:
         updated_species = db.update_species(
@@ -976,14 +1108,18 @@ def update_species(
 
 # Species - Radera varelse
 @app.delete("/species/{species_id}")
-def delete_species(species_id: int, connection=Depends(get_db)):
+def delete_species(
+    species_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         deleted_species = db.delete_species(connection, species_id)
         if not deleted_species:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Species not found"
             )
-        return {"message": "Species deleted successfully", "species": deleted_species}
+        return {"message": "Species deleted successfully"}
     except HTTPException:
         raise
     except Exception as error:
@@ -993,14 +1129,24 @@ def delete_species(species_id: int, connection=Depends(get_db)):
         )
 
 
+#   ------ NOTES - SONIA ---------
+
+
 # Notes - Skapa anteckning
 @app.post("/notes", status_code=status.HTTP_201_CREATED)
-def create_note(note: schemas.CreateNote, connection=Depends(get_db)):
+def create_note(
+    note: schemas.CreateNote,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
+        # Använd current_user från session istället för note.user_id
         new_note = db.create_note(
-            connection, note.note_name, note.note_text, note.user_id
+            connection, note.note_name, note.note_text, current_user
         )
         return new_note
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1009,11 +1155,24 @@ def create_note(note: schemas.CreateNote, connection=Depends(get_db)):
 
 
 # Notes - Hämta alla anteckningar
-@app.get("/notes")
-def get_all_notes(connection=Depends(get_db)):
+@app.get("/users/{user_id}/notes")
+def get_all_notes(
+    user_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
-        all_notes = db.get_all_notes(connection)
+        # Säkerhet, användare kan bara se sina egna notes
+        if user_id != current_user:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Cannot access other users' notes",
+            )
+
+        all_notes = db.get_all_notes(connection, user_id)
         return all_notes
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1023,13 +1182,25 @@ def get_all_notes(connection=Depends(get_db)):
 
 # Notes - Hämta specifik anteckning med id
 @app.get("/notes/{notes_id}")
-def get_note_by_id(notes_id: int, connection=Depends(get_db)):
+def get_note_by_id(
+    notes_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         note = db.get_note_by_id(connection, notes_id)
         if not note:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Note not found"
             )
+
+        # Säk, användare kan bara se sina egna notes
+        if note["user_id"] != current_user:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Cannot access other users' notes",
+            )
+
         return note
     except HTTPException:
         raise
@@ -1042,15 +1213,29 @@ def get_note_by_id(notes_id: int, connection=Depends(get_db)):
 
 # Notes - Uppdatera anteckningar
 @app.patch("/notes/{notes_id}")
-def update_note(notes_id: int, note: schemas.NoteUpdate, connection=Depends(get_db)):
+def update_note(
+    notes_id: int,
+    note: schemas.NoteUpdate,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
-        updated_note = db.update_note(
-            connection, notes_id, note.note_name, note.note_text
-        )
-        if not updated_note:
+        # Kollar att note tillhör användaren
+        existing_note = db.get_note_by_id(connection, notes_id)
+        if not existing_note:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Note not found"
             )
+
+        if existing_note["user_id"] != current_user:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Cannot update other users' notes",
+            )
+
+        updated_note = db.update_note(
+            connection, notes_id, note.note_name, note.note_text
+        )
         return updated_note
     except HTTPException:
         raise
@@ -1063,14 +1248,27 @@ def update_note(notes_id: int, note: schemas.NoteUpdate, connection=Depends(get_
 
 # Notes - Radera anteckning
 @app.delete("/notes/{notes_id}")
-def delete_note(notes_id: int, connection=Depends(get_db)):
+def delete_note(
+    notes_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
-        deleted_note = db.delete_note(connection, notes_id)
-        if not deleted_note:
+        # Kollar att note tillhör användaren
+        existing_note = db.get_note_by_id(connection, notes_id)
+        if not existing_note:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Note not found"
             )
-        return {"message": "Note deleted successfully", "note": deleted_note}
+
+        if existing_note["user_id"] != current_user:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Cannot delete other users' notes",
+            )
+
+        deleted_note = db.delete_note(connection, notes_id)
+        return {"message": "Note deleted successfully"}
     except HTTPException:
         raise
     except Exception as error:
@@ -1080,11 +1278,18 @@ def delete_note(notes_id: int, connection=Depends(get_db)):
         )
 
 
-# --------Junction Tables-----------
+# -------- JUNCTION TABLES - SONIA ---------
+
+
 # ------Wordl-Items junction------
 # World-Items junction - Koppla item till en värld
 @app.post("/worlds/{world_id}/items/{item_id}", status_code=status.HTTP_201_CREATED)
-def add_item_to_world(world_id: int, item_id: int, connection=Depends(get_db)):
+def add_item_to_world(
+    world_id: int,
+    item_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         with connection.cursor() as cursor:
             cursor.execute(
@@ -1096,6 +1301,8 @@ def add_item_to_world(world_id: int, item_id: int, connection=Depends(get_db)):
             )
             connection.commit()
         return {"message": "Item added to world successfully"}
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1105,7 +1312,12 @@ def add_item_to_world(world_id: int, item_id: int, connection=Depends(get_db)):
 
 # World-Items junction - Ta bort kopplingen
 @app.delete("/worlds/{world_id}/items/{item_id}")
-def remove_item_from_world(world_id: int, item_id: int, connection=Depends(get_db)):
+def remove_item_from_world(
+    world_id: int,
+    item_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         with connection.cursor() as cursor:
             cursor.execute(
@@ -1117,6 +1329,8 @@ def remove_item_from_world(world_id: int, item_id: int, connection=Depends(get_d
             )
             connection.commit()
         return {"message": "Item removed from world successfully"}
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1124,30 +1338,36 @@ def remove_item_from_world(world_id: int, item_id: int, connection=Depends(get_d
         )
 
 
-# World-Items junction - Hämta alla items för en värld
-@app.get("/worlds/{world_id}/items")
-def get_world_items(world_id: int, connection=Depends(get_db)):
+# World-Items junction - Hämta alla items för en värld (använder annan route)
+@app.get("/worlds/{world_id}/items/all")
+def get_world_items(
+    world_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         all_items = db.get_items_by_world(connection, world_id)
         return all_items
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
 
-
-# World-Species junction - Koppla species till en värld
-@app.post(
-    "/worlds/{world_id}/species/{species_id}", status_code=status.HTTP_201_CREATED
-)
 
 # --------World-species Junction----------
 # World-Species junction - Koppla species till värld
 @app.post(
     "/worlds/{world_id}/species/{species_id}", status_code=status.HTTP_201_CREATED
 )
-def add_species_to_world(world_id: int, species_id: int, connection=Depends(get_db)):
+def add_species_to_world(
+    world_id: int,
+    species_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         with connection.cursor() as cursor:
             cursor.execute(
@@ -1159,6 +1379,8 @@ def add_species_to_world(world_id: int, species_id: int, connection=Depends(get_
             )
             connection.commit()
         return {"message": "Species added to world successfully"}
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1169,7 +1391,10 @@ def add_species_to_world(world_id: int, species_id: int, connection=Depends(get_
 # World-Species junction - Ta bort koppling
 @app.delete("/worlds/{world_id}/species/{species_id}")
 def remove_species_from_world(
-    world_id: int, species_id: int, connection=Depends(get_db)
+    world_id: int,
+    species_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
 ):
     try:
         with connection.cursor() as cursor:
@@ -1182,6 +1407,8 @@ def remove_species_from_world(
             )
             connection.commit()
         return {"message": "Species removed from world successfully"}
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1189,12 +1416,18 @@ def remove_species_from_world(
         )
 
 
-# World-Species junction - Hämta alla species för en värld
-@app.get("/worlds/{world_id}/species")
-def get_world_species(world_id: int, connection=Depends(get_db)):
+# World-Species junction - Hämta alla species för en värld (använder annan route)
+@app.get("/worlds/{world_id}/species/all")
+def get_world_species(
+    world_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         all_species = db.get_species_by_world(connection, world_id)
         return all_species
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
