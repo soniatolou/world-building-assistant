@@ -712,68 +712,6 @@ def delete_map(map_id: int, connection=Depends(get_db), current_user: int = Depe
             detail=f"Something went wrong: {error}")
 
 
-Bella
-wickedbells
-Online
-
-Bella — Igår 16:57
-Innan isf, vi kanske kan sitta typ 10-12? 🥰
-Sonia — Igår 17:06
-Ja det blir bra 😍
-Ska få det gjort ikv då!!
-Bella — Igår 17:33
-Skriv om du inte skulle hinna då kan vi köra på fredag ist annars kör vi imorgon 🥰
-Sonia — Igår 17:34
-Ja jag säger till i tid så du vet! 🤭🖤
-Sonia — Igår 21:05
-jag sitter med det nu, jag kommer absolut få det gjort ikväll så vi kör på 10 imorgon 😍
-Sonia — Igår 21:53
-Jag har stötte på merge problem igen.. vi får lösa det imorgon, gjorde som förra gången att jag skrev över mina ändringar i en separat fil ist och gick tillbaka till pushade versionen som du gjorde tidigare idag!
-Eller om det var VScode som buggade pga flera timmars användning 😛 men vi fixar det imorgon, vi hörs på teams kl 10! 🥰
-Bella — Igår 21:57
-Konstigt, ja vi kollar på det imorgon 🥰
-Sonia — 10:00
-jag ska bara kissa, akut kissnödig lol. Sen redo !
-Redo nu hehe
-Sonia — 10:53
-sonia@Sonia backend % git status
-On branch develop
-Your branch and 'origin/develop' have diverged,
-and have 1 and 16 different commits each, respectively.
-  (use "git pull" if you want to integrate the remote branch with yours)
-
-Changes to be committed:
-  (use "git restore --staged <file>..." to unstage)
-        modified:   api.py
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-        backupapi.py
-
-sonia@Sonia backend %
-Bella — 10:55
-git restore --staged api.py
-git restore api.py
-git reset --hard origin/develop
-Sonia — 11:16
-# ------- LOCATIONS - SONIA --------
-
-
-# Locations - skapa plats
-@app.post("/locations", status_code=status.HTTP_201_CREATED)
-def create_location(
-
-soniasendpoints.py
-20 KB
-Bella — 11:26
-git fetch
-git reset --hard origin/develop
-﻿
-Sonia
-soniponpon
-# ------- LOCATIONS - SONIA --------
-
-
 # Locations - skapa plats
 @app.post("/locations", status_code=status.HTTP_201_CREATED)
 def create_location(
