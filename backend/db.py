@@ -67,7 +67,7 @@ def create_user(connection, username, first_name, last_name, email, password):
                 INSERT
                 INTO users (username, first_name, last_name, email, password)
                 VALUES (%s, %s, %s, %s, %s)
-                RETURNING *;
+                RETURNING user_id, username, first_name, last_name, email;
                 """,
                 (username, first_name, last_name, email, hashed),
             )
