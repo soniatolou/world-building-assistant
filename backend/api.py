@@ -49,7 +49,7 @@ def get_current_user(session_id: Optional[str] = Cookie(None), connection=Depend
     return session["user_id"]
 
 
-@app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
+@app.post("/register", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
 def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
     try:
         new_user = db.create_user(
