@@ -139,7 +139,7 @@ def login(data: schemas.UserLogin, response: Response, connection=Depends(get_db
     
     session_id = db.create_session(connection, user["user_id"])
     response.set_cookie(key="session_id", value=session_id, httponly=True)
-    return {"message": "Login successful"}
+    return {"message": "Login successful", "user_id": user["user_id"], "username": user["username"]}
 
 
 # Log out
