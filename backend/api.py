@@ -12,6 +12,7 @@
 
 from db_setup import get_connection
 from fastapi import FastAPI, HTTPException, status, Depends, Cookie, Response
+from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 import bcrypt
 import consistency
@@ -19,6 +20,15 @@ import schemas
 import db
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 def get_db():
     connection = get_connection()
