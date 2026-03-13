@@ -13,7 +13,9 @@ export default function Login() {
     async function handleSubmit(e) {
         e.preventDefault()
         const data = await login(formData)
-        localStorage.setItem("user_id", data.user_id, "username", data.username)
+        console.log(data)
+        localStorage.setItem("user_id", data.user_id)
+        localStorage.setItem("username", data.username)
         navigate("/dashboard")
 }
 
