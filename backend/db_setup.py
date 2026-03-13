@@ -1,10 +1,7 @@
 import psycopg2
-import schemas
-from dotenv import load_dotenv
+import settings
 
-load_dotenv(override=True)
-
-settings = schemas.Settings()
+settings = settings.Settings()
 
 def get_connection():
     return psycopg2.connect(settings.DB_URL)
@@ -22,9 +19,20 @@ def create_tables():
         first_name VARCHAR(255) NOT NULL,
         last_name VARCHAR (255) NOT NULL,
         email VARCHAR(255) NOT NULL UNIQUE,
-        phone VARCHAR(20) UNIQUE,
+        password VARCHAR(60) NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         is_active BOOLEAN NOT NULL DEFAULT TRUE
+        );
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS "sessions" (
+        session_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP + INTERVAL '1 days'
         );
         """
     )
@@ -37,7 +45,18 @@ def create_tables():
         world_name VARCHAR(255) NOT NULL,
         world_description TEXT NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        image_url VARCHAR (2048),
         user_id BIGINT NOT NULL REFERENCES "users"(user_id)
+        );
+        """
+    )
+
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS "world_rules" (
+        rule_id BIGSERIAL PRIMARY KEY NOT NULL,
+        rule_text TEXT NOT NULL,
+        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
         );
         """
     )
@@ -49,6 +68,8 @@ def create_tables():
         event_id BIGSERIAL PRIMARY KEY NOT NULL,
         event_name VARCHAR(255) NOT NULL,
         event_description TEXT NOT NULL,
+        start_year VARCHAR(20),
+        end_year VARCHAR (20),
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
@@ -73,7 +94,8 @@ def create_tables():
         """
         CREATE TABLE IF NOT EXISTS "world_items" (
         item_id BIGINT NOT NULL REFERENCES "items"(item_id),
-        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
+        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id),
+        PRIMARY KEY (item_id, world_id)
         );
         """
     )
@@ -95,7 +117,8 @@ def create_tables():
         """
         CREATE TABLE IF NOT EXISTS "world_species" (
         species_id BIGINT NOT NULL REFERENCES "species"(species_id),
-        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
+        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id),
+        PRIMARY KEY (species_id, world_id)
         );
         """
     )
@@ -162,7 +185,7 @@ def create_tables():
         map_name VARCHAR(255) NOT NULL,
         scale_factor FLOAT,
         map_url VARCHAR(2048),
-        image_id BIGINT NOT NULL REFERENCES "images"(image_id),
+        map_description TEXT,
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
         );
         """
@@ -173,13 +196,13 @@ def create_tables():
         """
         CREATE TABLE IF NOT EXISTS "locations" (
         location_id BIGSERIAL PRIMARY KEY NOT NULL,
-        loaction_name VARCHAR(255) NOT NULL,
+        location_name VARCHAR(255) NOT NULL,
         location_description TEXT NOT NULL,
         location_type VARCHAR(100),
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id),
-        map_id BIGINT NOT NULL REFERENCES "maps"(map_id)
+        map_id BIGINT REFERENCES "maps"(map_id)
         );
         """
     )
@@ -191,13 +214,15 @@ def create_tables():
         character_id BIGSERIAL PRIMARY KEY NOT NULL,
         character_name VARCHAR(255) NOT NULL,
         character_description TEXT NOT NULL,
+        birth_year VARCHAR(20),
         is_alive BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        image_url VARCHAR (2048),
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id),
-        image_id BIGINT NOT NULL REFERENCES "images"(image_id),
-        species_id BIGINT NOT NULL REFERENCES "species"(species_id),
-        item_id BIGINT NOT NULL REFERENCES "items"(item_id)
+        image_id BIGINT REFERENCES "images"(image_id),
+        species_id BIGINT REFERENCES "species"(species_id),
+        item_id BIGINT REFERENCES "items"(item_id)
         );
         """
     )
@@ -214,22 +239,13 @@ def create_tables():
         """
     )
 
-    # Junction table character_relationships
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS "character_relationships" (
-        character_id BIGINT NOT NULL REFERENCES "characters"(character_id),
-        relationship_id BIGINT NOT NULL REFERENCES "relationships"(relationship_id)
-        );
-        """
-    )
-
     # Junction table character_events
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "character_events" (
         character_id BIGINT NOT NULL REFERENCES "characters"(character_id),
-        event_id BIGINT NOT NULL REFERENCES "events"(event_id)
+        event_id BIGINT NOT NULL REFERENCES "events"(event_id),
+        PRIMARY KEY (character_id, event_id)
         );
         """
     )
