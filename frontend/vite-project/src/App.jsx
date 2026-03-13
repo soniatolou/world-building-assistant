@@ -6,6 +6,7 @@ import './index.css'
 import HomePage from './pages/HomePage'
 import CreateAccount from './pages/CreateAccount'
 import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/create-account" element={<CreateAccount />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/dashboard" element={<Dashboard />} />
     </Routes>
   )
 }
