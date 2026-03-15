@@ -6,6 +6,9 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import CreateWorld from './pages/CreateWord'
 import WorldDetail from './pages/WorldDetail'
+import Characters from './pages/Characters'
+import CreateCharacter from './pages/CreateCharacter'
+import CharacterDetail from './pages/CharacterDetail'
 
 export default function App() {
   return (
@@ -16,6 +19,9 @@ export default function App() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/create-world" element={<CreateWorld />} />
       <Route path="/worlds/:worldId" element={<WorldDetail />} />
+      <Route path="/worlds/:worldId/characters" element={<Characters />} />
+      <Route path="/worlds/:worldId/characters/create" element={<CreateCharacter />} />
+      <Route path="/worlds/:worldId/characters/:characterId" element={<CharacterDetail />} />
     </Routes>
   )
 }
