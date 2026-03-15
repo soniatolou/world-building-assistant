@@ -23,12 +23,14 @@ export default function CreateWorld() {
 
     return (
         <div
-            className="min-h-screen bg-cover bg-center bg-no-repeat"
+            className="relative min-h-screen bg-cover bg-center bg-no-repeat"
             style={{
                 backgroundImage: `url('/homepage-background.png')`,
                 fontFamily: "'Cinzel', serif",
             }}
         >
+            <div className="absolute inset-0 bg-[#080a14]/80 pointer-events-none" />
+            <div className="relative z-10 flex flex-col min-h-screen">
             <Navbar />
 
             <main className="flex items-center justify-center min-h-[calc(100vh-73px)]">
@@ -81,6 +83,7 @@ export default function CreateWorld() {
                     </div>
                 </div>
             </main>
+            </div>
         </div>
     )
 }

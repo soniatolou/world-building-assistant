@@ -27,12 +27,14 @@ export default function Dashboard() {
 
     return (
         <div
-            className="min-h-screen bg-cover bg-center bg-no-repeat"
+            className="relative min-h-screen bg-cover bg-center bg-no-repeat"
             style={{
                 backgroundImage: `url('/homepage-background.png')`,
                 fontFamily: "'Cinzel', serif",
             }}
         >
+            <div className="absolute inset-0 bg-[#080a14]/80 pointer-events-none" />
+            <div className="relative z-10 flex flex-col min-h-screen">
             <Navbar />
 
             <main className="container mx-auto px-6 py-12">
@@ -73,6 +75,7 @@ export default function Dashboard() {
                     </div>
                 )}
             </main>
+            </div>
         </div>
     )
 }

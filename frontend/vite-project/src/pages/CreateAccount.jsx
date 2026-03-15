@@ -24,14 +24,15 @@ export default function CreateAccount() {
 
     return (
         <div
-        className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center"
+        className="relative min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center"
         style={{ backgroundImage: `url('/homepage-background.png')`, fontFamily: "'Cinzel', serif" }}
         >
+        <div className="absolute inset-0 bg-[#080a14]/80 pointer-events-none" />
         <link
             href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap"
             rel="stylesheet"
         />
-        <div className="flex flex-col items-center gap-6 w-full max-w-sm">
+        <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-sm">
             <h1 className="text-3xl font-bold text-white">Create Account</h1>
             <div className="flex flex-col gap-3 w-full">
             {['username', 'first_name', 'last_name', 'email', 'password'].map((field) => (
