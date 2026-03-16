@@ -1,7 +1,7 @@
 const BASE_URL = "http://localhost:8000"
 
-export async function getUserWorlds(userId) {
-    const res = await fetch(`${BASE_URL}/users/${userId}/worlds`, {
+export async function getUserWorlds() {
+    const res = await fetch(`${BASE_URL}/worlds`, {
         method: "GET",
         credentials: "include",
     })
@@ -9,7 +9,7 @@ export async function getUserWorlds(userId) {
 }
 
 export async function createWorld(worldData) {
-    const res = await fetch(`${BASE_URL}/users/worlds`, {
+    const res = await fetch(`${BASE_URL}/worlds`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

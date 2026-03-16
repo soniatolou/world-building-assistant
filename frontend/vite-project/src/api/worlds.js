@@ -1,14 +1,14 @@
 const BASE_URL = "http://localhost:8000"
 
 export async function getAllWorlds(userId) {
-    const res = await fetch(`${BASE_URL}/users/${userId}/worlds`, {
+    const res = await fetch(`${BASE_URL}/worlds`, {
         credentials: "include",
     })
     return res.json()
 }
 
 export async function getWorld(userId, worldId) {
-    const res = await fetch(`${BASE_URL}/users/${userId}/worlds/${worldId}`, {
+    const res = await fetch(`${BASE_URL}/worlds/${worldId}`, {
         credentials: "include",
     })
     return res.json()
