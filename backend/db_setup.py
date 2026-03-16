@@ -46,7 +46,7 @@ def create_tables():
         world_description TEXT NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         image_url VARCHAR (2048),
-        user_id BIGINT NOT NULL REFERENCES "users"(user_id)
+        user_id BIGINT NOT NULL REFERENCES "users"(user_id) ON DELETE CASCADE
         );
         """
     )
@@ -56,7 +56,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "world_rules" (
         rule_id BIGSERIAL PRIMARY KEY NOT NULL,
         rule_text TEXT NOT NULL,
-        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
+        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE
         );
         """
     )
@@ -72,7 +72,7 @@ def create_tables():
         end_year VARCHAR (20),
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
+        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE
         );
         """
     )
@@ -84,7 +84,7 @@ def create_tables():
         item_id BIGSERIAL PRIMARY KEY NOT NULL,
         item_name VARCHAR(255) NOT NULL,
         item_description TEXT NOT NULL,
-        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
+        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE
         );
         """
     )
@@ -93,8 +93,8 @@ def create_tables():
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "world_items" (
-        item_id BIGINT NOT NULL REFERENCES "items"(item_id),
-        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id),
+        item_id BIGINT NOT NULL REFERENCES "items"(item_id) ON DELETE CASCADE,
+        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE,
         PRIMARY KEY (item_id, world_id)
         );
         """
@@ -107,7 +107,7 @@ def create_tables():
         species_id BIGSERIAL PRIMARY KEY NOT NULL,
         species_name VARCHAR(255) NOT NULL,
         species_description TEXT NOT NULL,
-        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
+        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE
         );
         """
     )
@@ -116,8 +116,8 @@ def create_tables():
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "world_species" (
-        species_id BIGINT NOT NULL REFERENCES "species"(species_id),
-        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id),
+        species_id BIGINT NOT NULL REFERENCES "species"(species_id) ON DELETE CASCADE,
+        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE,
         PRIMARY KEY (species_id, world_id)
         );
         """
@@ -130,7 +130,7 @@ def create_tables():
         notes_id BIGSERIAL PRIMARY KEY NOT NULL,
         note_name VARCHAR(255) NOT NULL,
         note_text TEXT NOT NULL,
-        user_id BIGINT NOT NULL REFERENCES "users"(user_id)
+        user_id BIGINT NOT NULL REFERENCES "users"(user_id) ON DELETE CASCADE
         );
         """
     )
@@ -152,7 +152,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "entity_tags" (
         entity_id BIGSERIAL PRIMARY KEY NOT NULL,
         entity_type VARCHAR(100) NOT NULL,
-        tag_id BIGINT NOT NULL REFERENCES "tags"(tag_id)
+        tag_id BIGINT NOT NULL REFERENCES "tags"(tag_id) ON DELETE CASCADE
         );
         """
     )
@@ -183,10 +183,10 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "maps" (
         map_id BIGSERIAL PRIMARY KEY NOT NULL,
         map_name VARCHAR(255) NOT NULL,
-        scale_factor FLOAT,
-        map_url VARCHAR(2048),
+        map_url VARCHAR(2048) NOT NULL,
         map_description TEXT,
-        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id)
+        scale_factor FLOAT,
+        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE
         );
         """
     )
@@ -201,8 +201,8 @@ def create_tables():
         location_type VARCHAR(100),
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id),
-        map_id BIGINT REFERENCES "maps"(map_id)
+        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE,
+        map_id BIGINT REFERENCES "maps"(map_id) ON DELETE SET NULL
         );
         """
     )
@@ -219,10 +219,10 @@ def create_tables():
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         image_url VARCHAR (2048),
-        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id),
-        image_id BIGINT REFERENCES "images"(image_id),
-        species_id BIGINT REFERENCES "species"(species_id),
-        item_id BIGINT REFERENCES "items"(item_id)
+        world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE,
+        image_id BIGINT REFERENCES "images"(image_id) ON DELETE SET NULL,
+        species_id BIGINT REFERENCES "species"(species_id) ON DELETE SET NULL,
+        item_id BIGINT REFERENCES "items"(item_id) ON DELETE SET NULL
         );
         """
     )
@@ -232,8 +232,8 @@ def create_tables():
         """
         CREATE TABLE IF NOT EXISTS "relationships" (
         relationship_id BIGSERIAL PRIMARY KEY NOT NULL,
-        character_a_id BIGINT NOT NULL REFERENCES "characters"(character_id),
-        character_b_id BIGINT NOT NULL REFERENCES "characters"(character_id),
+        character_a_id BIGINT NOT NULL REFERENCES "characters"(character_id) ON DELETE CASCADE,
+        character_b_id BIGINT NOT NULL REFERENCES "characters"(character_id) ON DELETE CASCADE,
         relationship_type VARCHAR(255) NOT NULL
         );
         """
@@ -243,8 +243,8 @@ def create_tables():
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS "character_events" (
-        character_id BIGINT NOT NULL REFERENCES "characters"(character_id),
-        event_id BIGINT NOT NULL REFERENCES "events"(event_id),
+        character_id BIGINT NOT NULL REFERENCES "characters"(character_id) ON DELETE CASCADE,
+        event_id BIGINT NOT NULL REFERENCES "events"(event_id) ON DELETE CASCADE,
         PRIMARY KEY (character_id, event_id)
         );
         """
