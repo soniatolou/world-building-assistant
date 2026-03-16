@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCharacter, updateCharacter, deleteCharacter } from "../api/characters";
+import { getRelationshipsForCharacter } from "../api/relationships";
 import WorldSidebar from "../components/WorldSidebar";
 import Navbar from "../components/Navbar";
 
@@ -17,6 +18,7 @@ export default function CharacterDetail() {
     is_alive: true,
   });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [relationships, setRelationships] = useState([]);
 
   useEffect(() => {
     async function fetchCharacter() {
@@ -35,6 +37,18 @@ export default function CharacterDetail() {
       }
     }
     fetchCharacter();
+  }, [characterId]);
+
+  useEffect(() => {
+    async function fetchRelationships() {
+      try {
+        const data = await getRelationshipsForCharacter(characterId);
+        if (Array.isArray(data)) setRelationships(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchRelationships();
   }, [characterId]);
 
   async function handleUpdate() {
@@ -109,11 +123,9 @@ export default function CharacterDetail() {
                     />
                   ) : (
                     <div
-                      className="w-full bg-white/5 flex items-center justify-center"
+                      className="w-full bg-white/5"
                       style={{ minHeight: "420px" }}
-                    >
-                      <span className="text-white/20 text-6xl">✦</span>
-                    </div>
+                    />
                   )}
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6">
                     <h2 className="text-2xl font-bold text-white uppercase tracking-wide">
@@ -128,34 +140,69 @@ export default function CharacterDetail() {
 
                 {/* Right: Info */}
                 <div className="flex-1 flex flex-col gap-8">
-                  <div>
-                    <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-4 border-b border-white/10 pb-2">
-                      Biography
-                    </h3>
+                  <div className="flex flex-col gap-2">
+                    <div>
+                      <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-1 border-b border-white/10 pb-2">
+                        Status
+                      </h3>
+                      <p className="text-white/70 text-sm mt-2">
+                        {character.is_alive ? "Alive" : "Deceased"}
+                      </p>
+                    </div>
+                    {character.birth_year && (
+                      <div>
+                        <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-1 border-b border-white/10 pb-2 mt-2">
+                          Birth Year
+                        </h3>
+                        <p className="text-white/70 text-sm mt-2">
+                          {character.birth_year}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="bg-white/5 border border-white/10 rounded-lg p-5 w-1/2">
+                    <p className="text-white/30 text-xs tracking-widest uppercase mb-3">Biography</p>
                     <p
-                      className="text-white/70 leading-relaxed"
+                      className="text-white/70 leading-relaxed text-sm"
                       style={{ fontFamily: "sans-serif" }}
                     >
                       {character.character_description}
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white/5 border border-white/10 rounded-lg p-5">
-                      <p className="text-white/30 text-xs tracking-widest uppercase mb-2">Status</p>
-                      <p className="text-white font-bold tracking-wide uppercase text-sm">
-                        {character.is_alive ? "Alive" : "Deceased"}
-                      </p>
-                    </div>
-                    {character.birth_year && (
-                      <div className="bg-white/5 border border-white/10 rounded-lg p-5">
-                        <p className="text-white/30 text-xs tracking-widest uppercase mb-2">Birth Year</p>
-                        <p className="text-white font-bold tracking-wide uppercase text-sm">
-                          {character.birth_year}
-                        </p>
+                  {relationships.length > 0 && (
+                    <div>
+                      <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-4 border-b border-white/10 pb-2">
+                        Relationships
+                      </h3>
+                      <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden w-1/2">
+                        {relationships.map((rel) => {
+                          const isA = rel.character_a_id === parseInt(characterId);
+                          const otherId = isA ? rel.character_b_id : rel.character_a_id;
+                          const otherName = isA ? rel.character_b_name : rel.character_a_name;
+                          return (
+                            <div
+                              key={rel.relationship_id}
+                              className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-all"
+                            >
+                              <span className="text-purple-400 text-xs tracking-widest uppercase border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 rounded shrink-0">
+                                {rel.relationship_type}
+                              </span>
+                              <span className="text-white/30 text-xs">→</span>
+                              <button
+                                onClick={() => navigate(`/worlds/${worldId}/characters/${otherId}`)}
+                                className="text-white/80 hover:text-purple-300 text-sm tracking-wide transition-colors text-left"
+                                style={{ fontFamily: "'Cinzel', serif" }}
+                              >
+                                {otherName}
+                              </button>
+                            </div>
+                          );
+                        })}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </>

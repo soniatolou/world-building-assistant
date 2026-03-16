@@ -7,6 +7,7 @@ export default function WorldSidebar({ worldId, worldName }) {
     const links = [
         { label: "Dashboard", path: "/dashboard" },
         { label: "Characters", path: `/worlds/${worldId}/characters` },
+        { label: "Relationships", path: `/worlds/${worldId}/relationships` },
         { label: "Locations", path: `/worlds/${worldId}/locations` },
         { label: "Events", path: `/worlds/${worldId}/events` },
         { label: "Maps", path: `/worlds/${worldId}/maps` },

@@ -9,6 +9,7 @@ import WorldDetail from './pages/WorldDetail'
 import Characters from './pages/Characters'
 import CreateCharacter from './pages/CreateCharacter'
 import CharacterDetail from './pages/CharacterDetail'
+import Relationships from './pages/Relationships'
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
       <Route path="/worlds/:worldId/characters" element={<Characters />} />
       <Route path="/worlds/:worldId/characters/create" element={<CreateCharacter />} />
       <Route path="/worlds/:worldId/characters/:characterId" element={<CharacterDetail />} />
+      <Route path="/worlds/:worldId/relationships" element={<Relationships />} />
     </Routes>
   )
 }

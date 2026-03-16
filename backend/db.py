@@ -460,15 +460,17 @@ def get_relationships_for_character(connection, character_id):
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                SELECT 
+                SELECT
                     relationships.relationship_id,
                     relationships.relationship_type,
-                    a.character_name AS character_a_name, -- Gets the name on character a, renames the column to character_a_name --
+                    a.character_id AS character_a_id,
+                    a.character_name AS character_a_name,
+                    b.character_id AS character_b_id,
                     b.character_name AS character_b_name
                 FROM relationships
                 JOIN characters a -- Joins characters-table, renames it a (character a) --
                 ON relationships.character_a_id = a.character_id -- Connects it via character_a_id --
-                JOIN characters b 
+                JOIN characters b
                 ON relationships.character_b_id = b.character_id
                 WHERE relationships.character_a_id = %s OR relationships.character_b_id = %s;
                 """,

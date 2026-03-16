@@ -77,9 +77,7 @@ export default function Characters() {
                     className="w-full h-48 object-cover object-top"
                   />
                 ) : (
-                  <div className="w-full h-48 bg-white/5 flex items-center justify-center">
-                    <span className="text-white/20 text-4xl">✦</span>
-                  </div>
+                  <div className="w-full h-48 bg-white/5" />
                 )}
                 <div className="p-5">
                   <h2 className="text-lg font-bold text-white mb-1 group-hover:text-purple-300 transition-colors">
