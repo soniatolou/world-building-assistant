@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCharacters } from "../api/characters";
 import WorldSidebar from "../components/WorldSidebar";
+import Navbar from "../components/Navbar";
 
 export default function Characters() {
   const { worldId } = useParams();
@@ -22,13 +23,17 @@ export default function Characters() {
 
   return (
     <div
-      className="relative min-h-screen bg-cover bg-center bg-no-repeat flex"
+      className="relative min-h-screen bg-cover bg-center bg-no-repeat flex flex-col"
       style={{
         backgroundImage: `url('/homepage-background.png')`,
         fontFamily: "'Cinzel', serif",
       }}
     >
       <div className="absolute inset-0 bg-[#080a14]/80 pointer-events-none" />
+      <div className="relative z-10">
+        <Navbar />
+      </div>
+      <div className="flex flex-1">
       <WorldSidebar worldId={worldId} />
 
       <div className="relative z-10 flex flex-col flex-1 p-10">
@@ -94,6 +99,7 @@ export default function Characters() {
             ))}
           </div>
         )}
+      </div>
       </div>
     </div>
   );

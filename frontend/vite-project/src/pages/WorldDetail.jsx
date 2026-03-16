@@ -1,122 +1,296 @@
-import { useState, useEffect } from "react"
-import { useNavigate, useParams } from "react-router-dom"
-import { getUserWorlds } from "../api/dashboard"
-import { getCharacters } from "../api/characters"
-import { getLocations } from "../api/locations"
-import { getEvents } from "../api/events"
-import { getMaps } from "../api/maps"
-import WorldSidebar from "../components/WorldSidebar"
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getUserWorlds } from "../api/dashboard";
+import { getCharacters } from "../api/characters";
+import { getLocations } from "../api/locations";
+import { getEvents } from "../api/events";
+import { getMaps } from "../api/maps";
+import { updateWorld, deleteWorld } from "../api/worlds";
+import WorldSidebar from "../components/WorldSidebar";
+import Navbar from "../components/Navbar";
 
 export default function WorldDetail() {
-    const { worldId } = useParams()
-    const navigate = useNavigate()
-    const userId = localStorage.getItem("user_id")
+  const { worldId } = useParams();
+  const navigate = useNavigate();
+  const userId = localStorage.getItem("user_id");
 
-    const [world, setWorld] = useState(null)
-    const [counts, setCounts] = useState({ characters: 0, locations: 0, events: 0, maps: 0 })
+  const [world, setWorld] = useState(null);
+  const [counts, setCounts] = useState({
+    characters: 0,
+    locations: 0,
+    events: 0,
+    maps: 0,
+  });
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editForm, setEditForm] = useState({
+    world_name: "",
+    world_description: "",
+    image_url: "",
+  });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
 
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const worlds = await getUserWorlds(userId)
-                const found = worlds.find((w) => String(w.world_id) === String(worldId))
-                if (found) setWorld(found)
-
-                const [characters, locations, events, maps] = await Promise.all([
-                    getCharacters(worldId),
-                    getLocations(worldId),
-                    getEvents(worldId),
-                    getMaps(worldId),
-                ])
-                setCounts({
-                    characters: Array.isArray(characters) ? characters.length : 0,
-                    locations: Array.isArray(locations) ? locations.length : 0,
-                    events: Array.isArray(events) ? events.length : 0,
-                    maps: Array.isArray(maps) ? maps.length : 0,
-                })
-            } catch (err) {
-                console.error(err)
-            }
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const worlds = await getUserWorlds(userId);
+        const found = worlds.find(
+          (w) => String(w.world_id) === String(worldId),
+        );
+        if (found) {
+          setWorld(found);
+          setEditForm({
+            world_name: found.world_name || "",
+            world_description: found.world_description || "",
+            image_url: found.image_url || "",
+          });
         }
-        fetchData()
-    }, [worldId])
 
-    const quickActions = [
-        { label: "New Character", path: `/worlds/${worldId}/characters/create` },
-        { label: "New Location", path: `/worlds/${worldId}/locations/create` },
-        { label: "New Event", path: `/worlds/${worldId}/events/create` },
-        { label: "New Map", path: `/worlds/${worldId}/maps/create` },
-    ]
+        const [characters, locations, events, maps] = await Promise.all([
+          getCharacters(worldId),
+          getLocations(worldId),
+          getEvents(worldId),
+          getMaps(worldId),
+        ]);
+        setCounts({
+          characters: Array.isArray(characters) ? characters.length : 0,
+          locations: Array.isArray(locations) ? locations.length : 0,
+          events: Array.isArray(events) ? events.length : 0,
+          maps: Array.isArray(maps) ? maps.length : 0,
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchData();
+  }, [worldId]);
 
-    const stats = [
-        { label: "Characters", value: counts.characters },
-        { label: "Locations", value: counts.locations },
-        { label: "Events", value: counts.events },
-        { label: "Maps", value: counts.maps },
-    ]
+  async function handleUpdate() {
+    try {
+      const updated = await updateWorld(worldId, editForm);
+      setWorld(updated);
+      setShowEditModal(false);
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
-    return (
-        <div
-            className="relative min-h-screen bg-cover bg-center bg-no-repeat flex"
-            style={{
-                backgroundImage: `url('/homepage-background.png')`,
-                fontFamily: "'Cinzel', serif",
-            }}
-        >
-            <div className="absolute inset-0 bg-[#080a14]/80 pointer-events-none" />
+  async function handleDelete() {
+    try {
+      await deleteWorld(worldId);
+      navigate("/dashboard");
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
-            <WorldSidebar worldId={worldId} worldName={world?.world_name} />
+  const quickActions = [
+    { label: "New Character", path: `/worlds/${worldId}/characters/create` },
+    { label: "New Location", path: `/worlds/${worldId}/locations/create` },
+    { label: "New Event", path: `/worlds/${worldId}/events/create` },
+    { label: "New Map", path: `/worlds/${worldId}/maps/create` },
+  ];
 
-            <div className="relative z-10 flex flex-col flex-1 p-10">
-                {world ? (
-                    <>
-                        <div className="mb-8">
-                            <div className="flex items-center gap-3 mb-1">
-                                <div className="w-1 h-8 bg-purple-500" />
-                                <h1 className="text-3xl font-bold text-white tracking-wide uppercase">
-                                    {world.world_name}
-                                </h1>
-                            </div>
-                            <p className="text-white/50 text-sm ml-4" style={{ fontFamily: "sans-serif" }}>
-                                {world.world_description}
-                            </p>
-                        </div>
+  const stats = [
+    { label: "Characters", value: counts.characters },
+    { label: "Locations", value: counts.locations },
+    { label: "Events", value: counts.events },
+    { label: "Maps", value: counts.maps },
+  ];
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-                            {stats.map((stat) => (
-                                <div
-                                    key={stat.label}
-                                    className="bg-white/5 border border-white/10 rounded-lg p-5 text-center"
-                                >
-                                    <p className="text-3xl font-bold text-purple-400">{stat.value}</p>
-                                    <p className="text-white/50 text-xs tracking-widest uppercase mt-1">
-                                        {stat.label}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
+  return (
+    <div
+      className="relative min-h-screen bg-cover bg-center bg-no-repeat flex flex-col"
+      style={{
+        backgroundImage: `url('/homepage-background.png')`,
+        fontFamily: "'Cinzel', serif",
+      }}
+    >
+      <div className="absolute inset-0 bg-[#080a14]/80 pointer-events-none" />
+      <div className="relative z-10">
+        <Navbar />
+      </div>
+      <div className="flex flex-1">
+      <WorldSidebar worldId={worldId} worldName={world?.world_name} />
 
-                        <div>
-                            <h2 className="text-white/50 text-xs tracking-widest uppercase mb-4">
-                                Quick Actions
-                            </h2>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {quickActions.map((action) => (
-                                    <button
-                                        key={action.path}
-                                        onClick={() => navigate(action.path)}
-                                        className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/40 rounded-lg p-5 text-white/70 hover:text-white text-sm tracking-wide transition-all text-left"
-                                    >
-                                        + {action.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </>
-                ) : (
-                    <p className="text-white/40">Loading...</p>
-                )}
+      <div className="relative z-10 flex flex-col flex-1 p-10">
+        {world ? (
+          <>
+            <div className="mb-8">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3 mb-1">
+                  <div className="w-1 h-8 bg-purple-500" />
+                  <h1 className="text-3xl font-bold text-white tracking-wide uppercase">
+                    {world.world_name}
+                  </h1>
+                </div>
+                <button
+                  onClick={() => setShowEditModal(true)}
+                  className="text-xs text-white/50 hover:text-white border border-white/10 hover:border-purple-500/40 px-3 py-1.5 rounded tracking-widest uppercase transition-all"
+                >
+                  Edit
+                </button>
+              </div>
+              <p
+                className="text-white/50 text-sm ml-4"
+                style={{ fontFamily: "sans-serif" }}
+              >
+                {world.world_description}
+              </p>
             </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+              {stats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="bg-white/5 border border-white/10 rounded-lg p-5 text-center"
+                >
+                  <p className="text-3xl font-bold text-purple-400">
+                    {stat.value}
+                  </p>
+                  <p className="text-white/50 text-xs tracking-widest uppercase mt-1">
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <h2 className="text-white/50 text-xs tracking-widest uppercase mb-4">
+                Quick Actions
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {quickActions.map((action) => (
+                  <button
+                    key={action.path}
+                    onClick={() => navigate(action.path)}
+                    className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/40 rounded-lg p-5 text-white/70 hover:text-white text-sm tracking-wide transition-all text-left"
+                  >
+                    + {action.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        ) : (
+          <p className="text-white/40">Loading...</p>
+        )}
+      </div>
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div
+            className="bg-[#0d0f1e] border border-white/10 rounded-xl p-8 w-full max-w-md"
+            style={{ fontFamily: "'Cinzel', serif" }}
+          >
+            <h2 className="text-white text-lg font-bold tracking-wide uppercase mb-6">
+              Edit World
+            </h2>
+
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
+                  World Name
+                </label>
+                <input
+                  type="text"
+                  value={editForm.world_name}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, world_name: e.target.value })
+                  }
+                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                  style={{ fontFamily: "sans-serif" }}
+                />
+              </div>
+
+              <div>
+                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={editForm.world_description}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      world_description: e.target.value,
+                    })
+                  }
+                  rows={4}
+                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 resize-none"
+                  style={{ fontFamily: "sans-serif" }}
+                />
+              </div>
+
+              <div>
+                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
+                  Image URL
+                </label>
+                <input
+                  type="text"
+                  value={editForm.image_url}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, image_url: e.target.value })
+                  }
+                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                  style={{ fontFamily: "sans-serif" }}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center mt-8">
+              {!showDeleteConfirm ? (
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="text-xs text-red-400/70 hover:text-red-400 tracking-widest uppercase transition-all"
+                >
+                  Delete World
+                </button>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <span
+                    className="text-xs text-white/50"
+                    style={{ fontFamily: "sans-serif" }}
+                  >
+                    Are you sure?
+                  </span>
+                  <button
+                    onClick={handleDelete}
+                    className="text-xs text-red-400 border border-red-400/30 hover:border-red-400/60 px-3 py-1 rounded tracking-widest uppercase transition-all"
+                  >
+                    Yes, delete
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="text-xs text-white/40 hover:text-white/70 tracking-widest uppercase transition-all"
+                  >
+                    No, don't delete
+                  </button>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setShowDeleteConfirm(false);
+                  }}
+                  className="text-xs text-white/40 hover:text-white/70 border border-white/10 px-4 py-2 rounded tracking-widest uppercase transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleUpdate}
+                  className="text-xs text-white bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded tracking-widest uppercase transition-all"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-    )
+      )}
+      </div>
+    </div>
+  );
 }
