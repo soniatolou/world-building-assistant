@@ -28,7 +28,6 @@ export default function WorldDetail() {
     image_url: "",
   });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleteSuccess, setDeleteSuccess] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -87,8 +86,8 @@ export default function WorldDetail() {
   const quickActions = [
     { label: "New Character", path: `/worlds/${worldId}/characters/create` },
     { label: "New Location", path: `/worlds/${worldId}/locations/create` },
-    { label: "New Event", path: `/worlds/${worldId}/events/create` },
-    { label: "New Map", path: `/worlds/${worldId}/maps/create` },
+    { label: "New Event", path: `/worlds/${worldId}/events` },
+    { label: "New Map", path: `/worlds/${worldId}/maps` },
   ];
 
   const stats = [

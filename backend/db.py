@@ -522,29 +522,30 @@ def delete_relationship(connection, relationship_id):
 
 
 # Events
-def create_event(connection, world_id, event_name, event_description, event_date):
+def create_event(connection, world_id, event_name, event_description, start_year=None, end_year=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                INSERT 
+                INSERT
                 INTO events (
-                    world_id, 
-                    event_name, 
-                    event_description, 
-                    event_date
+                    world_id,
+                    event_name,
+                    event_description,
+                    start_year,
+                    end_year
                 )
-                VALUES (%s, %s, %s, %s) 
-                RETURNING *; 
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING *;
                 """,
-                (world_id, event_name, event_description, event_date),
+                (world_id, event_name, event_description, start_year, end_year),
             )
             new_event = cursor.fetchone()
         return new_event
 
 
 def update_event(
-    connection, event_id, event_name=None, event_description=None, event_date=None
+    connection, event_id, event_name=None, event_description=None, start_year=None, end_year=None
 ):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -554,11 +555,12 @@ def update_event(
                 SET
                     event_name = COALESCE (%s, event_name),
                     event_description = COALESCE (%s, event_description),
-                    event_date = COALESCE (%s, event_date)
+                    start_year = COALESCE (%s, start_year),
+                    end_year = COALESCE (%s, end_year)
                 WHERE event_id = %s
-                RETURNING *; 
+                RETURNING *;
                 """,
-                (event_name, event_description, event_date, event_id),
+                (event_name, event_description, start_year, end_year, event_id),
             )
             updated_event = cursor.fetchone()
         return updated_event

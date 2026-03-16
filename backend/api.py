@@ -489,7 +489,8 @@ def create_event(world_id: int, event: schemas.CreateEvent, connection=Depends(g
             world_id,
             event.event_name,
             event.event_description,
-            event.event_date,
+            event.start_year,
+            event.end_year,
         )
         return new_event
     except HTTPException:
@@ -538,7 +539,8 @@ def update_event(event_id: int, event: schemas.UpdateEvent, connection=Depends(g
             event_id,
             event.event_name,
             event.event_description,
-            event.event_date,
+            event.start_year,
+            event.end_year,
         )
         if not updated_event:
             raise HTTPException(

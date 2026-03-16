@@ -10,6 +10,10 @@ import Characters from './pages/Characters'
 import CreateCharacter from './pages/CreateCharacter'
 import CharacterDetail from './pages/CharacterDetail'
 import Relationships from './pages/Relationships'
+import Events from './pages/Events'
+import EventDetail from './pages/EventDetail'
+import Maps from './pages/Maps'
+import MapDetail from './pages/MapDetail'
 
 export default function App() {
   return (
@@ -24,6 +28,10 @@ export default function App() {
       <Route path="/worlds/:worldId/characters/create" element={<CreateCharacter />} />
       <Route path="/worlds/:worldId/characters/:characterId" element={<CharacterDetail />} />
       <Route path="/worlds/:worldId/relationships" element={<Relationships />} />
+      <Route path="/worlds/:worldId/events" element={<Events />} />
+      <Route path="/worlds/:worldId/events/:eventId" element={<EventDetail />} />
+      <Route path="/worlds/:worldId/maps" element={<Maps />} />
+      <Route path="/worlds/:worldId/maps/:mapId" element={<MapDetail />} />
     </Routes>
   )
 }

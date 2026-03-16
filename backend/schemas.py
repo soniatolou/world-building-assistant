@@ -130,19 +130,21 @@ class UpdateRelationship(BaseModel):
 class CreateEvent(BaseModel):
     event_name: str
     event_description: str
-    event_date: str
+    start_year: Optional[str] = None
+    end_year: Optional[str] = None
 
 class UpdateEvent(BaseModel):
     event_name: Optional[str] = None
     event_description: Optional[str] = None
-    event_date: Optional[str] = None
+    start_year: Optional[str] = None
+    end_year: Optional[str] = None
 
 # Maps
 class CreateMap(BaseModel):
     map_name: str
     map_url: str
-    scale_factor: float
     map_description: str
+    scale_factor: Optional[float] = None
 
 class UpdateMap(BaseModel):
     map_name: Optional[str] = None

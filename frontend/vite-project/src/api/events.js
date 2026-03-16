@@ -41,3 +41,26 @@ export async function deleteEvent(eventId) {
     })
     return res.json()
 }
+
+export async function getCharactersForEvent(eventId) {
+    const res = await fetch(`${BASE_URL}/events/${eventId}/characters`, {
+        credentials: "include",
+    })
+    return res.json()
+}
+
+export async function addCharacterToEvent(eventId, characterId) {
+    const res = await fetch(`${BASE_URL}/events/${eventId}/characters/${characterId}`, {
+        method: "POST",
+        credentials: "include",
+    })
+    return res.json()
+}
+
+export async function removeCharacterFromEvent(eventId, characterId) {
+    const res = await fetch(`${BASE_URL}/events/${eventId}/characters/${characterId}`, {
+        method: "DELETE",
+        credentials: "include",
+    })
+    return res.json()
+}
