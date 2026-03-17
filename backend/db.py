@@ -307,6 +307,7 @@ def create_character(
     world_id,
     character_name,
     character_description,
+    birth_year,
     is_alive=True,
     image_url=None,
     image_id=None,
@@ -322,19 +323,21 @@ def create_character(
                     world_id, 
                     character_name, 
                     character_description, 
+                    birth_year,
                     is_alive, 
                     image_url,
                     image_id, 
                     species_id, 
                     item_id
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) 
                 RETURNING *; 
                 """,
                 (
                     world_id,
                     character_name,
                     character_description,
+                    birth_year,
                     is_alive,
                     image_url,
                     image_id,
@@ -381,6 +384,7 @@ def update_character(
     character_id,
     character_name=None,
     character_description=None,
+    birth_year=None,
     is_alive=None,
     image_url=None,
     image_id=None,
@@ -395,6 +399,7 @@ def update_character(
                 SET 
                     character_name = COALESCE (%s, character_name),
                     character_description = COALESCE (%s, character_description),
+                    birth_year = COALESCE (%s, birth_year),
                     is_alive = COALESCE (%s, is_alive),
                     image_url = COALESCE (%s, image_url),
                     image_id = COALESCE (%s, image_id),
@@ -406,6 +411,7 @@ def update_character(
                 (
                     character_name,
                     character_description,
+                    birth_year,
                     is_alive,
                     image_url,
                     image_id,

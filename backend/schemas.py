@@ -100,6 +100,7 @@ class UpdateWorld(BaseModel):
 class CreateCharacter(BaseModel):
     character_name: str
     character_description: str
+    birth_year: str
     is_alive: bool = True
     image_url: Optional[str] = None
     image_id: Optional[int] = None
@@ -109,6 +110,7 @@ class CreateCharacter(BaseModel):
 class UpdateCharacter(BaseModel):
     character_name: Optional[str] = None
     character_description: Optional[str] = None
+    birth_year: Optional[str] = None
     is_alive: Optional[bool] = True
     image_url: Optional[str] = None
     image_id: Optional[int] = None
