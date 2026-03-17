@@ -26,3 +26,28 @@ export async function register(userData) {
         })
         return res
     }
+
+export async function getMe() {
+    const res = await fetch(`${BASE_URL}/users/me`, {
+        credentials: "include",
+    })
+    return res.json()
+}
+
+export async function updateMe(userData) {
+    const res = await fetch(`${BASE_URL}/users/me`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+    })
+    return res.json()
+}
+
+export async function deleteMe() {
+    const res = await fetch(`${BASE_URL}/users/me`, {
+        method: "DELETE",
+        credentials: "include",
+    })
+    return res
+}

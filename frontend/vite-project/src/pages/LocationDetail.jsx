@@ -1,65 +1,55 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { getMap, updateMap, deleteMap } from "../api/maps"
-import { getLocations } from "../api/locations"
+import { getLocation, updateLocation, deleteLocation } from "../api/locations"
+import { getMaps } from "../api/maps"
 import WorldSidebar from "../components/WorldSidebar"
 import Navbar from "../components/Navbar"
 
-export default function MapDetail() {
-    const { worldId, mapId } = useParams()
+export default function LocationDetail() {
+    const { worldId, locationId } = useParams()
     const navigate = useNavigate()
-    const [map, setMap] = useState(null)
+    const [location, setLocation] = useState(null)
+    const [maps, setMaps] = useState([])
     const [showEditModal, setShowEditModal] = useState(false)
-    const [editForm, setEditForm] = useState({
-        map_name: "",
-        map_url: "",
-        map_description: "",
-        scale_factor: "",
-    })
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-    const [mapLocations, setMapLocations] = useState([])
+    const [editForm, setEditForm] = useState({
+        location_name: "",
+        location_description: "",
+        location_type: "",
+        map_id: "",
+    })
 
     useEffect(() => {
-        async function fetchLocations() {
+        async function fetchData() {
             try {
-                const data = await getLocations(worldId)
-                if (Array.isArray(data)) {
-                    setMapLocations(data.filter((loc) => loc.map_id === parseInt(mapId)))
-                }
-            } catch (err) {
-                console.error(err)
-            }
-        }
-        fetchLocations()
-    }, [worldId, mapId])
-
-    useEffect(() => {
-        async function fetchMap() {
-            try {
-                const data = await getMap(mapId)
-                setMap(data)
+                const [locData, mapData] = await Promise.all([
+                    getLocation(locationId),
+                    getMaps(worldId),
+                ])
+                setLocation(locData)
                 setEditForm({
-                    map_name: data.map_name || "",
-                    map_url: data.map_url || "",
-                    map_description: data.map_description || "",
-                    scale_factor: data.scale_factor ?? "",
+                    location_name: locData.location_name || "",
+                    location_description: locData.location_description || "",
+                    location_type: locData.location_type || "",
+                    map_id: locData.map_id || "",
                 })
+                if (Array.isArray(mapData)) setMaps(mapData)
             } catch (err) {
                 console.error(err)
             }
         }
-        fetchMap()
-    }, [mapId])
+        fetchData()
+    }, [locationId, worldId])
 
     async function handleUpdate() {
         try {
-            const updated = await updateMap(mapId, {
-                map_name: editForm.map_name,
-                map_url: editForm.map_url,
-                map_description: editForm.map_description,
-                scale_factor: editForm.scale_factor !== "" ? parseFloat(editForm.scale_factor) : null,
+            const updated = await updateLocation(locationId, {
+                location_name: editForm.location_name,
+                location_description: editForm.location_description,
+                location_type: editForm.location_type || null,
+                map_id: editForm.map_id ? parseInt(editForm.map_id) : null,
             })
-            setMap(updated)
+            setLocation(updated)
             setShowEditModal(false)
             setShowDeleteConfirm(false)
         } catch (err) {
@@ -69,8 +59,8 @@ export default function MapDetail() {
 
     async function handleDelete() {
         try {
-            await deleteMap(mapId)
-            navigate(`/worlds/${worldId}/maps`)
+            await deleteLocation(locationId)
+            navigate(`/worlds/${worldId}/locations`)
         } catch (err) {
             console.error(err)
         }
@@ -93,19 +83,19 @@ export default function MapDetail() {
                 <WorldSidebar worldId={worldId} />
 
                 <div className="relative z-10 flex flex-col flex-1">
-                    {map ? (
+                    {location ? (
                         <>
                             {/* Breadcrumb */}
                             <div className="flex items-center justify-between px-10 py-4 border-b border-white/10">
                                 <div className="flex items-center gap-2 text-xs tracking-widest uppercase text-white/40">
                                     <span
                                         className="hover:text-white/70 cursor-pointer transition-colors"
-                                        onClick={() => navigate(`/worlds/${worldId}/maps`)}
+                                        onClick={() => navigate(`/worlds/${worldId}/locations`)}
                                     >
-                                        Maps
+                                        Locations
                                     </span>
                                     <span>/</span>
-                                    <span className="text-white/70">{map.map_name}</span>
+                                    <span className="text-white/70">{location.location_name}</span>
                                 </div>
                                 <button
                                     onClick={() => setShowEditModal(true)}
@@ -116,30 +106,20 @@ export default function MapDetail() {
                             </div>
 
                             {/* Main content */}
-                            <div className="flex flex-col gap-8 p-10">
+                            <div className="flex flex-col gap-8 p-10 max-w-2xl">
                                 <div>
-                                    <h1 className="text-4xl font-bold text-white uppercase tracking-wide mb-2">
-                                        {map.map_name}
-                                    </h1>
-                                    {map.scale_factor && (
-                                        <p className="text-purple-400 text-xs tracking-widest uppercase">
-                                            Scale: {map.scale_factor}
+                                    {location.location_type && (
+                                        <p className="text-purple-400 text-xs tracking-widest uppercase mb-3">
+                                            {location.location_type}
                                         </p>
                                     )}
+                                    <h1 className="text-4xl font-bold text-white uppercase tracking-wide">
+                                        {location.location_name}
+                                    </h1>
                                 </div>
 
-                                {map.map_url && (
-                                    <div className="rounded-lg overflow-hidden border border-white/10">
-                                        <img
-                                            src={map.map_url}
-                                            alt={map.map_name}
-                                            className="w-full object-cover max-h-[600px]"
-                                        />
-                                    </div>
-                                )}
-
-                                {map.map_description && (
-                                    <div className="bg-white/5 border border-white/10 rounded-lg p-6 max-w-2xl">
+                                {location.location_description && (
+                                    <div className="bg-white/5 border border-white/10 rounded-lg p-6">
                                         <p className="text-white/30 text-xs tracking-widest uppercase mb-3">
                                             Description
                                         </p>
@@ -147,36 +127,40 @@ export default function MapDetail() {
                                             className="text-white/70 leading-relaxed text-sm"
                                             style={{ fontFamily: "sans-serif" }}
                                         >
-                                            {map.map_description}
+                                            {location.location_description}
                                         </p>
                                     </div>
                                 )}
 
-                                {mapLocations.length > 0 && (
-                                    <div className="max-w-2xl">
-                                        <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-3 border-b border-white/10 pb-2">
-                                            Locations
-                                        </h3>
-                                        <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden">
-                                            {mapLocations.map((loc) => (
+                                {location.map_id && maps.length > 0 && (() => {
+                                    const linkedMap = maps.find((m) => m.map_id === location.map_id)
+                                    return linkedMap ? (
+                                        <div>
+                                            <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-3 border-b border-white/10 pb-2">
+                                                Map
+                                            </h3>
+                                            <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden">
                                                 <div
-                                                    key={loc.location_id}
-                                                    onClick={() => navigate(`/worlds/${worldId}/locations/${loc.location_id}`)}
-                                                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 cursor-pointer transition-all border-b border-white/5 last:border-b-0"
+                                                    onClick={() => navigate(`/worlds/${worldId}/maps/${linkedMap.map_id}`)}
+                                                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 cursor-pointer transition-all"
                                                 >
-                                                    {loc.location_type && (
-                                                        <span className="text-xs text-purple-400 border border-purple-500/30 rounded px-2 py-0.5 tracking-widest uppercase">
-                                                            {loc.location_type}
-                                                        </span>
-                                                    )}
                                                     <span className="text-white/80 hover:text-purple-300 text-sm tracking-wide transition-colors">
-                                                        {loc.location_name}
+                                                        {linkedMap.map_name}
                                                     </span>
                                                 </div>
-                                            ))}
+                                                {linkedMap.map_url && (
+                                                    <div className="border-t border-white/10">
+                                                        <img
+                                                            src={linkedMap.map_url}
+                                                            alt={linkedMap.map_name}
+                                                            className="w-full object-cover max-h-[300px]"
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
+                                    ) : null
+                                })()}
                             </div>
                         </>
                     ) : (
@@ -195,49 +179,60 @@ export default function MapDetail() {
                         style={{ fontFamily: "'Cinzel', serif" }}
                     >
                         <h2 className="text-white text-lg font-bold tracking-wide uppercase mb-6">
-                            Edit Map
+                            Edit Location
                         </h2>
                         <div className="flex flex-col gap-4">
                             <div>
-                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">Name</label>
+                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
+                                    Name
+                                </label>
                                 <input
                                     type="text"
-                                    value={editForm.map_name}
-                                    onChange={(e) => setEditForm({ ...editForm, map_name: e.target.value })}
+                                    value={editForm.location_name}
+                                    onChange={(e) => setEditForm({ ...editForm, location_name: e.target.value })}
                                     className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
                                     style={{ fontFamily: "'Cinzel', serif" }}
                                 />
                             </div>
                             <div>
-                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">Map Image URL</label>
+                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
+                                    Type
+                                </label>
                                 <input
                                     type="text"
-                                    value={editForm.map_url}
-                                    onChange={(e) => setEditForm({ ...editForm, map_url: e.target.value })}
+                                    value={editForm.location_type}
+                                    onChange={(e) => setEditForm({ ...editForm, location_type: e.target.value })}
                                     className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
-                                    style={{ fontFamily: "sans-serif" }}
-                                />
-                            </div>
-                            <div>
-                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">Description</label>
-                                <textarea
-                                    rows={3}
-                                    value={editForm.map_description}
-                                    onChange={(e) => setEditForm({ ...editForm, map_description: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 resize-none"
-                                    style={{ fontFamily: "sans-serif" }}
+                                    style={{ fontFamily: "'Cinzel', serif" }}
                                 />
                             </div>
                             <div>
                                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                                    Scale Factor <span className="text-white/20 normal-case">(optional)</span>
+                                    Map <span className="text-white/20 normal-case tracking-normal">(Optional)</span>
                                 </label>
-                                <input
-                                    type="number"
-                                    step="0.1"
-                                    value={editForm.scale_factor}
-                                    onChange={(e) => setEditForm({ ...editForm, scale_factor: e.target.value })}
+                                <select
+                                    value={editForm.map_id}
+                                    onChange={(e) => setEditForm({ ...editForm, map_id: e.target.value })}
                                     className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                    style={{ fontFamily: "'Cinzel', serif" }}
+                                >
+                                    <option value="">No map selected</option>
+                                    {maps.map((m) => (
+                                        <option key={m.map_id} value={m.map_id}>
+                                            {m.map_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
+                                    Description
+                                </label>
+                                <textarea
+                                    rows={4}
+                                    value={editForm.location_description}
+                                    onChange={(e) => setEditForm({ ...editForm, location_description: e.target.value })}
+                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 resize-none"
                                     style={{ fontFamily: "sans-serif" }}
                                 />
                             </div>
@@ -249,7 +244,7 @@ export default function MapDetail() {
                                     onClick={() => setShowDeleteConfirm(true)}
                                     className="text-xs text-red-400/70 hover:text-red-400 tracking-widest uppercase transition-all"
                                 >
-                                    Delete Map
+                                    Delete Location
                                 </button>
                             ) : (
                                 <div className="flex items-center gap-3">

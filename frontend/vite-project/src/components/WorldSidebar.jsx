@@ -5,7 +5,7 @@ export default function WorldSidebar({ worldId, worldName }) {
     const location = useLocation()
 
     const links = [
-        { label: "Dashboard", path: "/dashboard" },
+        { label: "Dashboard", path: `/worlds/${worldId}` },
         { label: "Characters", path: `/worlds/${worldId}/characters` },
         { label: "Relationships", path: `/worlds/${worldId}/relationships` },
         { label: "Locations", path: `/worlds/${worldId}/locations` },

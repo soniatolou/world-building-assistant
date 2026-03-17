@@ -14,6 +14,9 @@ import Events from './pages/Events'
 import EventDetail from './pages/EventDetail'
 import Maps from './pages/Maps'
 import MapDetail from './pages/MapDetail'
+import Locations from './pages/Locations'
+import LocationDetail from './pages/LocationDetail'
+import Profile from './pages/Profile'
 
 export default function App() {
   return (
@@ -32,6 +35,9 @@ export default function App() {
       <Route path="/worlds/:worldId/events/:eventId" element={<EventDetail />} />
       <Route path="/worlds/:worldId/maps" element={<Maps />} />
       <Route path="/worlds/:worldId/maps/:mapId" element={<MapDetail />} />
+      <Route path="/worlds/:worldId/locations" element={<Locations />} />
+      <Route path="/worlds/:worldId/locations/:locationId" element={<LocationDetail />} />
+      <Route path="/profile" element={<Profile />} />
     </Routes>
   )
 }

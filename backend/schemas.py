@@ -35,7 +35,7 @@ class CreateLocation(BaseModel):
     location_description: str
     location_type: Optional[str] = None
     world_id: int
-    map_id: int
+    map_id: Optional[int] = None
 
 # Uppdatera plats
 class LocationUpdate(BaseModel):

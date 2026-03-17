@@ -31,3 +31,28 @@ export async function deleteWorld(worldId) {
     })
     return res
 }
+
+export async function getRules(worldId) {
+    const res = await fetch(`${BASE_URL}/worlds/${worldId}/world_rules`, {
+        credentials: "include",
+    })
+    return res.json()
+}
+
+export async function createRule(worldId, ruleText) {
+    const res = await fetch(`${BASE_URL}/worlds/${worldId}/world_rules`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rule_text: ruleText }),
+    })
+    return res.json()
+}
+
+export async function deleteRule(ruleId) {
+    const res = await fetch(`${BASE_URL}/world_rules/${ruleId}`, {
+        method: "DELETE",
+        credentials: "include",
+    })
+    return res
+}
