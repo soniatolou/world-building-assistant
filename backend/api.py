@@ -242,7 +242,6 @@ def create_rule(world_id: int, rule: schemas.CreateRule, connection=Depends(get_
         new_rule = db.create_rule(
             connection,
             world_id,
-            current_user,
             rule.rule_text,
         )
         return new_rule
