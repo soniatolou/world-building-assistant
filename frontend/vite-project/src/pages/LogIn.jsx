@@ -5,18 +5,23 @@ import { login } from '../api/auth'
 export default function Login() {
     const navigate = useNavigate()
     const [formData, setFormData] = useState({ email: '', password: '' })
+    const [error, setError] = useState('')
 
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value })
+        setError('')
     }
 
     async function handleSubmit(e) {
         e.preventDefault()
-        const data = await login(formData)
-        console.log(data)
-        localStorage.setItem("user_id", data.user_id)
-        localStorage.setItem("username", data.username)
-        navigate("/dashboard")
+        try {
+            const data = await login(formData)
+            localStorage.setItem("user_id", data.user_id)
+            localStorage.setItem("username", data.username)
+            navigate("/dashboard")
+        } catch (err) {
+            setError("Incorrect email or password")
+        }
 }
 
     return (
@@ -43,6 +48,9 @@ export default function Login() {
                 className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
                 />
             ))}
+            {error && (
+                <p className="text-red-400 text-sm text-center">{error}</p>
+            )}
             <button
                 onClick={handleSubmit}
                 className="px-6 py-2 bg-white text-gray-800 rounded-md hover:bg-gray-100 transition-colors mt-2"

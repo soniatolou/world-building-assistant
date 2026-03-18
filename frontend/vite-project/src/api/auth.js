@@ -9,15 +9,17 @@ export async function register(userData) {
     return res.json()
     }
 
-    export async function login(credentials) {
+export async function login(credentials) {
     const res = await fetch(`${BASE_URL}/login`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials)
     })
-    return res.json()
-    }
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.detail || "Incorrect email or password")
+    return data
+}
 
     export async function logout() {
         const res = await fetch(`${BASE_URL}/logout`, {
