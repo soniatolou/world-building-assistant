@@ -32,8 +32,14 @@ export default function WorldDetail() {
   const [rules, setRules] = useState([]);
   const [showAddRule, setShowAddRule] = useState(false);
   const [newRuleText, setNewRuleText] = useState("");
-  const { consistencyResult, setConsistencyResult, clearResult } = useConsistency();
+  const { consistencyResult, consistencyWorldId, setResultForWorld, clearResult } = useConsistency();
   const [isCheckingConsistency, setIsCheckingConsistency] = useState(false);
+
+  useEffect(() => {
+    if (consistencyWorldId !== null && consistencyWorldId !== String(worldId)) {
+      clearResult();
+    }
+  }, [worldId]);
 
   useEffect(() => {
     async function fetchData() {
@@ -116,10 +122,10 @@ export default function WorldDetail() {
 
   async function handleConsistencyCheck() {
     setIsCheckingConsistency(true)
-    setConsistencyResult(null)
+    clearResult()
     try {
       const data = await runConsistencyCheck(worldId)
-      setConsistencyResult(data)
+      setResultForWorld(data, worldId)
     } catch (err) {
       console.error(err)
     } finally {
@@ -331,7 +337,7 @@ export default function WorldDetail() {
                         key={rule.rule_id}
                         className="flex items-start justify-between gap-4 py-2 border-b border-white/5 last:border-b-0"
                       >
-                        <p className="text-white/70 text-sm" style={{ fontFamily: "sans-serif" }}>
+                        <p className="text-white/70 text-sm" style={{ fontFamily: "sans-serif", whiteSpace: "pre-wrap" }}>
                           {rule.rule_text}
                         </p>
                         <button

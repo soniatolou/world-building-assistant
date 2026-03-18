@@ -133,7 +133,7 @@ export default function MapDetail() {
                                         <img
                                             src={map.map_url}
                                             alt={map.map_name}
-                                            className="w-full object-cover max-h-[600px]"
+                                            className="w-full object-contain"
                                         />
                                     </div>
                                 )}
@@ -145,7 +145,7 @@ export default function MapDetail() {
                                         </p>
                                         <p
                                             className="text-white/70 leading-relaxed text-sm"
-                                            style={{ fontFamily: "sans-serif" }}
+                                            style={{ fontFamily: "sans-serif", whiteSpace: "pre-wrap" }}
                                         >
                                             {map.map_description}
                                         </p>

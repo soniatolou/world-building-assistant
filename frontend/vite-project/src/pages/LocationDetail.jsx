@@ -125,7 +125,7 @@ export default function LocationDetail() {
                                         </p>
                                         <p
                                             className="text-white/70 leading-relaxed text-sm"
-                                            style={{ fontFamily: "sans-serif" }}
+                                            style={{ fontFamily: "sans-serif", whiteSpace: "pre-wrap" }}
                                         >
                                             {location.location_description}
                                         </p>

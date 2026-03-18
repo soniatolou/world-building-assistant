@@ -89,7 +89,7 @@ export default function ItemDetail() {
                                 {item.item_description && (
                                     <div className="bg-white/5 border border-white/10 rounded-lg p-6">
                                         <p className="text-white/30 text-xs tracking-widest uppercase mb-3">Description</p>
-                                        <p className="text-white/70 leading-relaxed text-sm" style={{ fontFamily: "sans-serif" }}>
+                                        <p className="text-white/70 leading-relaxed text-sm" style={{ fontFamily: "sans-serif", whiteSpace: "pre-wrap" }}>
                                             {item.item_description}
                                         </p>
                                     </div>

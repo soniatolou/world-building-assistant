@@ -162,7 +162,7 @@ export default function EventDetail() {
                                         </p>
                                         <p
                                             className="text-white/70 leading-relaxed text-sm"
-                                            style={{ fontFamily: "sans-serif" }}
+                                            style={{ fontFamily: "sans-serif", whiteSpace: "pre-wrap" }}
                                         >
                                             {event.event_description}
                                         </p>

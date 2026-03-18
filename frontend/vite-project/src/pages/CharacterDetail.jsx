@@ -210,7 +210,7 @@ export default function CharacterDetail() {
                     <p className="text-white/30 text-xs tracking-widest uppercase mb-3">Biography</p>
                     <p
                       className="text-white/70 leading-relaxed text-sm"
-                      style={{ fontFamily: "sans-serif" }}
+                      style={{ fontFamily: "sans-serif", whiteSpace: "pre-wrap" }}
                     >
                       {character.character_description}
                     </p>
