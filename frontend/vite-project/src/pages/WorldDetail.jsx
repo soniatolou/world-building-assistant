@@ -8,6 +8,7 @@ import { getMaps } from "../api/maps";
 import { updateWorld, deleteWorld, getRules, createRule, deleteRule, runConsistencyCheck } from "../api/worlds";
 import WorldSidebar from "../components/WorldSidebar";
 import Navbar from "../components/Navbar";
+import { useConsistency } from "../context/ConsistencyContext";
 
 export default function WorldDetail() {
   const { worldId } = useParams();
@@ -31,7 +32,7 @@ export default function WorldDetail() {
   const [rules, setRules] = useState([]);
   const [showAddRule, setShowAddRule] = useState(false);
   const [newRuleText, setNewRuleText] = useState("");
-  const [consistencyResult, setConsistencyResult] = useState(null);
+  const { consistencyResult, setConsistencyResult, clearResult } = useConsistency();
   const [isCheckingConsistency, setIsCheckingConsistency] = useState(false);
 
   useEffect(() => {
@@ -210,9 +211,18 @@ export default function WorldDetail() {
 
                 {consistencyResult && (
                   <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-4">
-                    <h3 className="text-amber-300 text-xs tracking-widest uppercase mb-3">
-                      AI Consistency Check
-                    </h3>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-amber-300 text-xs tracking-widest uppercase">
+                        AI Consistency Check
+                      </h3>
+                      <button
+                        onClick={clearResult}
+                        className="text-amber-300/50 hover:text-amber-300 transition-colors text-base leading-none"
+                        aria-label="Dismiss"
+                      >
+                        ×
+                      </button>
+                    </div>
                     {consistencyResult.contradictions && consistencyResult.contradictions.length === 0 ? (
                       <p className="text-amber-200/60 text-xs" style={{ fontFamily: "sans-serif" }}>
                         No issues found. Your world is consistent!
@@ -240,13 +250,14 @@ export default function WorldDetail() {
                     )}
                   </div>
                 )}
+
               </div>
             )}
 
             {/* Right: Content */}
             <div className="flex flex-col gap-8 flex-1">
               {world.world_description && (
-                <p className="text-white/50 text-sm" style={{ fontFamily: "sans-serif" }}>
+                <p className="text-white/50 text-sm whitespace-pre-wrap" style={{ fontFamily: "sans-serif" }}>
                   {world.world_description}
                 </p>
               )}

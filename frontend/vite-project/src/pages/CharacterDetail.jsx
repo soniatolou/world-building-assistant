@@ -72,7 +72,12 @@ export default function CharacterDetail() {
 
   async function handleUpdate() {
     try {
-      const updated = await updateCharacter(characterId, editForm);
+      const payload = {
+        ...editForm,
+        species_id: editForm.species_id === "" ? null : Number(editForm.species_id),
+        item_id: editForm.item_id === "" ? null : Number(editForm.item_id),
+      };
+      const updated = await updateCharacter(characterId, payload);
       setCharacter(updated);
       setShowEditModal(false);
     } catch (err) {

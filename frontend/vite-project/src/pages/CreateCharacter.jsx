@@ -38,7 +38,11 @@ export default function CreateCharacter() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await createCharacter(worldId, formData);
+    const payload = {
+      ...formData,
+      species_id: formData.species_id === "" ? null : Number(formData.species_id),
+    };
+    await createCharacter(worldId, payload);
     navigate(`/worlds/${worldId}/characters`);
   }
 
