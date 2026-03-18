@@ -35,7 +35,7 @@ class CreateLocation(BaseModel):
     location_description: str
     location_type: Optional[str] = None
     world_id: int
-    map_id: int
+    map_id: Optional[int] = None
 
 # Uppdatera plats
 class LocationUpdate(BaseModel):
@@ -100,6 +100,7 @@ class UpdateWorld(BaseModel):
 class CreateCharacter(BaseModel):
     character_name: str
     character_description: str
+    birth_year: str
     is_alive: bool = True
     image_url: Optional[str] = None
     image_id: Optional[int] = None
@@ -109,6 +110,7 @@ class CreateCharacter(BaseModel):
 class UpdateCharacter(BaseModel):
     character_name: Optional[str] = None
     character_description: Optional[str] = None
+    birth_year: Optional[str] = None
     is_alive: Optional[bool] = True
     image_url: Optional[str] = None
     image_id: Optional[int] = None
@@ -130,19 +132,21 @@ class UpdateRelationship(BaseModel):
 class CreateEvent(BaseModel):
     event_name: str
     event_description: str
-    event_date: str
+    start_year: Optional[str] = None
+    end_year: Optional[str] = None
 
 class UpdateEvent(BaseModel):
     event_name: Optional[str] = None
     event_description: Optional[str] = None
-    event_date: Optional[str] = None
+    start_year: Optional[str] = None
+    end_year: Optional[str] = None
 
 # Maps
 class CreateMap(BaseModel):
     map_name: str
     map_url: str
-    scale_factor: float
     map_description: str
+    scale_factor: Optional[float] = None
 
 class UpdateMap(BaseModel):
     map_name: Optional[str] = None

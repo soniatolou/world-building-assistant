@@ -3,14 +3,15 @@ import json
 import settings
 
 def run_consistency_check(world_id: int, connection):
-    with connection.cursorsor() as cursor:
+    # Gets world data from the database
+    with connection.cursor() as cursor:
         cursor.execute("SELECT rule_text FROM world_rules WHERE world_id = %s", (world_id,))
         world_rules = cursor.fetchall()
 
-        cursor.execute("SELECT character_name, character_description, is_alive FROM characters WHERE world_id = %s", (world_id,))
+        cursor.execute("SELECT character_name, character_description, birth_year, is_alive FROM characters WHERE world_id = %s", (world_id,))
         characters = cursor.fetchall()
 
-        cursor.execute("SELECT event_name, event_description FROM events WHERE world_id = %s", (world_id,))
+        cursor.execute("SELECT event_name, event_description, start_year, end_year FROM events WHERE world_id = %s", (world_id,))
         events = cursor.fetchall()
 
         cursor.execute("SELECT location_name, location_description FROM locations WHERE world_id = %s", (world_id,))
@@ -40,6 +41,7 @@ def run_consistency_check(world_id: int, connection):
         """, (world_id,))
         relationships = cursor.fetchall()
 
+    # Puts everything in a dictionary
     world_data = {
         "world_rules": world_rules,
         "characters": characters,
@@ -51,7 +53,7 @@ def run_consistency_check(world_id: int, connection):
         "relationships": relationships
     }
 
-    client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+    client = anthropic.Anthropic(api_key=settings.settings.ANTHROPIC_API_KEY)
 
     response = client.messages.create(
         model="claude-sonnet-4-5",
@@ -65,7 +67,7 @@ def run_consistency_check(world_id: int, connection):
             WORLDDATA:
             {json.dumps(world_data, ensure_ascii=False, indent=2)}
 
-            Respond ONLY with JSON:
+            Do not wrap the JSON in markdown code blocks. Return only raw JSON:
             {{
             "contradictions": [
                 {{
@@ -80,4 +82,6 @@ def run_consistency_check(world_id: int, connection):
         }]
     )
 
-    return json.loads(response.content[0].text) # Converts the AI:s textanswer to a Python-object
+    raw = response.content[0].text
+    clean = raw.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+    return json.loads(clean) # Converts JSON to a Python-object

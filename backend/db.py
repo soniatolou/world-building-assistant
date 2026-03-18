@@ -307,6 +307,7 @@ def create_character(
     world_id,
     character_name,
     character_description,
+    birth_year,
     is_alive=True,
     image_url=None,
     image_id=None,
@@ -322,19 +323,21 @@ def create_character(
                     world_id, 
                     character_name, 
                     character_description, 
+                    birth_year,
                     is_alive, 
                     image_url,
                     image_id, 
                     species_id, 
                     item_id
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) 
                 RETURNING *; 
                 """,
                 (
                     world_id,
                     character_name,
                     character_description,
+                    birth_year,
                     is_alive,
                     image_url,
                     image_id,
@@ -381,6 +384,7 @@ def update_character(
     character_id,
     character_name=None,
     character_description=None,
+    birth_year=None,
     is_alive=None,
     image_url=None,
     image_id=None,
@@ -395,6 +399,7 @@ def update_character(
                 SET 
                     character_name = COALESCE (%s, character_name),
                     character_description = COALESCE (%s, character_description),
+                    birth_year = COALESCE (%s, birth_year),
                     is_alive = COALESCE (%s, is_alive),
                     image_url = COALESCE (%s, image_url),
                     image_id = COALESCE (%s, image_id),
@@ -406,6 +411,7 @@ def update_character(
                 (
                     character_name,
                     character_description,
+                    birth_year,
                     is_alive,
                     image_url,
                     image_id,
@@ -460,15 +466,17 @@ def get_relationships_for_character(connection, character_id):
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                SELECT 
+                SELECT
                     relationships.relationship_id,
                     relationships.relationship_type,
-                    a.character_name AS character_a_name, -- Gets the name on character a, renames the column to character_a_name --
+                    a.character_id AS character_a_id,
+                    a.character_name AS character_a_name,
+                    b.character_id AS character_b_id,
                     b.character_name AS character_b_name
                 FROM relationships
                 JOIN characters a -- Joins characters-table, renames it a (character a) --
                 ON relationships.character_a_id = a.character_id -- Connects it via character_a_id --
-                JOIN characters b 
+                JOIN characters b
                 ON relationships.character_b_id = b.character_id
                 WHERE relationships.character_a_id = %s OR relationships.character_b_id = %s;
                 """,
@@ -520,29 +528,30 @@ def delete_relationship(connection, relationship_id):
 
 
 # Events
-def create_event(connection, world_id, event_name, event_description, event_date):
+def create_event(connection, world_id, event_name, event_description, start_year=None, end_year=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                INSERT 
+                INSERT
                 INTO events (
-                    world_id, 
-                    event_name, 
-                    event_description, 
-                    event_date
+                    world_id,
+                    event_name,
+                    event_description,
+                    start_year,
+                    end_year
                 )
-                VALUES (%s, %s, %s, %s) 
-                RETURNING *; 
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING *;
                 """,
-                (world_id, event_name, event_description, event_date),
+                (world_id, event_name, event_description, start_year, end_year),
             )
             new_event = cursor.fetchone()
         return new_event
 
 
 def update_event(
-    connection, event_id, event_name=None, event_description=None, event_date=None
+    connection, event_id, event_name=None, event_description=None, start_year=None, end_year=None
 ):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -552,11 +561,12 @@ def update_event(
                 SET
                     event_name = COALESCE (%s, event_name),
                     event_description = COALESCE (%s, event_description),
-                    event_date = COALESCE (%s, event_date)
+                    start_year = COALESCE (%s, start_year),
+                    end_year = COALESCE (%s, end_year)
                 WHERE event_id = %s
-                RETURNING *; 
+                RETURNING *;
                 """,
-                (event_name, event_description, event_date, event_id),
+                (event_name, event_description, start_year, end_year, event_id),
             )
             updated_event = cursor.fetchone()
         return updated_event

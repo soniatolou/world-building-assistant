@@ -12,6 +12,7 @@
 
 from db_setup import get_connection
 from fastapi import FastAPI, HTTPException, status, Depends, Cookie, Response
+from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 import bcrypt
 import consistency
@@ -19,6 +20,15 @@ import schemas
 import db
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 def get_db():
     connection = get_connection()
@@ -39,7 +49,7 @@ def get_current_user(session_id: Optional[str] = Cookie(None), connection=Depend
     return session["user_id"]
 
 
-@app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
+@app.post("/register", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
 def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
     try:
         new_user = db.create_user(
@@ -57,12 +67,12 @@ def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
             detail=f"Something went wrong:{error}")
 
 
-@app.get("/users/{user_id}")
-def get_user_by_id(user_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+@app.get("/users/me", response_model=schemas.UserResponse)
+def get_current_user_profile(connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
-        user_by_id = db.get_user_by_id(connection, user_id)
+        user = db.get_user_by_id(connection, current_user)
         # Returns dictionary with all user data
-        return user_by_id
+        return user
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -81,12 +91,12 @@ def get_user_by_id(user_id: int, connection=Depends(get_db), current_user: int =
 #             detail=f"Something went wrong {error}")
 
 
-@app.patch("/users/{user_id}")
-def update_user(user_id: int, user: schemas.UserUpdate, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+@app.patch("/users/me", response_model=schemas.UserResponse)
+def update_user(user: schemas.UserUpdate, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         updated_user = db.update_user(
             connection,
-            user_id,
+            current_user,
             user.username,
             user.first_name,
             user.last_name,
@@ -99,10 +109,10 @@ def update_user(user_id: int, user: schemas.UserUpdate, connection=Depends(get_d
             detail=f"Something went wrong {error}")
 
 
-@app.delete("/users/{user_id}")
-def delete_user(user_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+@app.delete("/users/me", response_model=schemas.UserResponse)
+def delete_user(connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
-        deleted_user = db.delete_user(connection, user_id)
+        deleted_user = db.delete_user(connection, current_user)
         # Returns dictionary with deleted user's data, returns None if user doesn't exist
         return deleted_user
     except HTTPException:
@@ -117,19 +127,14 @@ def delete_user(user_id: int, connection=Depends(get_db), current_user: int = De
 def login(data: schemas.UserLogin, response: Response, connection=Depends(get_db)):
     user = db.get_user_by_email(connection, data.email)
 
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-        )
-
-    if not bcrypt.checkpw(data.password.encode(), user["password"].encode()):
+    if not user or not bcrypt.checkpw(data.password.encode(), user["password"].encode()):
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password"
         )
     
     session_id = db.create_session(connection, user["user_id"])
-    response.set_cookie(key="session_id", value=session_id, httponly=True)
-    return {"message": "Login successful"}
+    response.set_cookie(key="session_id", value=session_id, httponly=True, samesite="lax")
+    return {"message": "Login successful", "user_id": user["user_id"], "username": user["username"]}
 
 
 # Log out
@@ -141,7 +146,7 @@ def logout(response: Response, session_id: Optional[str] = Cookie(None), connect
 
 
 # Worlds
-@app.post("/users/worlds", status_code=status.HTTP_201_CREATED)
+@app.post("/worlds", status_code=status.HTTP_201_CREATED)
 def create_world(world: schemas.CreateWorld, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         new_world = db.create_world(
@@ -160,10 +165,10 @@ def create_world(world: schemas.CreateWorld, connection=Depends(get_db), current
             detail=f"Something went wrong: {error}")
 
 
-@app.get("/users/{user_id}/worlds")
-def get_all_worlds(user_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+@app.get("/worlds")
+def get_all_worlds(connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
-        all_worlds = db.get_all_worlds(connection, user_id)
+        all_worlds = db.get_all_worlds(connection, current_user)
         return all_worlds
     except HTTPException:
         raise
@@ -173,7 +178,7 @@ def get_all_worlds(user_id: int, connection=Depends(get_db), current_user: int =
             detail=f"Something went wrong: {error}")
 
 
-@app.get("/users/{user_id}/worlds/{world_id}")
+@app.get("/worlds/{world_id}")
 def get_world_by_id(world_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         world = db.get_world_by_id(connection, world_id)
@@ -231,13 +236,12 @@ def delete_world(world_id: int, connection=Depends(get_db), current_user: int = 
 
 
 # World_rules
-@app.post("/users/worlds/{world_id}/world_rules", status_code=status.HTTP_201_CREATED)
+@app.post("/worlds/{world_id}/world_rules", status_code=status.HTTP_201_CREATED)
 def create_rule(world_id: int, rule: schemas.CreateRule, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         new_rule = db.create_rule(
             connection,
             world_id,
-            current_user,
             rule.rule_text,
         )
         return new_rule
@@ -309,6 +313,7 @@ def create_character(world_id: int, character: schemas.CreateCharacter, connecti
             world_id,
             character.character_name,
             character.character_description,
+            character.birth_year,
             character.is_alive,
             character.image_url,
             character.image_id,
@@ -362,6 +367,7 @@ def update_character(character_id: int, character: schemas.UpdateCharacter, conn
             character_id,
             character.character_name,
             character.character_description,
+            character.birth_year,
             character.is_alive,
             character.image_url,
             character.image_id,
@@ -479,7 +485,8 @@ def create_event(world_id: int, event: schemas.CreateEvent, connection=Depends(g
             world_id,
             event.event_name,
             event.event_description,
-            event.event_date,
+            event.start_year,
+            event.end_year,
         )
         return new_event
     except HTTPException:
@@ -528,7 +535,8 @@ def update_event(event_id: int, event: schemas.UpdateEvent, connection=Depends(g
             event_id,
             event.event_name,
             event.event_description,
-            event.event_date,
+            event.start_year,
+            event.end_year,
         )
         if not updated_event:
             raise HTTPException(
