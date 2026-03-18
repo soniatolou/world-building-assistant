@@ -5,7 +5,7 @@ import { getCharacters } from "../api/characters";
 import { getLocations } from "../api/locations";
 import { getEvents } from "../api/events";
 import { getMaps } from "../api/maps";
-import { updateWorld, deleteWorld, getRules, createRule, deleteRule } from "../api/worlds";
+import { updateWorld, deleteWorld, getRules, createRule, deleteRule, runConsistencyCheck } from "../api/worlds";
 import WorldSidebar from "../components/WorldSidebar";
 import Navbar from "../components/Navbar";
 
@@ -31,6 +31,8 @@ export default function WorldDetail() {
   const [rules, setRules] = useState([]);
   const [showAddRule, setShowAddRule] = useState(false);
   const [newRuleText, setNewRuleText] = useState("");
+  const [consistencyResult, setConsistencyResult] = useState(null);
+  const [isCheckingConsistency, setIsCheckingConsistency] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -111,6 +113,19 @@ export default function WorldDetail() {
     }
   }
 
+  async function handleConsistencyCheck() {
+    setIsCheckingConsistency(true)
+    setConsistencyResult(null)
+    try {
+      const data = await runConsistencyCheck(worldId)
+      setConsistencyResult(data)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setIsCheckingConsistency(false)
+    }
+  }
+
   async function handleDelete() {
     try {
       await deleteWorld(worldId);
@@ -168,9 +183,9 @@ export default function WorldDetail() {
 
         {world ? (
           <div className="flex gap-8 p-10 flex-1">
-            {/* Left: World image */}
+            {/* Left: World image + consistency check */}
             {world.image_url && (
-              <div className="w-72 shrink-0">
+              <div className="w-72 shrink-0 flex flex-col gap-4">
                 <div className="relative rounded-lg overflow-hidden" style={{ aspectRatio: "3/4" }}>
                   <img
                     src={world.image_url}
@@ -184,6 +199,47 @@ export default function WorldDetail() {
                     </h2>
                   </div>
                 </div>
+
+                <button
+                  onClick={handleConsistencyCheck}
+                  disabled={isCheckingConsistency}
+                  className="w-full px-4 py-2 bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/30 text-amber-300 text-xs rounded-md transition-all tracking-widest uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isCheckingConsistency ? "Checking..." : "Run Consistency Check"}
+                </button>
+
+                {consistencyResult && (
+                  <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-4">
+                    <h3 className="text-amber-300 text-xs tracking-widest uppercase mb-3">
+                      AI Consistency Check
+                    </h3>
+                    {consistencyResult.contradictions && consistencyResult.contradictions.length === 0 ? (
+                      <p className="text-amber-200/60 text-xs" style={{ fontFamily: "sans-serif" }}>
+                        No issues found. Your world is consistent!
+                      </p>
+                    ) : (
+                      <div className="flex flex-col gap-4">
+                        {(consistencyResult.contradictions || []).map((item, i) => (
+                          <div key={i} className="flex flex-col gap-1">
+                            <p className="text-amber-100/80 text-xs leading-relaxed" style={{ fontFamily: "sans-serif" }}>
+                              {item.description}
+                            </p>
+                            {item.elements_involved && item.elements_involved.length > 0 && (
+                              <p className="text-amber-400/60 text-xs" style={{ fontFamily: "sans-serif" }}>
+                                Involves: {item.elements_involved.join(", ")}
+                              </p>
+                            )}
+                            {item.suggestion && (
+                              <p className="text-amber-300/70 text-xs italic" style={{ fontFamily: "sans-serif" }}>
+                                {item.suggestion}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 

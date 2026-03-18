@@ -56,3 +56,11 @@ export async function deleteRule(ruleId) {
     })
     return res
 }
+
+export async function runConsistencyCheck(worldId) {
+    const res = await fetch(`${BASE_URL}/worlds/${worldId}/consistency-check`, {
+        method: "POST",
+        credentials: "include",
+    })
+    return res.json()
+}
