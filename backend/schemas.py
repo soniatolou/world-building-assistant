@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
+
 # Post & patch endpoint, för när användaren ska skicka in sin data, behövs endast för fler fält som hör ihop.
 # Grundmodell för klasser
 class CreateUser(BaseModel):
@@ -10,12 +11,14 @@ class CreateUser(BaseModel):
     email: str
     password: str
 
+
 class UserResponse(BaseModel):
     user_id: int
     username: str
     first_name: str
     last_name: str
     email: str
+
 
 # Uppdatering av konto
 class UserUpdate(BaseModel):
@@ -24,10 +27,12 @@ class UserUpdate(BaseModel):
     last_name: Optional[str] = None
     email: Optional[str] = None
 
+
 # Logga in
 class UserLogin(BaseModel):
     email: str
     password: str
+
 
 # Skapa plats
 class CreateLocation(BaseModel):
@@ -37,6 +42,7 @@ class CreateLocation(BaseModel):
     world_id: int
     map_id: Optional[int] = None
 
+
 # Uppdatera plats
 class LocationUpdate(BaseModel):
     location_name: Optional[str] = None
@@ -44,16 +50,19 @@ class LocationUpdate(BaseModel):
     location_type: Optional[str] = None
     map_id: Optional[int] = None
 
+
 # Items- skapa egna Items
 class CreateItem(BaseModel):
     item_name: str
     item_description: str
     world_id: int
 
+
 # Uppdatera sina Items
 class ItemUpdate(BaseModel):
     item_name: Optional[str] = None
     item_description: Optional[str] = None
+
 
 # Skapa karaktärer/varelser Species
 class CreateSpecies(BaseModel):
@@ -61,21 +70,24 @@ class CreateSpecies(BaseModel):
     species_description: str
     world_id: int
 
+
 # Uppdatera varelse
 class SpeciesUpdate(BaseModel):
     species_name: Optional[str] = None
     species_description: Optional[str] = None
 
+
 # Skapa anteckningar
 class CreateNote(BaseModel):
     note_name: str
     note_text: str
-    user_id: int
+
 
 # Uppdatera anteckningar
 class NoteUpdate(BaseModel):
     note_name: Optional[str] = None
     note_text: Optional[str] = None
+
 
 # Worlds
 class CreateWorld(BaseModel):
@@ -83,18 +95,22 @@ class CreateWorld(BaseModel):
     world_description: str
     image_url: str
 
+
 # World_rules
 class CreateRule(BaseModel):
     rule_text: str
 
+
 class UpdateRule(BaseModel):
     rule_text: Optional[str] = None
+
 
 class UpdateWorld(BaseModel):
     # Optional allows None as a value, = None makes the field not required
     world_name: Optional[str] = None
     world_description: Optional[str] = None
     image_url: Optional[str] = None
+
 
 # Characters
 class CreateCharacter(BaseModel):
@@ -107,6 +123,7 @@ class CreateCharacter(BaseModel):
     species_id: Optional[int] = None
     item_id: Optional[int] = None
 
+
 class UpdateCharacter(BaseModel):
     character_name: Optional[str] = None
     character_description: Optional[str] = None
@@ -117,16 +134,19 @@ class UpdateCharacter(BaseModel):
     species_id: Optional[int] = None
     item_id: Optional[int] = None
 
+
 # Relationships
 class CreateRelationship(BaseModel):
     relationship_type: str
     character_a_id: int
     character_b_id: int
 
+
 class UpdateRelationship(BaseModel):
     relationship_type: Optional[str] = None
     character_a_id: Optional[int] = None
     character_b_id: Optional[int] = None
+
 
 # Events
 class CreateEvent(BaseModel):
@@ -135,11 +155,13 @@ class CreateEvent(BaseModel):
     start_year: Optional[str] = None
     end_year: Optional[str] = None
 
+
 class UpdateEvent(BaseModel):
     event_name: Optional[str] = None
     event_description: Optional[str] = None
     start_year: Optional[str] = None
     end_year: Optional[str] = None
+
 
 # Maps
 class CreateMap(BaseModel):
@@ -147,6 +169,7 @@ class CreateMap(BaseModel):
     map_url: str
     map_description: str
     scale_factor: Optional[float] = None
+
 
 class UpdateMap(BaseModel):
     map_name: Optional[str] = None

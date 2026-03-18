@@ -71,19 +71,16 @@ export default function Notes() {
                         <p className="text-white/40 text-sm">No notes yet. Create your first one!</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {notes.map((note) => (
+                    <div className="flex flex-col gap-3">
+                        {notes.map((note, index) => (
                             <div
-                                key={note.notes_id}
+                                key={note.notes_id ?? index}
                                 onClick={() => navigate(`/notes/${note.notes_id}`)}
-                                className="bg-white/5 border border-white/10 rounded-lg p-6 hover:border-purple-500/40 hover:bg-white/10 transition-all cursor-pointer group"
+                                className="w-full bg-white/5 border border-white/10 rounded-lg px-6 py-4 hover:border-purple-500/40 hover:bg-white/10 transition-all cursor-pointer group"
                             >
-                                <h2 className="text-lg font-bold text-white mb-3 group-hover:text-purple-300 transition-colors tracking-wide">
+                                <h2 className="text-base font-bold text-white group-hover:text-purple-300 transition-colors tracking-wide">
                                     {note.note_name}
                                 </h2>
-                                <p className="text-white/50 text-sm line-clamp-4" style={{ fontFamily: "sans-serif" }}>
-                                    {note.note_text}
-                                </p>
                             </div>
                         ))}
                     </div>
