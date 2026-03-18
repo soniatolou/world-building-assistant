@@ -17,6 +17,12 @@ import MapDetail from './pages/MapDetail'
 import Locations from './pages/Locations'
 import LocationDetail from './pages/LocationDetail'
 import Profile from './pages/Profile'
+import Items from './pages/Items'
+import ItemDetail from './pages/ItemDetail'
+import SpeciesPage from './pages/Species'
+import SpeciesDetail from './pages/SpeciesDetail'
+import Notes from './pages/Notes'
+import NoteDetail from './pages/NoteDetail'
 
 export default function App() {
   return (
@@ -38,6 +44,12 @@ export default function App() {
       <Route path="/worlds/:worldId/locations" element={<Locations />} />
       <Route path="/worlds/:worldId/locations/:locationId" element={<LocationDetail />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/worlds/:worldId/items" element={<Items />} />
+      <Route path="/worlds/:worldId/items/:itemId" element={<ItemDetail />} />
+      <Route path="/worlds/:worldId/species" element={<SpeciesPage />} />
+      <Route path="/worlds/:worldId/species/:speciesId" element={<SpeciesDetail />} />
+      <Route path="/notes" element={<Notes />} />
+      <Route path="/notes/:notesId" element={<NoteDetail />} />
     </Routes>
   )
 }

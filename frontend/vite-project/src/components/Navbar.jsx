@@ -31,6 +31,12 @@ export default function Navbar() {
                     >
                         The Great Archives
                     </button>
+                    <button
+                        onClick={() => navigate("/notes")}
+                        className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-md transition-colors border border-white/20 whitespace-nowrap"
+                    >
+                        Notes
+                    </button>
                 </div>
                 <div className="flex items-center gap-4">
                     <span

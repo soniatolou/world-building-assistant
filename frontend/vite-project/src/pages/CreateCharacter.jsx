@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { createCharacter } from "../api/characters";
+import { getSpecies } from "../api/species";
 import WorldSidebar from "../components/WorldSidebar";
 import Navbar from "../components/Navbar";
 
@@ -13,7 +14,21 @@ export default function CreateCharacter() {
     birth_year: "",
     is_alive: true,
     image_url: "",
+    species_id: "",
   });
+  const [speciesList, setSpeciesList] = useState([]);
+
+  useEffect(() => {
+    async function fetchSpecies() {
+      try {
+        const data = await getSpecies(worldId);
+        if (Array.isArray(data)) setSpeciesList(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchSpecies();
+  }, [worldId]);
 
   function handleChange(e) {
     const value =
@@ -111,6 +126,26 @@ export default function CreateCharacter() {
                 style={{ fontFamily: "sans-serif" }}
               />
             </div>
+
+            {speciesList.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <label className="text-white/70 text-xs tracking-widest uppercase">
+                  Species <span className="text-white/30">(optional)</span>
+                </label>
+                <select
+                  name="species_id"
+                  value={formData.species_id}
+                  onChange={handleChange}
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white focus:outline-none focus:border-purple-500/50"
+                  style={{ fontFamily: "'Cinzel', serif" }}
+                >
+                  <option value="">No species</option>
+                  {speciesList.map((s) => (
+                    <option key={s.species_id} value={s.species_id}>{s.species_name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div className="flex items-center gap-3">
               <input

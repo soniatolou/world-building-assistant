@@ -11,6 +11,8 @@ export default function WorldSidebar({ worldId, worldName }) {
         { label: "Locations", path: `/worlds/${worldId}/locations` },
         { label: "Events", path: `/worlds/${worldId}/events` },
         { label: "Maps", path: `/worlds/${worldId}/maps` },
+        { label: "Items", path: `/worlds/${worldId}/items` },
+        { label: "Species", path: `/worlds/${worldId}/species` },
     ]
 
     return (
