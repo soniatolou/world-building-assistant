@@ -106,7 +106,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "species" (
         species_id BIGSERIAL PRIMARY KEY NOT NULL,
         species_name VARCHAR(255) NOT NULL,
-        species_description TEXT NOT NULL,
+        species_description TEXT,
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE
         );
         """
@@ -156,16 +156,6 @@ def create_tables():
         );
         """
     )
-
-    # # Embeddings
-    #     cursor.execute(
-    #         """
-    #         CREATE TABLE IF NOT EXISTS "embeddings" (
-    #         embedding_id BIGSERIAL PRIMARY KEY NOT NULL,
-    #         vector_data VECTOR(1536)
-    #         );
-    #         """
-    #     )
 
     # Images
     cursor.execute(
