@@ -11,6 +11,8 @@ export default function CreateAccount() {
         email: '',
         password: ''
     })
+    const [repeatPassword, setRepeatPassword] = useState('')
+    const [passwordError, setPasswordError] = useState(false)
 
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -18,6 +20,11 @@ export default function CreateAccount() {
 
     async function handleSubmit(e) {
         e.preventDefault()
+        if (formData.password !== repeatPassword) {
+            setPasswordError(true)
+            return
+        }
+        setPasswordError(false)
         const data = await register(formData)
         console.log(data)
     }
@@ -46,6 +53,16 @@ export default function CreateAccount() {
                 className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
                 />
             ))}
+            <input
+                type="password"
+                placeholder="Repeat password"
+                value={repeatPassword}
+                onChange={(e) => { setRepeatPassword(e.target.value); setPasswordError(false) }}
+                className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
+            />
+            {passwordError && (
+                <p className="text-red-400 text-sm">Passwords do not match</p>
+            )}
             <button
                 onClick={handleSubmit}
                 className="px-6 py-2 bg-white text-gray-800 rounded-md hover:bg-gray-100 transition-colors mt-2"
