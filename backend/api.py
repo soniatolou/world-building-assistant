@@ -14,7 +14,7 @@ from db_setup import get_connection
 from fastapi import FastAPI, HTTPException, status, Depends, Cookie, Response
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
-import bcrypt
+from db import pwd_hash
 import consistency
 import schemas
 import db
@@ -40,9 +40,7 @@ def get_db():
 
 # Dependency function, to protect endpoints
 # Verifies that there is a valid session connected to the request
-def get_current_user(
-    session_id: Optional[str] = Cookie(None), connection=Depends(get_db)
-):
+def get_current_user(session_id: Optional[str] = Cookie(None), connection=Depends(get_db)):
     if not session_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     session = db.get_session(connection, session_id)
@@ -51,11 +49,7 @@ def get_current_user(
     return session["user_id"]
 
 
-@app.post(
-    "/register",
-    status_code=status.HTTP_201_CREATED,
-    response_model=schemas.UserResponse,
-)
+@app.post("/register", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
 def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
     try:
         new_user = db.create_user(
@@ -75,9 +69,7 @@ def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
 
 
 @app.get("/users/me", response_model=schemas.UserResponse)
-def get_current_user_profile(
-    connection=Depends(get_db), current_user: int = Depends(get_current_user)
-):
+def get_current_user_profile(connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         user = db.get_user_by_id(connection, current_user)
         # Returns dictionary with all user data
@@ -102,11 +94,7 @@ def get_current_user_profile(
 
 
 @app.patch("/users/me", response_model=schemas.UserResponse)
-def update_user(
-    user: schemas.UserUpdate,
-    connection=Depends(get_db),
-    current_user: int = Depends(get_current_user),
-):
+def update_user(user: schemas.UserUpdate, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         updated_user = db.update_user(
             connection,
@@ -125,9 +113,7 @@ def update_user(
 
 
 @app.delete("/users/me", response_model=schemas.UserResponse)
-def delete_user(
-    connection=Depends(get_db), current_user: int = Depends(get_current_user)
-):
+def delete_user(connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         deleted_user = db.delete_user(connection, current_user)
         # Returns dictionary with deleted user's data, returns None if user doesn't exist
@@ -145,12 +131,8 @@ def delete_user(
 def login(data: schemas.UserLogin, response: Response, connection=Depends(get_db)):
     user = db.get_user_by_email(connection, data.email)
 
-    if not user or not bcrypt.checkpw(
-        data.password.encode(), user["password"].encode()
-    ):
-        raise HTTPException(
-            status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password"
-        )
+    if not user or not pwd_hash.verify(data.password, user["password"]):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
 
     session_id = db.create_session(connection, user["user_id"])
     response.set_cookie(
@@ -165,11 +147,7 @@ def login(data: schemas.UserLogin, response: Response, connection=Depends(get_db
 
 # Log out
 @app.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-def logout(
-    response: Response,
-    session_id: Optional[str] = Cookie(None),
-    connection=Depends(get_db),
-):
+def logout(response: Response, session_id: Optional[str] = Cookie(None), connection=Depends(get_db)):
     if session_id:
         db.delete_session(connection, session_id)
         response.delete_cookie("session_id")
@@ -177,11 +155,7 @@ def logout(
 
 # Worlds
 @app.post("/worlds", status_code=status.HTTP_201_CREATED)
-def create_world(
-    world: schemas.CreateWorld,
-    connection=Depends(get_db),
-    current_user: int = Depends(get_current_user),
-):
+def create_world(world: schemas.CreateWorld, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         new_world = db.create_world(
             connection,
@@ -201,9 +175,7 @@ def create_world(
 
 
 @app.get("/worlds")
-def get_all_worlds(
-    connection=Depends(get_db), current_user: int = Depends(get_current_user)
-):
+def get_all_worlds(connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         all_worlds = db.get_all_worlds(connection, current_user)
         return all_worlds
@@ -217,11 +189,7 @@ def get_all_worlds(
 
 
 @app.get("/worlds/{world_id}")
-def get_world_by_id(
-    world_id: int,
-    connection=Depends(get_db),
-    current_user: int = Depends(get_current_user),
-):
+def get_world_by_id(world_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         world = db.get_world_by_id(connection, world_id)
         if not world:
@@ -239,12 +207,7 @@ def get_world_by_id(
 
 
 @app.patch("/worlds/{world_id}")
-def update_world(
-    world_id: int,
-    world: schemas.UpdateWorld,
-    connection=Depends(get_db),
-    current_user: int = Depends(get_current_user),
-):
+def update_world(world_id: int, world: schemas.UpdateWorld, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         updated_world = db.update_world(
             connection,
@@ -268,11 +231,7 @@ def update_world(
 
 
 @app.delete("/worlds/{world_id}")
-def delete_world(
-    world_id: int,
-    connection=Depends(get_db),
-    current_user: int = Depends(get_current_user),
-):
+def delete_world(world_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         deleted_world = db.delete_world(connection, world_id)
         if not deleted_world:
@@ -291,12 +250,7 @@ def delete_world(
 
 # World_rules
 @app.post("/worlds/{world_id}/world_rules", status_code=status.HTTP_201_CREATED)
-def create_rule(
-    world_id: int,
-    rule: schemas.CreateRule,
-    connection=Depends(get_db),
-    current_user: int = Depends(get_current_user),
-):
+def create_rule(world_id: int, rule: schemas.CreateRule, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         new_rule = db.create_rule(
             connection,
@@ -314,11 +268,7 @@ def create_rule(
 
 
 @app.get("/worlds/{world_id}/world_rules")
-def get_all_rules(
-    world_id: int,
-    connection=Depends(get_db),
-    current_user: int = Depends(get_current_user),
-):
+def get_all_rules(world_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         all_rules = db.get_all_rules(connection, world_id)
         return all_rules
@@ -332,12 +282,7 @@ def get_all_rules(
 
 
 @app.patch("/world_rules/{rule_id}")
-def update_rule(
-    rule_id: int,
-    rule: schemas.UpdateRule,
-    connection=Depends(get_db),
-    current_user: int = Depends(get_current_user),
-):
+def update_rule(rule_id: int, rule: schemas.UpdateRule, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         updated_rule = db.update_rule(
             connection,
@@ -359,11 +304,7 @@ def update_rule(
 
 
 @app.delete("/world_rules/{rule_id}")
-def delete_rule(
-    rule_id: int,
-    connection=Depends(get_db),
-    current_user: int = Depends(get_current_user),
-):
+def delete_rule(rule_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         deleted_rule = db.delete_rule(connection, rule_id)
         if not deleted_rule:
@@ -382,12 +323,7 @@ def delete_rule(
 
 # Characters
 @app.post("/worlds/{world_id}/characters", status_code=status.HTTP_201_CREATED)
-def create_character(
-    world_id: int,
-    character: schemas.CreateCharacter,
-    connection=Depends(get_db),
-    current_user: int = Depends(get_current_user),
-):
+def create_character(world_id: int, character: schemas.CreateCharacter, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         new_character = db.create_character(
             connection,
@@ -412,11 +348,7 @@ def create_character(
 
 
 @app.get("/worlds/{world_id}/characters")
-def get_all_characters(
-    world_id: int,
-    connection=Depends(get_db),
-    current_user: int = Depends(get_current_user),
-):
+def get_all_characters(world_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         all_characters = db.get_all_characters(connection, world_id)
         return all_characters

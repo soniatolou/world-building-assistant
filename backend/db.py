@@ -1,5 +1,6 @@
 from psycopg2.extras import RealDictCursor
-import bcrypt
+from pwdlib import PasswordHash
+from pwdlib.hashers.argon2 import Argon2Hasher
 
 # RealDictCursor returns dicts instead of tuples, so that the values can be accessed by name instead of index
 # Since API returns JSON, it is easier to work with dicts
@@ -8,6 +9,8 @@ import bcrypt
 Database functions for World Building Assistant API.
 Each function execute a query and returns the result.
 """
+
+pwd_hash = PasswordHash([Argon2Hasher()])
 
 # Sessions
 def create_session(connection, user_id):
@@ -59,7 +62,7 @@ def delete_session(connection, session_id):
 
 # Users
 def create_user(connection, username, first_name, last_name, email, password):
-    hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    hashed = pwd_hash.hash(password)
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -142,7 +145,7 @@ def delete_user(connection, user_id):
 
 
 def change_password(connection, user_id, new_password):
-    hashed = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
+    hashed = pwd_hash.hash(new_password)
     with connection:
         with connection.cursor() as cursor:
             cursor.execute(
