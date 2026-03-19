@@ -13,18 +13,20 @@ export default function CreateAccount() {
     })
     const [repeatPassword, setRepeatPassword] = useState('')
     const [passwordError, setPasswordError] = useState(false)
+    const [emailError, setEmailError] = useState(false)
 
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value })
+        if (e.target.name === 'email') setEmailError(false)
     }
 
     async function handleSubmit(e) {
         e.preventDefault()
-        if (formData.password !== repeatPassword) {
-            setPasswordError(true)
-            return
-        }
-        setPasswordError(false)
+        const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
+        setEmailError(!emailValid)
+        const passwordMatch = formData.password === repeatPassword
+        setPasswordError(!passwordMatch)
+        if (!emailValid || !passwordMatch) return
         const data = await register(formData)
         console.log(data)
     }
@@ -42,10 +44,10 @@ export default function CreateAccount() {
         <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-sm">
             <h1 className="text-3xl font-bold text-white">Create Account</h1>
             <div className="flex flex-col gap-3 w-full">
-            {['username', 'first_name', 'last_name', 'email', 'password'].map((field) => (
+            {['username', 'first_name', 'last_name'].map((field) => (
                 <input
                 key={field}
-                type={field === 'password' ? 'password' : 'text'}
+                type="text"
                 name={field}
                 placeholder={field.replace('_', ' ')}
                 value={formData[field]}
@@ -53,6 +55,25 @@ export default function CreateAccount() {
                 className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
                 />
             ))}
+            <input
+                type="text"
+                name="email"
+                placeholder="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
+            />
+            {emailError && (
+                <p className="text-red-400 text-sm">Invalid email address</p>
+            )}
+            <input
+                type="password"
+                name="password"
+                placeholder="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
+            />
             <input
                 type="password"
                 placeholder="Repeat password"
