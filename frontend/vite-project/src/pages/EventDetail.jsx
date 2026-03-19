@@ -208,11 +208,11 @@ export default function EventDetail() {
                                             className="flex-1 bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
                                             style={{ fontFamily: "'Cinzel', serif" }}
                                         >
-                                            <option value="">Add character...</option>
+                                            <option value="" style={{ backgroundColor: 'white', color: 'black' }}>Add character...</option>
                                             {allCharacters
                                                 .filter((c) => !eventCharacters.find((ec) => ec.character_id === c.character_id))
                                                 .map((c) => (
-                                                    <option key={c.character_id} value={c.character_id}>
+                                                    <option key={c.character_id} value={c.character_id} style={{ backgroundColor: 'white', color: 'black' }}>
                                                         {c.character_name}
                                                     </option>
                                                 ))}

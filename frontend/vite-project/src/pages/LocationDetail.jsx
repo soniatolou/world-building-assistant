@@ -216,9 +216,9 @@ export default function LocationDetail() {
                                     className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
                                     style={{ fontFamily: "'Cinzel', serif" }}
                                 >
-                                    <option value="">No map selected</option>
+                                    <option value="" style={{ backgroundColor: 'white', color: 'black' }}>No map selected</option>
                                     {maps.map((m) => (
-                                        <option key={m.map_id} value={m.map_id}>
+                                        <option key={m.map_id} value={m.map_id} style={{ backgroundColor: 'white', color: 'black' }}>
                                             {m.map_name}
                                         </option>
                                     ))}

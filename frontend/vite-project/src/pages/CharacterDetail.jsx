@@ -350,9 +350,9 @@ export default function CharacterDetail() {
                     className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
                     style={{ fontFamily: "'Cinzel', serif" }}
                   >
-                    <option value="">No species</option>
+                    <option value="" style={{ backgroundColor: 'white', color: 'black' }}>No species</option>
                     {speciesList.map((s) => (
-                      <option key={s.species_id} value={s.species_id}>{s.species_name}</option>
+                      <option key={s.species_id} value={s.species_id} style={{ backgroundColor: 'white', color: 'black' }}>{s.species_name}</option>
                     ))}
                   </select>
                 </div>
@@ -369,9 +369,9 @@ export default function CharacterDetail() {
                     className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
                     style={{ fontFamily: "'Cinzel', serif" }}
                   >
-                    <option value="">No item</option>
+                    <option value="" style={{ backgroundColor: 'white', color: 'black' }}>No item</option>
                     {itemsList.map((i) => (
-                      <option key={i.item_id} value={i.item_id}>{i.item_name}</option>
+                      <option key={i.item_id} value={i.item_id} style={{ backgroundColor: 'white', color: 'black' }}>{i.item_name}</option>
                     ))}
                   </select>
                 </div>

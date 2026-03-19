@@ -236,9 +236,9 @@ export default function Relationships() {
                                     className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
                                     style={{ fontFamily: "'Cinzel', serif" }}
                                 >
-                                    <option value="">Select character...</option>
+                                    <option value="" style={{ backgroundColor: 'white', color: 'black' }}>Select character...</option>
                                     {characters.map((c) => (
-                                        <option key={c.character_id} value={c.character_id}>
+                                        <option key={c.character_id} value={c.character_id} style={{ backgroundColor: 'white', color: 'black' }}>
                                             {c.character_name}
                                         </option>
                                     ))}
@@ -273,13 +273,13 @@ export default function Relationships() {
                                     className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
                                     style={{ fontFamily: "'Cinzel', serif" }}
                                 >
-                                    <option value="">Select character...</option>
+                                    <option value="" style={{ backgroundColor: 'white', color: 'black' }}>Select character...</option>
                                     {characters
                                         .filter(
                                             (c) => c.character_id !== parseInt(form.character_a_id)
                                         )
                                         .map((c) => (
-                                            <option key={c.character_id} value={c.character_id}>
+                                            <option key={c.character_id} value={c.character_id} style={{ backgroundColor: 'white', color: 'black' }}>
                                                 {c.character_name}
                                             </option>
                                         ))}

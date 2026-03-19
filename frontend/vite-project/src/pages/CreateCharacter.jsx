@@ -143,9 +143,9 @@ export default function CreateCharacter() {
                   className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white focus:outline-none focus:border-purple-500/50"
                   style={{ fontFamily: "'Cinzel', serif" }}
                 >
-                  <option value="">No species</option>
+                  <option value="" style={{ backgroundColor: 'white', color: 'black' }}>No species</option>
                   {speciesList.map((s) => (
-                    <option key={s.species_id} value={s.species_id}>{s.species_name}</option>
+                    <option key={s.species_id} value={s.species_id} style={{ backgroundColor: 'white', color: 'black' }}>{s.species_name}</option>
                   ))}
                 </select>
               </div>
