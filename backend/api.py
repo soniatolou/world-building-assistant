@@ -1,15 +1,3 @@
-# GET /worlds - hämta alla
-# GET /worlds/{id} - hämta en
-# POST /worlds - skapa
-# PATCH /worlds/{id} - uppdatera
-# DELETE /worlds/{id} - ta bort
-
-# get_world()
-# get_all_worlds()
-# create_world()
-# update_world()
-# delete_world()
-
 from db_setup import get_connection
 from fastapi import FastAPI, HTTPException, status, Depends, Cookie, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -33,7 +21,10 @@ app.add_middleware(
 
 
 def get_db():
-    connection = get_connection()
+    try:
+        connection = get_connection()
+    except errors.ConnectionFailure:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Could not connect to database")
     try:
         yield connection
     finally:
@@ -87,18 +78,6 @@ def get_current_user_profile(connection=Depends(get_db), current_user: int = Dep
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong {error}",
         )
-
-
-# @app.get("/users/email")
-# def get_user_by_email(user_id: int, connection=Depends(get_db)):
-#     try:
-#         user_by_email = db.get_user_by_email(connection, user_id)
-#         # Returns dictionary with all user data
-#         return user_by_email
-#     except Exception as error:
-#         raise HTTPException(
-#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-#             detail=f"Something went wrong {error}")
 
 
 @app.patch("/users/me", response_model=schemas.UserResponse)
