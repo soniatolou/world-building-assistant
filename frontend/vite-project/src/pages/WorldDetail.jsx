@@ -5,7 +5,7 @@ import { getCharacters } from "../api/characters";
 import { getLocations } from "../api/locations";
 import { getEvents } from "../api/events";
 import { getMaps } from "../api/maps";
-import { updateWorld, deleteWorld, getRules, createRule, deleteRule, runConsistencyCheck } from "../api/worlds";
+import { updateWorld, deleteWorld, getRules, createRule, deleteRule, updateRule, runConsistencyCheck } from "../api/worlds";
 import WorldSidebar from "../components/WorldSidebar";
 import Navbar from "../components/Navbar";
 import { useConsistency } from "../context/ConsistencyContext";
@@ -32,6 +32,8 @@ export default function WorldDetail() {
   const [rules, setRules] = useState([]);
   const [showAddRule, setShowAddRule] = useState(false);
   const [newRuleText, setNewRuleText] = useState("");
+  const [editingRuleId, setEditingRuleId] = useState(null);
+  const [editingRuleText, setEditingRuleText] = useState("");
   const { consistencyResult, consistencyWorldId, setResultForWorld, clearResult } = useConsistency();
   const [isCheckingConsistency, setIsCheckingConsistency] = useState(false);
 
@@ -106,6 +108,17 @@ export default function WorldDetail() {
       if (Array.isArray(data)) setRules(data)
       setNewRuleText("")
       setShowAddRule(false)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  async function handleSaveRule(ruleId) {
+    try {
+      const updated = await updateRule(ruleId, editingRuleText)
+      setRules((prev) => prev.map((r) => r.rule_id === ruleId ? updated : r))
+      setEditingRuleId(null)
+      setEditingRuleText("")
     } catch (err) {
       console.error(err)
     }
@@ -337,15 +350,52 @@ export default function WorldDetail() {
                         key={rule.rule_id}
                         className="flex items-start justify-between gap-4 py-2 border-b border-white/5 last:border-b-0"
                       >
-                        <p className="text-white/70 text-sm" style={{ fontFamily: "sans-serif", whiteSpace: "pre-wrap" }}>
-                          {rule.rule_text}
-                        </p>
-                        <button
-                          onClick={() => handleDeleteRule(rule.rule_id)}
-                          className="text-white/20 hover:text-red-400 text-xs transition-colors shrink-0 mt-0.5"
-                        >
-                          ✕
-                        </button>
+                        {editingRuleId === rule.rule_id ? (
+                          <div className="flex flex-col gap-2 flex-1">
+                            <textarea
+                              value={editingRuleText}
+                              onChange={(e) => setEditingRuleText(e.target.value)}
+                              rows={3}
+                              className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 resize-none"
+                              style={{ fontFamily: "sans-serif" }}
+                              autoFocus
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleSaveRule(rule.rule_id)}
+                                className="text-purple-400 hover:text-purple-300 text-xs transition-colors"
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={() => { setEditingRuleId(null); setEditingRuleText("") }}
+                                className="text-white/30 hover:text-white/60 text-xs transition-colors"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-white/70 text-sm flex-1" style={{ fontFamily: "sans-serif", whiteSpace: "pre-wrap" }}>
+                            {rule.rule_text}
+                          </p>
+                        )}
+                        {editingRuleId !== rule.rule_id && (
+                          <div className="flex items-center gap-2 shrink-0 mt-0.5">
+                            <button
+                              onClick={() => { setEditingRuleId(rule.rule_id); setEditingRuleText(rule.rule_text) }}
+                              className="text-white/20 hover:text-purple-400 text-xs transition-colors"
+                            >
+                              ✎
+                            </button>
+                            <button
+                              onClick={() => handleDeleteRule(rule.rule_id)}
+                              className="text-white/20 hover:text-red-400 text-xs transition-colors"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

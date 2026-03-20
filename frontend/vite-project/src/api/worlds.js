@@ -49,6 +49,16 @@ export async function createRule(worldId, ruleText) {
     return res.json()
 }
 
+export async function updateRule(ruleId, ruleText) {
+    const res = await fetch(`${BASE_URL}/world_rules/${ruleId}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rule_text: ruleText }),
+    })
+    return res.json()
+}
+
 export async function deleteRule(ruleId) {
     const res = await fetch(`${BASE_URL}/world_rules/${ruleId}`, {
         method: "DELETE",
