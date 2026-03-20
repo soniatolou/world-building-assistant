@@ -16,10 +16,10 @@ class CreateUser(BaseModel):
     password: str = Field(min_length=1)
 
 class UserUpdate(BaseModel):
-    username: Optional[str] = None
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    email: Optional[str] = None
+    username: Optional[str] = Field(default=None, min_length=1)
+    first_name: Optional[str] = Field(default=None, min_length=1)
+    last_name: Optional[str] = Field(default=None, min_length=1)
+    email: Optional[str] = Field(default=None, min_length=1)
 
 class UserLogin(BaseModel):
     email: str = Field(min_length=1)
@@ -29,37 +29,37 @@ class UserLogin(BaseModel):
 class CreateWorld(BaseModel):
     world_name: str = Field(min_length=1)
     world_description: str
-    image_url: Optional[str] = None
+    image_url: Optional[str] = Field(default=None, min_length=1)
 
 class CreateRule(BaseModel):
     rule_text: str = Field(min_length=1)
 
 class UpdateRule(BaseModel):
-    rule_text: Optional[str] = None
+    rule_text: Optional[str] = Field(default=None, min_length=1)
 
 class UpdateWorld(BaseModel):
     # Optional allows None as a value, = None makes the field not required
-    world_name: Optional[str] = None
-    world_description: Optional[str] = None
-    image_url: Optional[str] = None
+    world_name: Optional[str] = Field(default=None, min_length=1)
+    world_description: Optional[str] = Field(default=None, min_length=1)
+    image_url: Optional[str] = Field(default=None, min_length=1)
 
 # Characters
 class CreateCharacter(BaseModel):
     character_name: str = Field(min_length=1)
     character_description: str
-    birth_year: Optional[str] = None
+    birth_year: Optional[str] = Field(default=None, min_length=1)
     is_alive: bool = True
-    image_url: Optional[str] = None
+    image_url: Optional[str] = Field(default=None, min_length=1)
     image_id: Optional[int] = None
     species_id: Optional[int] = None
     item_id: Optional[int] = None
 
 class UpdateCharacter(BaseModel):
-    character_name: Optional[str] = None
-    character_description: Optional[str] = None
-    birth_year: Optional[str] = None
+    character_name: Optional[str] = Field(default=None, min_length=1)
+    character_description: Optional[str] = Field(default=None, min_length=1)
+    birth_year: Optional[str] = Field(default=None, min_length=1)
     is_alive: Optional[bool] = True
-    image_url: Optional[str] = None
+    image_url: Optional[str] = Field(default=None, min_length=1)
     image_id: Optional[int] = None
     species_id: Optional[int] = None
     item_id: Optional[int] = None
@@ -71,7 +71,7 @@ class CreateRelationship(BaseModel):
     character_b_id: int
 
 class UpdateRelationship(BaseModel):
-    relationship_type: Optional[str] = None
+    relationship_type: Optional[str] = Field(default=None, min_length=1)
     character_a_id: Optional[int] = None
     character_b_id: Optional[int] = None
 
@@ -79,14 +79,14 @@ class UpdateRelationship(BaseModel):
 class CreateEvent(BaseModel):
     event_name: str = Field(min_length=1)
     event_description: str
-    start_year: Optional[str] = None
-    end_year: Optional[str] = None
+    start_year: Optional[str] = Field(default=None, min_length=1)
+    end_year: Optional[str] = Field(default=None, min_length=1)
 
 class UpdateEvent(BaseModel):
-    event_name: Optional[str] = None
-    event_description: Optional[str] = None
-    start_year: Optional[str] = None
-    end_year: Optional[str] = None
+    event_name: Optional[str] = Field(default=None, min_length=1)
+    event_description: Optional[str] = Field(default=None, min_length=1)
+    start_year: Optional[str] = Field(default=None, min_length=1)
+    end_year: Optional[str] = Field(default=None, min_length=1)
 
 # Maps
 class CreateMap(BaseModel):
@@ -96,23 +96,23 @@ class CreateMap(BaseModel):
     scale_factor: Optional[float] = None
 
 class UpdateMap(BaseModel):
-    map_name: Optional[str] = None
-    map_url: Optional[str] = None
+    map_name: Optional[str] = Field(default=None, min_length=1)
+    map_url: Optional[str] = Field(default=None, min_length=1)
     scale_factor: Optional[float] = None
-    map_description: Optional[str] = None
+    map_description: Optional[str] = Field(default=None, min_length=1)
 
 # Locations
 class CreateLocation(BaseModel):
     location_name: str = Field(min_length=1)
     location_description: str
-    location_type: Optional[str] = None
+    location_type: Optional[str] = Field(default=None, min_length=1)
     world_id: int
     map_id: Optional[int] = None
 
 class LocationUpdate(BaseModel):
-    location_name: Optional[str] = None
-    location_description: Optional[str] = None
-    location_type: Optional[str] = None
+    location_name: Optional[str] = Field(default=None, min_length=1)
+    location_description: Optional[str] = Field(default=None, min_length=1)
+    location_type: Optional[str] = Field(default=None, min_length=1)
     map_id: Optional[int] = None
 
 # Items
@@ -122,8 +122,8 @@ class CreateItem(BaseModel):
     world_id: int
 
 class ItemUpdate(BaseModel):
-    item_name: Optional[str] = None
-    item_description: Optional[str] = None
+    item_name: Optional[str] = Field(default=None, min_length=1)
+    item_description: Optional[str] = Field(default=None, min_length=1)
 
 # Species
 class CreateSpecies(BaseModel):
@@ -132,8 +132,8 @@ class CreateSpecies(BaseModel):
     world_id: int
 
 class SpeciesUpdate(BaseModel):
-    species_name: Optional[str] = None
-    species_description: Optional[str] = None
+    species_name: Optional[str] = Field(default=None, min_length=1)
+    species_description: Optional[str] = Field(default=None, min_length=1)
 
 # Notes
 class CreateNote(BaseModel):
@@ -141,5 +141,5 @@ class CreateNote(BaseModel):
     note_text: str
 
 class NoteUpdate(BaseModel):
-    note_name: Optional[str] = None
-    note_text: Optional[str] = None
+    note_name: Optional[str] = Field(default=None, min_length=1)
+    note_text: Optional[str] = Field(default=None, min_length=1)
