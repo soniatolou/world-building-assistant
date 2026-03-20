@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 
 class UserResponse(BaseModel):
@@ -9,11 +9,11 @@ class UserResponse(BaseModel):
     email: str
 
 class CreateUser(BaseModel):
-    username: str
-    first_name: str
-    last_name: str
-    email: EmailStr
-    password: str
+    username: str = Field(min_length=1)
+    first_name: str = Field(min_length=1)
+    last_name: str = Field(min_length=1)
+    email: EmailStr = Field(min_length=1)
+    password: str = Field(min_length=1)
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
@@ -22,17 +22,17 @@ class UserUpdate(BaseModel):
     email: Optional[str] = None
 
 class UserLogin(BaseModel):
-    email: str
-    password: str
+    email: str = Field(min_length=1)
+    password: str = Field(min_length=1)
 
 # Worlds
 class CreateWorld(BaseModel):
-    world_name: str
+    world_name: str = Field(min_length=1)
     world_description: str
-    image_url: str
+    image_url: Optional[str] = None
 
 class CreateRule(BaseModel):
-    rule_text: str
+    rule_text: str = Field(min_length=1)
 
 class UpdateRule(BaseModel):
     rule_text: Optional[str] = None
@@ -45,9 +45,9 @@ class UpdateWorld(BaseModel):
 
 # Characters
 class CreateCharacter(BaseModel):
-    character_name: str
+    character_name: str = Field(min_length=1)
     character_description: str
-    birth_year: str
+    birth_year: Optional[str] = None
     is_alive: bool = True
     image_url: Optional[str] = None
     image_id: Optional[int] = None
@@ -66,7 +66,7 @@ class UpdateCharacter(BaseModel):
 
 # Relationships
 class CreateRelationship(BaseModel):
-    relationship_type: str
+    relationship_type: str = Field(min_length=1)
     character_a_id: int
     character_b_id: int
 
@@ -77,7 +77,7 @@ class UpdateRelationship(BaseModel):
 
 # Events
 class CreateEvent(BaseModel):
-    event_name: str
+    event_name: str = Field(min_length=1)
     event_description: str
     start_year: Optional[str] = None
     end_year: Optional[str] = None
@@ -90,8 +90,8 @@ class UpdateEvent(BaseModel):
 
 # Maps
 class CreateMap(BaseModel):
-    map_name: str
-    map_url: str
+    map_name: str = Field(min_length=1)
+    map_url: str = Field(min_length=1)
     map_description: str
     scale_factor: Optional[float] = None
 
@@ -103,7 +103,7 @@ class UpdateMap(BaseModel):
 
 # Locations
 class CreateLocation(BaseModel):
-    location_name: str
+    location_name: str = Field(min_length=1)
     location_description: str
     location_type: Optional[str] = None
     world_id: int
@@ -117,7 +117,7 @@ class LocationUpdate(BaseModel):
 
 # Items
 class CreateItem(BaseModel):
-    item_name: str
+    item_name: str = Field(min_length=1)
     item_description: str
     world_id: int
 
@@ -127,7 +127,7 @@ class ItemUpdate(BaseModel):
 
 # Species
 class CreateSpecies(BaseModel):
-    species_name: str
+    species_name: str = Field(min_length=1)
     species_description: str
     world_id: int
 
@@ -137,7 +137,7 @@ class SpeciesUpdate(BaseModel):
 
 # Notes
 class CreateNote(BaseModel):
-    note_name: str
+    note_name: str = Field(min_length=1)
     note_text: str
 
 class NoteUpdate(BaseModel):

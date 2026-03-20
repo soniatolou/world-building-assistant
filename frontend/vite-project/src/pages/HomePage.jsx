@@ -1,7 +1,9 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
     export default function HomePage() {
     const navigate = useNavigate()
+    const location = useLocation()
+    const accountCreated = location.state?.accountCreated
 
     return (
         <div
@@ -29,6 +31,9 @@ import { useNavigate } from 'react-router-dom'
                 Log In
             </button>
             </div>
+            {accountCreated && (
+                <p className="text-green-600 text-sm">Account created!</p>
+            )}
         </div>
         </div>
     )

@@ -16,15 +16,22 @@ export default function CreateAccount() {
     const [emailError, setEmailError] = useState(false)
     const [emailTakenError, setEmailTakenError] = useState(false)
     const [usernameTakenError, setUsernameTakenError] = useState(false)
+    const [missingFieldsError, setMissingFieldsError] = useState(false)
 
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value })
         if (e.target.name === 'email') { setEmailError(false); setEmailTakenError(false) }
         if (e.target.name === 'username') setUsernameTakenError(false)
+        setMissingFieldsError(false)
     }
 
     async function handleSubmit(e) {
         e.preventDefault()
+        const allFilled = Object.values(formData).every(v => v.trim() !== '') && repeatPassword.trim() !== ''
+        if (!allFilled) {
+            setMissingFieldsError(true)
+            return
+        }
         const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
         setEmailError(!emailValid)
         const passwordMatch = formData.password === repeatPassword
@@ -36,7 +43,7 @@ export default function CreateAccount() {
             if (data.detail && data.detail.includes('Username already taken')) setUsernameTakenError(true)
             return
         }
-        navigate('/')
+        navigate('/', { state: { accountCreated: true } })
     }
 
     return (
@@ -55,7 +62,7 @@ export default function CreateAccount() {
             <input
                 type="text"
                 name="username"
-                placeholder="username"
+                placeholder="username (required)"
                 value={formData.username}
                 onChange={handleChange}
                 className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
@@ -68,7 +75,7 @@ export default function CreateAccount() {
                 key={field}
                 type="text"
                 name={field}
-                placeholder={field.replace('_', ' ')}
+                placeholder={`${field.replace('_', ' ')} (required)`}
                 value={formData[field]}
                 onChange={handleChange}
                 className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
@@ -77,7 +84,7 @@ export default function CreateAccount() {
             <input
                 type="text"
                 name="email"
-                placeholder="email"
+                placeholder="email (required)"
                 value={formData.email}
                 onChange={handleChange}
                 className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
@@ -91,20 +98,23 @@ export default function CreateAccount() {
             <input
                 type="password"
                 name="password"
-                placeholder="password"
+                placeholder="password (required)"
                 value={formData.password}
                 onChange={handleChange}
                 className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
             />
             <input
                 type="password"
-                placeholder="Repeat password"
+                placeholder="Repeat password (required)"
                 value={repeatPassword}
-                onChange={(e) => { setRepeatPassword(e.target.value); setPasswordError(false) }}
+                onChange={(e) => { setRepeatPassword(e.target.value); setPasswordError(false); setMissingFieldsError(false) }}
                 className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
             />
             {passwordError && (
                 <p className="text-red-400 text-sm">Passwords do not match</p>
+            )}
+            {missingFieldsError && (
+                <p className="text-red-400 text-sm">Please fill in all the required fields.</p>
             )}
             <button
                 onClick={handleSubmit}
