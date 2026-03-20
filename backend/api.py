@@ -16,6 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from psycopg2 import errors
 from db import pwd_hash
+import anthropic
 import consistency
 import schemas
 import db
@@ -1218,11 +1219,7 @@ def delete_species(
             detail=f"Something went wrong: {error}",
         )
 
-
-#   ------ NOTES - SONIA ---------
-
-
-# Notes - Skapa anteckning
+# Notes
 @app.post("/notes", status_code=status.HTTP_201_CREATED)
 def create_note(
     note: schemas.CreateNote,
@@ -1230,7 +1227,6 @@ def create_note(
     current_user: int = Depends(get_current_user),
 ):
     try:
-        # Använd current_user från session istället för note.user_id
         new_note = db.create_note(
             connection, note.note_name, note.note_text, current_user
         )
@@ -1530,8 +1526,13 @@ def consistency_check(world_id: int, connection=Depends(get_db)):
     try:
         result = consistency.run_consistency_check(world_id, connection)
         return result
+    except anthropic.AuthenticationError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing Anthropic API key")
+    except anthropic.APIConnectionError:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Could not connect to Anthropic API")
+    except anthropic.InternalServerError:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail="Anthropic API internal error")
+    except anthropic.RateLimitError:
+        raise HTTPException(status_code=429, detail="Anthropic rate limit reached, try again later")
     except Exception as error:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}",
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Something went wrong: {error}")
