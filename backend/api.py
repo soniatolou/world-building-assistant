@@ -14,6 +14,7 @@ from db_setup import get_connection
 from fastapi import FastAPI, HTTPException, status, Depends, Cookie, Response
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
+from psycopg2 import errors
 from db import pwd_hash
 import consistency
 import schemas
@@ -61,6 +62,12 @@ def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
             user.password,
         )
         return new_user
+    except errors.UniqueViolation as error:
+        if "users_email_key" in str(error):
+            detail = "Email already exists"
+        elif "users_username_key" in str(error):
+            detail = "Username already taken"
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Something went wrong:{detail}")
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

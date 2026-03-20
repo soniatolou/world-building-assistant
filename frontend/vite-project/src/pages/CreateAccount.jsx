@@ -14,10 +14,13 @@ export default function CreateAccount() {
     const [repeatPassword, setRepeatPassword] = useState('')
     const [passwordError, setPasswordError] = useState(false)
     const [emailError, setEmailError] = useState(false)
+    const [emailTakenError, setEmailTakenError] = useState(false)
+    const [usernameTakenError, setUsernameTakenError] = useState(false)
 
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value })
-        if (e.target.name === 'email') setEmailError(false)
+        if (e.target.name === 'email') { setEmailError(false); setEmailTakenError(false) }
+        if (e.target.name === 'username') setUsernameTakenError(false)
     }
 
     async function handleSubmit(e) {
@@ -27,8 +30,13 @@ export default function CreateAccount() {
         const passwordMatch = formData.password === repeatPassword
         setPasswordError(!passwordMatch)
         if (!emailValid || !passwordMatch) return
-        const data = await register(formData)
-        console.log(data)
+        const { ok, data } = await register(formData)
+        if (!ok) {
+            if (data.detail && data.detail.includes('Email already exists')) setEmailTakenError(true)
+            if (data.detail && data.detail.includes('Username already taken')) setUsernameTakenError(true)
+            return
+        }
+        navigate('/')
     }
 
     return (
@@ -44,7 +52,18 @@ export default function CreateAccount() {
         <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-sm">
             <h1 className="text-3xl font-bold text-white">Create Account</h1>
             <div className="flex flex-col gap-3 w-full">
-            {['username', 'first_name', 'last_name'].map((field) => (
+            <input
+                type="text"
+                name="username"
+                placeholder="username"
+                value={formData.username}
+                onChange={handleChange}
+                className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
+            />
+            {usernameTakenError && (
+                <p className="text-red-400 text-sm">Username already taken</p>
+            )}
+            {['first_name', 'last_name'].map((field) => (
                 <input
                 key={field}
                 type="text"
@@ -65,6 +84,9 @@ export default function CreateAccount() {
             />
             {emailError && (
                 <p className="text-red-400 text-sm">Invalid email address</p>
+            )}
+            {emailTakenError && (
+                <p className="text-red-400 text-sm">There already is an account with that email</p>
             )}
             <input
                 type="password"
