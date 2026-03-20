@@ -203,7 +203,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "characters" (
         character_id BIGSERIAL PRIMARY KEY NOT NULL,
         character_name VARCHAR(255) NOT NULL,
-        character_description TEXT NOT NULL,
+        character_description TEXT,
         birth_year VARCHAR(20),
         is_alive BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
