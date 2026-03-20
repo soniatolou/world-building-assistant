@@ -422,7 +422,7 @@ export default function WorldDetail() {
 
               <div>
                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                  Image URL
+                  Image URL <span className="text-white/20 normal-case">(optional)</span>
                 </label>
                 <input
                   type="text"
