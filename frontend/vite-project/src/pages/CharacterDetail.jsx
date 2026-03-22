@@ -17,6 +17,7 @@ export default function CharacterDetail() {
     character_description: "",
     image_url: "",
     birth_year: "",
+    death_year: "",
     is_alive: true,
   });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -34,6 +35,7 @@ export default function CharacterDetail() {
           character_description: data.character_description || "",
           image_url: data.image_url || "",
           birth_year: data.birth_year || "",
+          death_year: data.death_year || "",
           is_alive: data.is_alive ?? true,
           species_id: data.species_id || "",
           item_id: data.item_id || "",
@@ -74,6 +76,7 @@ export default function CharacterDetail() {
     try {
       const payload = {
         ...editForm,
+        death_year: editForm.is_alive ? null : (editForm.death_year || null),
         species_id: editForm.species_id === "" ? null : Number(editForm.species_id),
         item_id: editForm.item_id === "" ? null : Number(editForm.item_id),
       };
@@ -158,6 +161,7 @@ export default function CharacterDetail() {
                     <p className="text-purple-400 text-xs tracking-widest uppercase mt-1">
                       {character.is_alive ? "Alive" : "Deceased"}
                       {character.birth_year && ` · Born ${character.birth_year}`}
+                      {!character.is_alive && character.death_year && ` · Died ${character.death_year}`}
                     </p>
                   </div>
                 </div>
@@ -180,6 +184,16 @@ export default function CharacterDetail() {
                         </h3>
                         <p className="text-white/70 text-sm mt-2">
                           {character.birth_year}
+                        </p>
+                      </div>
+                    )}
+                    {!character.is_alive && character.death_year && (
+                      <div>
+                        <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-1 border-b border-white/10 pb-2 mt-2">
+                          Death Year
+                        </h3>
+                        <p className="text-white/70 text-sm mt-2">
+                          {character.death_year}
                         </p>
                       </div>
                     )}
@@ -338,6 +352,22 @@ export default function CharacterDetail() {
                   Alive
                 </label>
               </div>
+
+              {!editForm.is_alive && (
+                <div>
+                  <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
+                    Death Year <span className="text-white/20">(optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.death_year}
+                    onChange={(e) => setEditForm({ ...editForm, death_year: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                    placeholder="e.g. 1289"
+                    style={{ fontFamily: "sans-serif" }}
+                  />
+                </div>
+              )}
 
               {speciesList.length > 0 && (
                 <div>

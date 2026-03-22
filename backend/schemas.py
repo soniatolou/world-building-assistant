@@ -39,6 +39,7 @@ class CreateLocation(BaseModel):
     location_name: str
     location_description: str
     location_type: Optional[str] = None
+    image_url: Optional[str] = None
     world_id: int
     map_id: Optional[int] = None
 
@@ -48,6 +49,7 @@ class LocationUpdate(BaseModel):
     location_name: Optional[str] = None
     location_description: Optional[str] = None
     location_type: Optional[str] = None
+    image_url: Optional[str] = None
     map_id: Optional[int] = None
 
 
@@ -55,6 +57,7 @@ class LocationUpdate(BaseModel):
 class CreateItem(BaseModel):
     item_name: str
     item_description: str
+    image_url: Optional[str] = None
     world_id: int
 
 
@@ -62,12 +65,14 @@ class CreateItem(BaseModel):
 class ItemUpdate(BaseModel):
     item_name: Optional[str] = None
     item_description: Optional[str] = None
+    image_url: Optional[str] = None
 
 
 # Skapa karaktärer/varelser Species
 class CreateSpecies(BaseModel):
     species_name: str
     species_description: str
+    image_url: Optional[str] = None
     world_id: int
 
 
@@ -75,6 +80,7 @@ class CreateSpecies(BaseModel):
 class SpeciesUpdate(BaseModel):
     species_name: Optional[str] = None
     species_description: Optional[str] = None
+    image_url: Optional[str] = None
 
 
 # Skapa anteckningar
@@ -117,6 +123,7 @@ class CreateCharacter(BaseModel):
     character_name: str
     character_description: str
     birth_year: str
+    death_year: Optional[str] = None
     is_alive: bool = True
     image_url: Optional[str] = None
     image_id: Optional[int] = None
@@ -128,6 +135,7 @@ class UpdateCharacter(BaseModel):
     character_name: Optional[str] = None
     character_description: Optional[str] = None
     birth_year: Optional[str] = None
+    death_year: Optional[str] = None
     is_alive: Optional[bool] = True
     image_url: Optional[str] = None
     image_id: Optional[int] = None
