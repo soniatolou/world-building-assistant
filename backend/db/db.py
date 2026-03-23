@@ -159,7 +159,7 @@ def change_password(connection, user_id, new_password):
 
 
 # Worlds
-def create_world(connection, user_id, world_name, world_description, image_url=None):
+def create_world(connection, user_id, world_name, world_description=None, image_url=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -309,8 +309,8 @@ def create_character(
     connection,
     world_id,
     character_name,
-    character_description,
-    birth_year,
+    character_description = None,
+    birth_year = None,
     is_alive=True,
     image_url=None,
     image_id=None,
@@ -531,7 +531,7 @@ def delete_relationship(connection, relationship_id):
 
 
 # Events
-def create_event(connection, world_id, event_name, event_description, start_year=None, end_year=None):
+def create_event(connection, world_id, event_name, event_description=None, start_year=None, end_year=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -690,7 +690,12 @@ def get_all_events_for_one_character(connection, character_id):
 
 # Maps
 def create_map(
-    connection, world_id, map_name, map_url, map_description=None, scale_factor=None
+    connection, 
+    world_id, 
+    map_name, 
+    map_url, 
+    map_description=None, 
+    scale_factor=None
 ):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -749,7 +754,7 @@ def update_map(
     map_name=None,
     map_url=None,
     map_description=None,
-    scale_factor=None,
+    scale_factor=None
 ):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -790,18 +795,18 @@ def delete_map(connection, map_id):
 def create_location(
     connection,
     location_name,
-    location_description,
     world_id,
     map_id,
     location_type=None,
+    location_description=None
 ):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 INSERT INTO locations (location_name, location_description, world_id, map_id, location_type)
-                VALUES (%s, %s, %s, %s, %s) -- Placeholders to prevent SQL injection, psycopg2 inserts values safely --
-                RETURNING *; -- Returns all columns of the newly created row --
+                VALUES (%s, %s, %s, %s, %s) 
+                RETURNING *; 
                 """,
                 (location_name, location_description, world_id, map_id, location_type),
             )
@@ -889,14 +894,14 @@ def delete_location(connection, location_id):
 
 
 # Items - Sonia
-def create_item(connection, item_name, item_description, world_id):
+def create_item(connection, world_id, item_name, item_description=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 INSERT INTO items (item_name, item_description, world_id)
-                VALUES (%s, %s, %s) -- Placeholders to prevent SQL injection, psycopg2 inserts values safely --
-                RETURNING *; -- Returns all columns of the newly created row --
+                VALUES (%s, %s, %s) 
+                RETURNING *; 
                 """,
                 (item_name, item_description, world_id),
             )
@@ -968,7 +973,7 @@ def delete_item(connection, item_id):
 
 
 # Species - Sonia
-def create_species(connection, species_name, species_description, world_id):
+def create_species(connection, world_id, species_name, species_description=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
