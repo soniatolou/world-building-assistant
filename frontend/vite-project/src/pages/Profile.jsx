@@ -207,7 +207,8 @@ export default function Profile() {
                                 <div className="flex gap-3 pt-2">
                                     <button
                                         onClick={handleUpdate}
-                                        className="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs rounded tracking-widest uppercase transition-all"
+                                        disabled={Object.values(editForm).some((v) => v.trim() === "")}
+                                        className="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs rounded tracking-widest uppercase transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-purple-600"
                                     >
                                         Save
                                     </button>
