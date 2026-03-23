@@ -16,6 +16,7 @@ export default function MapDetail() {
         map_description: "",
         scale_factor: "",
     })
+    const [editError, setEditError] = useState("")
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
     const [mapLocations, setMapLocations] = useState([])
 
@@ -52,6 +53,10 @@ export default function MapDetail() {
     }, [mapId])
 
     async function handleUpdate() {
+        if (!editForm.map_name.trim() || !editForm.map_url.trim()) {
+            setEditError("Please make sure all the required fields are filled in.")
+            return
+        }
         try {
             const updated = await updateMap(mapId, {
                 map_name: editForm.map_name,
@@ -62,6 +67,7 @@ export default function MapDetail() {
             setMap(updated)
             setShowEditModal(false)
             setShowDeleteConfirm(false)
+            setEditError("")
         } catch (err) {
             console.error(err)
         }
@@ -199,27 +205,27 @@ export default function MapDetail() {
                         </h2>
                         <div className="flex flex-col gap-4">
                             <div>
-                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">Name</label>
+                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">Name <span className="text-white/20 normal-case tracking-normal">(required)</span></label>
                                 <input
                                     type="text"
                                     value={editForm.map_name}
                                     onChange={(e) => setEditForm({ ...editForm, map_name: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                    className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${editError && !editForm.map_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "'Cinzel', serif" }}
                                 />
                             </div>
                             <div>
-                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">Map Image URL</label>
+                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">Map Image URL <span className="text-white/20 normal-case tracking-normal">(required)</span></label>
                                 <input
                                     type="text"
                                     value={editForm.map_url}
                                     onChange={(e) => setEditForm({ ...editForm, map_url: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                    className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${editError && !editForm.map_url.trim() ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "sans-serif" }}
                                 />
                             </div>
                             <div>
-                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">Description</label>
+                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">Description <span className="text-white/20 normal-case tracking-normal">(optional)</span></label>
                                 <textarea
                                     rows={3}
                                     value={editForm.map_description}
@@ -242,6 +248,8 @@ export default function MapDetail() {
                                 />
                             </div>
                         </div>
+
+                        {editError && <p className="text-red-400 text-sm mt-4">{editError}</p>}
 
                         <div className="flex justify-between items-center mt-8">
                             {!showDeleteConfirm ? (
@@ -272,7 +280,17 @@ export default function MapDetail() {
                             )}
                             <div className="flex gap-3">
                                 <button
-                                    onClick={() => { setShowEditModal(false); setShowDeleteConfirm(false) }}
+                                    onClick={() => {
+                                        setShowEditModal(false);
+                                        setShowDeleteConfirm(false);
+                                        setEditError("");
+                                        setEditForm({
+                                            map_name: map.map_name || "",
+                                            map_url: map.map_url || "",
+                                            map_description: map.map_description || "",
+                                            scale_factor: map.scale_factor ?? "",
+                                        });
+                                    }}
                                     className="text-xs text-white/40 hover:text-white/70 border border-white/10 px-4 py-2 rounded tracking-widest uppercase transition-all"
                                 >
                                     Cancel

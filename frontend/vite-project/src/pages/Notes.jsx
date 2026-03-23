@@ -9,6 +9,7 @@ export default function Notes() {
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [createForm, setCreateForm] = useState({ note_name: "", note_text: "" })
     const [successMsg, setSuccessMsg] = useState("")
+    const [createError, setCreateError] = useState("")
 
     useEffect(() => {
         async function fetchNotes() {
@@ -23,12 +24,16 @@ export default function Notes() {
     }, [])
 
     async function handleCreate() {
-        if (!createForm.note_name.trim() || !createForm.note_text.trim()) return
+        if (!createForm.note_name.trim() || !createForm.note_text.trim()) {
+            setCreateError("Please fill in all the required fields")
+            return
+        }
         try {
             const newNote = await createNote(createForm)
             setNotes((prev) => [...prev, newNote])
             setShowCreateModal(false)
             setCreateForm({ note_name: "", note_text: "" })
+            setCreateError("")
             setSuccessMsg("Note created!")
             setTimeout(() => setSuccessMsg(""), 3000)
         } catch (err) {
@@ -97,36 +102,38 @@ export default function Notes() {
                         <h2 className="text-white text-lg tracking-widest uppercase mb-6">New Note</h2>
                         <div className="flex flex-col gap-4">
                             <div>
-                                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">Title</label>
+                                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">Title <span className="text-white/20 normal-case tracking-normal">(required)</span></label>
                                 <input
                                     type="text"
                                     value={createForm.note_name}
                                     onChange={(e) => setCreateForm((f) => ({ ...f, note_name: e.target.value }))}
-                                    className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
+                                    className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 ${createError && !createForm.note_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "'Cinzel', serif" }}
                                 />
                             </div>
                             <div>
-                                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">Note</label>
+                                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">Note <span className="text-white/20 normal-case tracking-normal">(required)</span></label>
                                 <textarea
                                     rows={6}
                                     value={createForm.note_text}
                                     onChange={(e) => setCreateForm((f) => ({ ...f, note_text: e.target.value }))}
-                                    className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 resize-none"
+                                    className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 resize-none ${createError && !createForm.note_text.trim() ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "sans-serif" }}
                                 />
                             </div>
                         </div>
-                        <div className="flex gap-3 mt-8">
+                        {createError && (
+                            <p className="text-red-400 text-sm mt-4">{createError}</p>
+                        )}
+                        <div className="flex gap-3 mt-4">
                             <button
                                 onClick={handleCreate}
-                                disabled={!createForm.note_name.trim() || !createForm.note_text.trim()}
-                                className="flex-1 px-4 py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white text-sm rounded-md transition-all tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="flex-1 px-4 py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white text-sm rounded-md transition-all tracking-wide"
                             >
                                 Create
                             </button>
                             <button
-                                onClick={() => { setShowCreateModal(false); setCreateForm({ note_name: "", note_text: "" }) }}
+                                onClick={() => { setShowCreateModal(false); setCreateForm({ note_name: "", note_text: "" }); setCreateError("") }}
                                 className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 text-sm rounded-md transition-all tracking-wide"
                             >
                                 Cancel

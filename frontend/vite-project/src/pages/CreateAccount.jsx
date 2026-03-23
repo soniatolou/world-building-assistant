@@ -17,6 +17,7 @@ export default function CreateAccount() {
     const [emailTakenError, setEmailTakenError] = useState(false)
     const [usernameTakenError, setUsernameTakenError] = useState(false)
     const [missingFieldsError, setMissingFieldsError] = useState(false)
+    const [submitted, setSubmitted] = useState(false)
 
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -27,6 +28,7 @@ export default function CreateAccount() {
 
     async function handleSubmit(e) {
         e.preventDefault()
+        setSubmitted(true)
         const allFilled = Object.values(formData).every(v => v.trim() !== '') && repeatPassword.trim() !== ''
         if (!allFilled) {
             setMissingFieldsError(true)
@@ -65,7 +67,7 @@ export default function CreateAccount() {
                 placeholder="username (required)"
                 value={formData.username}
                 onChange={handleChange}
-                className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
+                className={`px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border outline-none focus:border-white ${submitted && !formData.username.trim() ? "border-red-500/60" : "border-white/40"}`}
             />
             {usernameTakenError && (
                 <p className="text-red-400 text-sm">Username already taken</p>
@@ -78,7 +80,7 @@ export default function CreateAccount() {
                 placeholder={`${field.replace('_', ' ')} (required)`}
                 value={formData[field]}
                 onChange={handleChange}
-                className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
+                className={`px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border outline-none focus:border-white ${submitted && !formData[field].trim() ? "border-red-500/60" : "border-white/40"}`}
                 />
             ))}
             <input
@@ -87,7 +89,7 @@ export default function CreateAccount() {
                 placeholder="email (required)"
                 value={formData.email}
                 onChange={handleChange}
-                className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
+                className={`px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border outline-none focus:border-white ${submitted && !formData.email.trim() ? "border-red-500/60" : "border-white/40"}`}
             />
             {emailError && (
                 <p className="text-red-400 text-sm">Invalid email address</p>
@@ -101,14 +103,14 @@ export default function CreateAccount() {
                 placeholder="password (required)"
                 value={formData.password}
                 onChange={handleChange}
-                className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
+                className={`px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border outline-none focus:border-white ${submitted && !formData.password.trim() ? "border-red-500/60" : "border-white/40"}`}
             />
             <input
                 type="password"
                 placeholder="Repeat password (required)"
                 value={repeatPassword}
                 onChange={(e) => { setRepeatPassword(e.target.value); setPasswordError(false); setMissingFieldsError(false) }}
-                className="px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border border-white/40 outline-none focus:border-white"
+                className={`px-4 py-2 rounded-md bg-white/20 text-white placeholder-white/70 border outline-none focus:border-white ${submitted && !repeatPassword.trim() ? "border-red-500/60" : "border-white/40"}`}
             />
             {passwordError && (
                 <p className="text-red-400 text-sm">Passwords do not match</p>

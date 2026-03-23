@@ -28,6 +28,7 @@ export default function WorldDetail() {
     world_description: "",
     image_url: "",
   });
+  const [editError, setEditError] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [rules, setRules] = useState([]);
   const [showAddRule, setShowAddRule] = useState(false);
@@ -91,10 +92,15 @@ export default function WorldDetail() {
   }, [worldId]);
 
   async function handleUpdate() {
+    if (!editForm.world_name.trim()) {
+      setEditError("Please make sure all the required fields are filled in.")
+      return
+    }
     try {
       const updated = await updateWorld(worldId, editForm);
       setWorld(updated);
       setShowEditModal(false);
+      setEditError("");
     } catch (err) {
       console.error(err);
     }
@@ -439,7 +445,7 @@ export default function WorldDetail() {
             <div className="flex flex-col gap-4">
               <div>
                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                  World Name
+                  World Name <span className="text-white/20 normal-case tracking-normal">(required)</span>
                 </label>
                 <input
                   type="text"
@@ -447,14 +453,14 @@ export default function WorldDetail() {
                   onChange={(e) =>
                     setEditForm({ ...editForm, world_name: e.target.value })
                   }
-                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                  className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${editError && !editForm.world_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                   style={{ fontFamily: "sans-serif" }}
                 />
               </div>
 
               <div>
                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                  Description
+                  Description <span className="text-white/20 normal-case tracking-normal">(optional)</span>
                 </label>
                 <textarea
                   value={editForm.world_description}
@@ -485,6 +491,8 @@ export default function WorldDetail() {
                 />
               </div>
             </div>
+
+            {editError && <p className="text-red-400 text-sm mt-4">{editError}</p>}
 
             <div className="flex justify-between items-center mt-8">
               {!showDeleteConfirm ? (
@@ -522,6 +530,12 @@ export default function WorldDetail() {
                   onClick={() => {
                     setShowEditModal(false);
                     setShowDeleteConfirm(false);
+                    setEditError("");
+                    setEditForm({
+                      world_name: world.world_name || "",
+                      world_description: world.world_description || "",
+                      image_url: world.image_url || "",
+                    });
                   }}
                   className="text-xs text-white/40 hover:text-white/70 border border-white/10 px-4 py-2 rounded tracking-widest uppercase transition-all"
                 >

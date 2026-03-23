@@ -855,10 +855,10 @@ def create_location(
         new_location = db.create_location(
             connection,
             location.location_name,
-            location.location_description,
             location.world_id,
             location.map_id,
             location.location_type,
+            location.location_description
         )
         return new_location
     except HTTPException:
@@ -966,20 +966,11 @@ def delete_location(
         )
 
 
-# -----------ITEMS - SONIA--------
-
-
-# Items - Skapa föremål
+# Items
 @app.post("/items", status_code=status.HTTP_201_CREATED)
-def create_item(
-    item: schemas.CreateItem,
-    connection=Depends(get_db),
-    current_user: int = Depends(get_current_user),
-):
+def create_item(item: schemas.CreateItem, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
-        new_item = db.create_item(
-            connection, item.item_name, item.item_description, item.world_id
-        )
+        new_item = db.create_item(connection, item.world_id, item.item_name, item.item_description)
         return new_item
     except HTTPException:
         raise
@@ -990,7 +981,7 @@ def create_item(
         )
 
 
-# Items - Hämta alla föremål
+# Items
 @app.get("/worlds/{world_id}/items")
 def get_all_items(
     world_id: int,
@@ -1009,7 +1000,7 @@ def get_all_items(
         )
 
 
-# Items - Hämta specifikt föremål med id
+# Items 
 @app.get("/items/{item_id}")
 def get_item_by_id(
     item_id: int,
@@ -1032,7 +1023,7 @@ def get_item_by_id(
         )
 
 
-# Items - Uppdatera föremål
+# Items 
 @app.patch("/items/{item_id}")
 def update_item(
     item_id: int,
@@ -1058,7 +1049,7 @@ def update_item(
         )
 
 
-# Items - Radera föremål
+# Items 
 @app.delete("/items/{item_id}")
 def delete_item(
     item_id: int,
@@ -1081,22 +1072,15 @@ def delete_item(
         )
 
 
-# ----------- SPECIES - SONIA -------
-
-
-# Species - Skapa varelse
+# Species 
 @app.post("/species", status_code=status.HTTP_201_CREATED)
-def create_species(
-    species: schemas.CreateSpecies,
-    connection=Depends(get_db),
-    current_user: int = Depends(get_current_user),
-):
+def create_species(species: schemas.CreateSpecies, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
         new_species = db.create_species(
             connection,
-            species.species_name,
-            species.species_description,
             species.world_id,
+            species.species_name,
+            species.species_description
         )
         return new_species
     except HTTPException:
@@ -1108,7 +1092,7 @@ def create_species(
         )
 
 
-# Species - Hämta alla varelser
+# Species
 @app.get("/worlds/{world_id}/species")
 def get_all_species(
     world_id: int,
@@ -1127,7 +1111,7 @@ def get_all_species(
         )
 
 
-# Species - Hämta specifikt varelse med id
+# Species
 @app.get("/species/{species_id}")
 def get_species_by_id(
     species_id: int,
@@ -1150,7 +1134,7 @@ def get_species_by_id(
         )
 
 
-# Species - Uppdatera varelse
+# Species
 @app.patch("/species/{species_id}")
 def update_species(
     species_id: int,
@@ -1176,7 +1160,7 @@ def update_species(
         )
 
 
-# Species - Radera varelse
+# Species
 @app.delete("/species/{species_id}")
 def delete_species(
     species_id: int,
@@ -1197,6 +1181,7 @@ def delete_species(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Something went wrong: {error}",
         )
+
 
 # Notes
 @app.post("/notes", status_code=status.HTTP_201_CREATED)
@@ -1219,7 +1204,7 @@ def create_note(
         )
 
 
-# Notes - Hämta alla anteckningar
+# Notes 
 @app.get("/users/{user_id}/notes")
 def get_all_notes(
     user_id: int,
@@ -1227,7 +1212,6 @@ def get_all_notes(
     current_user: int = Depends(get_current_user),
 ):
     try:
-        # Säkerhet, användare kan bara se sina egna notes
         if user_id != current_user:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -1245,7 +1229,7 @@ def get_all_notes(
         )
 
 
-# Notes - Hämta specifik anteckning med id
+# Notes
 @app.get("/notes/{notes_id}")
 def get_note_by_id(
     notes_id: int,
@@ -1259,7 +1243,6 @@ def get_note_by_id(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Note not found"
             )
 
-        # Säk, användare kan bara se sina egna notes
         if note["user_id"] != current_user:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -1276,7 +1259,7 @@ def get_note_by_id(
         )
 
 
-# Notes - Uppdatera anteckningar
+# Notes
 @app.patch("/notes/{notes_id}")
 def update_note(
     notes_id: int,
@@ -1285,7 +1268,6 @@ def update_note(
     current_user: int = Depends(get_current_user),
 ):
     try:
-        # Kollar att note tillhör användaren
         existing_note = db.get_note_by_id(connection, notes_id)
         if not existing_note:
             raise HTTPException(
@@ -1311,7 +1293,7 @@ def update_note(
         )
 
 
-# Notes - Radera anteckning
+# Notes
 @app.delete("/notes/{notes_id}")
 def delete_note(
     notes_id: int,
@@ -1319,7 +1301,6 @@ def delete_note(
     current_user: int = Depends(get_current_user),
 ):
     try:
-        # Kollar att note tillhör användaren
         existing_note = db.get_note_by_id(connection, notes_id)
         if not existing_note:
             raise HTTPException(
@@ -1343,11 +1324,7 @@ def delete_note(
         )
 
 
-# -------- JUNCTION TABLES - SONIA ---------
-
-
-# ------Wordl-Items junction------
-# World-Items junction - Koppla item till en värld
+# World-Items 
 @app.post("/worlds/{world_id}/items/{item_id}", status_code=status.HTTP_201_CREATED)
 def add_item_to_world(
     world_id: int,
@@ -1375,7 +1352,6 @@ def add_item_to_world(
         )
 
 
-# World-Items junction - Ta bort kopplingen
 @app.delete("/worlds/{world_id}/items/{item_id}")
 def remove_item_from_world(
     world_id: int,
@@ -1403,7 +1379,6 @@ def remove_item_from_world(
         )
 
 
-# World-Items junction - Hämta alla items för en värld (använder annan route)
 @app.get("/worlds/{world_id}/items/all")
 def get_world_items(
     world_id: int,
@@ -1422,8 +1397,7 @@ def get_world_items(
         )
 
 
-# --------World-species Junction----------
-# World-Species junction - Koppla species till värld
+# World-Species 
 @app.post(
     "/worlds/{world_id}/species/{species_id}", status_code=status.HTTP_201_CREATED
 )
@@ -1453,7 +1427,6 @@ def add_species_to_world(
         )
 
 
-# World-Species junction - Ta bort koppling
 @app.delete("/worlds/{world_id}/species/{species_id}")
 def remove_species_from_world(
     world_id: int,
@@ -1481,7 +1454,6 @@ def remove_species_from_world(
         )
 
 
-# World-Species junction - Hämta alla species för en värld (använder annan route)
 @app.get("/worlds/{world_id}/species/all")
 def get_world_species(
     world_id: int,

@@ -17,6 +17,8 @@ export default function CreateCharacter() {
     species_id: "",
   });
   const [speciesList, setSpeciesList] = useState([]);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     async function fetchSpecies() {
@@ -34,10 +36,16 @@ export default function CreateCharacter() {
     const value =
       e.target.type === "checkbox" ? e.target.checked : e.target.value;
     setFormData({ ...formData, [e.target.name]: value });
+    setErrorMsg("");
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setSubmitted(true);
+    if (!formData.character_name.trim()) {
+      setErrorMsg("Please fill in all the required fields");
+      return;
+    }
     const payload = {
       ...formData,
       species_id: formData.species_id === "" ? null : Number(formData.species_id),
@@ -73,14 +81,14 @@ export default function CreateCharacter() {
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
               <label className="text-white/70 text-xs tracking-widest uppercase">
-                Name
+                Name <span className="text-white/30">(required)</span>
               </label>
               <input
                 type="text"
                 name="character_name"
                 value={formData.character_name}
                 onChange={handleChange}
-                className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                className={`bg-white/10 border rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 ${submitted && !formData.character_name.trim() ? "border-red-500/60" : "border-white/20"}`}
                 placeholder="Character name"
                 style={{ fontFamily: "sans-serif" }}
               />
@@ -88,7 +96,7 @@ export default function CreateCharacter() {
 
             <div className="flex flex-col gap-2">
               <label className="text-white/70 text-xs tracking-widest uppercase">
-                Description
+                Description <span className="text-white/30">(optional)</span>
               </label>
               <textarea
                 name="character_description"
@@ -103,7 +111,7 @@ export default function CreateCharacter() {
 
             <div className="flex flex-col gap-2">
               <label className="text-white/70 text-xs tracking-widest uppercase">
-                Birth Year
+                Birth Year <span className="text-white/30">(optional)</span>
               </label>
               <input
                 type="text"
@@ -168,6 +176,9 @@ export default function CreateCharacter() {
               </label>
             </div>
 
+            {errorMsg && (
+              <p className="text-red-400 text-sm">{errorMsg}</p>
+            )}
             <div className="flex gap-3 mt-2">
               <button
                 onClick={handleSubmit}

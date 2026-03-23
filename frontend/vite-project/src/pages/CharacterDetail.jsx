@@ -19,6 +19,7 @@ export default function CharacterDetail() {
     birth_year: "",
     is_alive: true,
   });
+  const [editError, setEditError] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [relationships, setRelationships] = useState([]);
   const [speciesList, setSpeciesList] = useState([]);
@@ -71,6 +72,10 @@ export default function CharacterDetail() {
   }, [worldId]);
 
   async function handleUpdate() {
+    if (!editForm.character_name.trim()) {
+      setEditError("Please make sure all the required fields are filled in.")
+      return
+    }
     try {
       const payload = {
         ...editForm,
@@ -80,6 +85,7 @@ export default function CharacterDetail() {
       const updated = await updateCharacter(characterId, payload);
       setCharacter(updated);
       setShowEditModal(false);
+      setEditError("");
     } catch (err) {
       console.error(err);
     }
@@ -273,20 +279,20 @@ export default function CharacterDetail() {
             <div className="flex flex-col gap-4">
               <div>
                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                  Name
+                  Name <span className="text-white/20 normal-case tracking-normal">(required)</span>
                 </label>
                 <input
                   type="text"
                   value={editForm.character_name}
                   onChange={(e) => setEditForm({ ...editForm, character_name: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                  className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${editError && !editForm.character_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                   style={{ fontFamily: "sans-serif" }}
                 />
               </div>
 
               <div>
                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                  Description
+                  Description <span className="text-white/20 normal-case tracking-normal">(optional)</span>
                 </label>
                 <textarea
                   value={editForm.character_description}
@@ -299,7 +305,7 @@ export default function CharacterDetail() {
 
               <div>
                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                  Image URL
+                  Image URL <span className="text-white/20 normal-case tracking-normal">(optional)</span>
                 </label>
                 <input
                   type="text"
@@ -312,7 +318,7 @@ export default function CharacterDetail() {
 
               <div>
                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                  Birth Year
+                  Birth Year <span className="text-white/20 normal-case tracking-normal">(optional)</span>
                 </label>
                 <input
                   type="text"
@@ -378,6 +384,8 @@ export default function CharacterDetail() {
               )}
             </div>
 
+            {editError && <p className="text-red-400 text-sm mt-4">{editError}</p>}
+
             <div className="flex justify-between items-center mt-8">
               {!showDeleteConfirm ? (
                 <button
@@ -408,7 +416,20 @@ export default function CharacterDetail() {
 
               <div className="flex gap-3">
                 <button
-                  onClick={() => { setShowEditModal(false); setShowDeleteConfirm(false); }}
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setShowDeleteConfirm(false);
+                    setEditError("");
+                    setEditForm({
+                      character_name: character.character_name || "",
+                      character_description: character.character_description || "",
+                      image_url: character.image_url || "",
+                      birth_year: character.birth_year || "",
+                      is_alive: character.is_alive ?? true,
+                      species_id: character.species_id || "",
+                      item_id: character.item_id || "",
+                    });
+                  }}
                   className="text-xs text-white/40 hover:text-white/70 border border-white/10 px-4 py-2 rounded tracking-widest uppercase transition-all"
                 >
                   Cancel

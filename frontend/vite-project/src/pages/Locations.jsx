@@ -12,6 +12,7 @@ export default function Locations() {
     const [maps, setMaps] = useState([])
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [successMsg, setSuccessMsg] = useState("")
+    const [createError, setCreateError] = useState("")
     const [createForm, setCreateForm] = useState({
         location_name: "",
         location_description: "",
@@ -36,7 +37,10 @@ export default function Locations() {
     }, [worldId])
 
     async function handleCreate() {
-        if (!createForm.location_name.trim() || !createForm.location_description.trim()) return
+        if (!createForm.location_name.trim()) {
+            setCreateError("Please fill in all the required fields")
+            return
+        }
         try {
             const newLocation = await createLocation({
                 location_name: createForm.location_name,
@@ -48,6 +52,7 @@ export default function Locations() {
             setLocations((prev) => [...prev, newLocation])
             setShowCreateModal(false)
             setCreateForm({ location_name: "", location_description: "", location_type: "", map_id: "" })
+            setCreateError("")
             setSuccessMsg("Location created!")
             setTimeout(() => setSuccessMsg(""), 3000)
         } catch (err) {
@@ -142,13 +147,13 @@ export default function Locations() {
                         <div className="flex flex-col gap-4">
                             <div>
                                 <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">
-                                    Name
+                                    Name <span className="text-white/20 normal-case tracking-normal">(required)</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={createForm.location_name}
                                     onChange={(e) => setCreateForm((f) => ({ ...f, location_name: e.target.value }))}
-                                    className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
+                                    className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 ${createError && !createForm.location_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "'Cinzel', serif" }}
                                 />
                             </div>
@@ -185,7 +190,7 @@ export default function Locations() {
                             </div>
                             <div>
                                 <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">
-                                    Description
+                                    Description <span className="text-white/20 normal-case tracking-normal">(optional)</span>
                                 </label>
                                 <textarea
                                     rows={4}
@@ -196,11 +201,13 @@ export default function Locations() {
                                 />
                             </div>
                         </div>
-                        <div className="flex gap-3 mt-8">
+                        {createError && (
+                            <p className="text-red-400 text-sm mt-4">{createError}</p>
+                        )}
+                        <div className="flex gap-3 mt-4">
                             <button
                                 onClick={handleCreate}
-                                disabled={!createForm.location_name.trim() || !createForm.location_description.trim()}
-                                className="flex-1 px-4 py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white text-sm rounded-md transition-all tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="flex-1 px-4 py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white text-sm rounded-md transition-all tracking-wide"
                             >
                                 Create
                             </button>
@@ -208,6 +215,7 @@ export default function Locations() {
                                 onClick={() => {
                                     setShowCreateModal(false)
                                     setCreateForm({ location_name: "", location_description: "", location_type: "", map_id: "" })
+                                    setCreateError("")
                                 }}
                                 className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 text-sm rounded-md transition-all tracking-wide"
                             >

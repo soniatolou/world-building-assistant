@@ -10,6 +10,7 @@ export default function Maps() {
     const [maps, setMaps] = useState([])
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [successMsg, setSuccessMsg] = useState("")
+    const [createError, setCreateError] = useState("")
     const [createForm, setCreateForm] = useState({
         map_name: "",
         map_url: "",
@@ -30,7 +31,10 @@ export default function Maps() {
     }, [worldId])
 
     async function handleCreate() {
-        if (!createForm.map_name.trim() || !createForm.map_url.trim() || !createForm.map_description.trim()) return
+        if (!createForm.map_name.trim() || !createForm.map_url.trim()) {
+            setCreateError("Please fill in all the required fields")
+            return
+        }
         try {
             const newMap = await createMap(worldId, {
                 map_name: createForm.map_name,
@@ -41,6 +45,7 @@ export default function Maps() {
             setMaps((prev) => [...prev, newMap])
             setShowCreateModal(false)
             setCreateForm({ map_name: "", map_url: "", map_description: "", scale_factor: "" })
+            setCreateError("")
             setSuccessMsg("Map created!")
             setTimeout(() => setSuccessMsg(""), 3000)
         } catch (err) {
@@ -138,27 +143,27 @@ export default function Maps() {
                         </h2>
                         <div className="flex flex-col gap-4">
                             <div>
-                                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">Name</label>
+                                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">Name <span className="text-white/20 normal-case tracking-normal">(required)</span></label>
                                 <input
                                     type="text"
                                     value={createForm.map_name}
                                     onChange={(e) => setCreateForm((f) => ({ ...f, map_name: e.target.value }))}
-                                    className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
+                                    className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 ${createError && !createForm.map_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "'Cinzel', serif" }}
                                 />
                             </div>
                             <div>
-                                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">Map Image URL</label>
+                                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">Map Image URL <span className="text-white/20 normal-case tracking-normal">(required)</span></label>
                                 <input
                                     type="text"
                                     value={createForm.map_url}
                                     onChange={(e) => setCreateForm((f) => ({ ...f, map_url: e.target.value }))}
-                                    className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
+                                    className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 ${createError && !createForm.map_url.trim() ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "sans-serif" }}
                                 />
                             </div>
                             <div>
-                                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">Description</label>
+                                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">Description <span className="text-white/20 normal-case tracking-normal">(optional)</span></label>
                                 <textarea
                                     rows={3}
                                     value={createForm.map_description}
@@ -181,11 +186,13 @@ export default function Maps() {
                                 />
                             </div>
                         </div>
-                        <div className="flex gap-3 mt-8">
+                        {createError && (
+                            <p className="text-red-400 text-sm mt-4">{createError}</p>
+                        )}
+                        <div className="flex gap-3 mt-4">
                             <button
                                 onClick={handleCreate}
-                                disabled={!createForm.map_name.trim() || !createForm.map_url.trim() || !createForm.map_description.trim()}
-                                className="flex-1 px-4 py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white text-sm rounded-md transition-all tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="flex-1 px-4 py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white text-sm rounded-md transition-all tracking-wide"
                             >
                                 Create
                             </button>
@@ -193,6 +200,7 @@ export default function Maps() {
                                 onClick={() => {
                                     setShowCreateModal(false)
                                     setCreateForm({ map_name: "", map_url: "", map_description: "", scale_factor: "" })
+                                    setCreateError("")
                                 }}
                                 className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 text-sm rounded-md transition-all tracking-wide"
                             >

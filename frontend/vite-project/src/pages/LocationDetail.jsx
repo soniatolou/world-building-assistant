@@ -11,6 +11,7 @@ export default function LocationDetail() {
     const [location, setLocation] = useState(null)
     const [maps, setMaps] = useState([])
     const [showEditModal, setShowEditModal] = useState(false)
+    const [editError, setEditError] = useState("")
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
     const [editForm, setEditForm] = useState({
         location_name: "",
@@ -42,6 +43,10 @@ export default function LocationDetail() {
     }, [locationId, worldId])
 
     async function handleUpdate() {
+        if (!editForm.location_name.trim()) {
+            setEditError("Please make sure all the required fields are filled in.")
+            return
+        }
         try {
             const updated = await updateLocation(locationId, {
                 location_name: editForm.location_name,
@@ -52,6 +57,7 @@ export default function LocationDetail() {
             setLocation(updated)
             setShowEditModal(false)
             setShowDeleteConfirm(false)
+            setEditError("")
         } catch (err) {
             console.error(err)
         }
@@ -184,19 +190,19 @@ export default function LocationDetail() {
                         <div className="flex flex-col gap-4">
                             <div>
                                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                                    Name
+                                    Name <span className="text-white/20 normal-case tracking-normal">(required)</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={editForm.location_name}
                                     onChange={(e) => setEditForm({ ...editForm, location_name: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                    className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${editError && !editForm.location_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "'Cinzel', serif" }}
                                 />
                             </div>
                             <div>
                                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                                    Type
+                                    Type <span className="text-white/20 normal-case tracking-normal">(optional)</span>
                                 </label>
                                 <input
                                     type="text"
@@ -226,7 +232,7 @@ export default function LocationDetail() {
                             </div>
                             <div>
                                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                                    Description
+                                    Description <span className="text-white/20 normal-case tracking-normal">(optional)</span>
                                 </label>
                                 <textarea
                                     rows={4}
@@ -237,6 +243,8 @@ export default function LocationDetail() {
                                 />
                             </div>
                         </div>
+
+                        {editError && <p className="text-red-400 text-sm mt-4">{editError}</p>}
 
                         <div className="flex justify-between items-center mt-8">
                             {!showDeleteConfirm ? (
@@ -267,7 +275,17 @@ export default function LocationDetail() {
                             )}
                             <div className="flex gap-3">
                                 <button
-                                    onClick={() => { setShowEditModal(false); setShowDeleteConfirm(false) }}
+                                    onClick={() => {
+                                        setShowEditModal(false);
+                                        setShowDeleteConfirm(false);
+                                        setEditError("");
+                                        setEditForm({
+                                            location_name: location.location_name || "",
+                                            location_description: location.location_description || "",
+                                            location_type: location.location_type || "",
+                                            map_id: location.map_id || "",
+                                        });
+                                    }}
                                     className="text-xs text-white/40 hover:text-white/70 border border-white/10 px-4 py-2 rounded tracking-widest uppercase transition-all"
                                 >
                                     Cancel
