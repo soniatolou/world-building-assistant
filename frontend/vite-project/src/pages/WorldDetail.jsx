@@ -145,8 +145,8 @@ export default function WorldDetail() {
   const quickActions = [
     { label: "New Character", path: `/worlds/${worldId}/characters/create` },
     { label: "New Location", path: `/worlds/${worldId}/locations/create` },
-    { label: "New Event", path: `/worlds/${worldId}/events` },
-    { label: "New Map", path: `/worlds/${worldId}/maps` },
+    { label: "New Event", path: `/worlds/${worldId}/events/create` },
+    { label: "New Map", path: `/worlds/${worldId}/maps/create` },
   ];
 
   const stats = [

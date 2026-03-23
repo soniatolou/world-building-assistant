@@ -1,11 +1,32 @@
+import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useConsistency } from "../context/ConsistencyContext"
+import { getUserWorlds } from "../api/dashboard"
 
-export default function WorldSidebar({ worldId, worldName }) {
+export default function WorldSidebar({ worldId, worldName: worldNameProp }) {
     const navigate = useNavigate()
     const location = useLocation()
     const { consistencyResult, clearResult } = useConsistency()
     const isWorldDetail = location.pathname === `/worlds/${worldId}`
+    const [worldName, setWorldName] = useState(worldNameProp || "")
+
+    useEffect(() => {
+        if (worldNameProp) {
+            setWorldName(worldNameProp)
+            return
+        }
+        async function fetchWorldName() {
+            try {
+                const userId = localStorage.getItem("user_id")
+                const worlds = await getUserWorlds(userId)
+                const found = worlds.find((w) => String(w.world_id) === String(worldId))
+                if (found) setWorldName(found.world_name)
+            } catch (err) {
+                console.error(err)
+            }
+        }
+        fetchWorldName()
+    }, [worldId, worldNameProp])
 
     const links = [
         { label: "Dashboard", path: `/worlds/${worldId}` },
@@ -27,7 +48,7 @@ export default function WorldSidebar({ worldId, worldName }) {
                 World-Building Assistant
             </p>
             {worldName && (
-                <p className="text-white/50 text-xs mb-8 truncate">{worldName}</p>
+                <p className="text-white/50 text-xs mb-8 truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>{worldName}</p>
             )}
 
             <nav className="flex flex-col gap-1">

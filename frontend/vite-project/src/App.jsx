@@ -12,10 +12,13 @@ import CharacterDetail from './pages/CharacterDetail'
 import Relationships from './pages/Relationships'
 import Events from './pages/Events'
 import EventDetail from './pages/EventDetail'
+import CreateEvent from './pages/CreateEvent'
 import Maps from './pages/Maps'
 import MapDetail from './pages/MapDetail'
+import CreateMap from './pages/CreateMap'
 import Locations from './pages/Locations'
 import LocationDetail from './pages/LocationDetail'
+import CreateLocation from './pages/CreateLocation'
 import Profile from './pages/Profile'
 import Items from './pages/Items'
 import ItemDetail from './pages/ItemDetail'
@@ -38,10 +41,13 @@ export default function App() {
       <Route path="/worlds/:worldId/characters/:characterId" element={<CharacterDetail />} />
       <Route path="/worlds/:worldId/relationships" element={<Relationships />} />
       <Route path="/worlds/:worldId/events" element={<Events />} />
+      <Route path="/worlds/:worldId/events/create" element={<CreateEvent />} />
       <Route path="/worlds/:worldId/events/:eventId" element={<EventDetail />} />
       <Route path="/worlds/:worldId/maps" element={<Maps />} />
+      <Route path="/worlds/:worldId/maps/create" element={<CreateMap />} />
       <Route path="/worlds/:worldId/maps/:mapId" element={<MapDetail />} />
       <Route path="/worlds/:worldId/locations" element={<Locations />} />
+      <Route path="/worlds/:worldId/locations/create" element={<CreateLocation />} />
       <Route path="/worlds/:worldId/locations/:locationId" element={<LocationDetail />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/worlds/:worldId/items" element={<Items />} />

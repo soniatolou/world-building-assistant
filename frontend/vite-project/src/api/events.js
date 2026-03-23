@@ -64,3 +64,10 @@ export async function removeCharacterFromEvent(eventId, characterId) {
     })
     return res.json()
 }
+
+export async function getEventsForCharacter(characterId) {
+    const res = await fetch(`${BASE_URL}/characters/${characterId}/events`, {
+        credentials: "include",
+    })
+    return res.json()
+}

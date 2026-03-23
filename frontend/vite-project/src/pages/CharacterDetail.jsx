@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCharacter, updateCharacter, deleteCharacter } from "../api/characters";
 import { getRelationshipsForCharacter } from "../api/relationships";
+import { getEventsForCharacter } from "../api/events";
 import { getSpecies } from "../api/species";
 import { getItems } from "../api/items";
 import WorldSidebar from "../components/WorldSidebar";
@@ -22,6 +23,7 @@ export default function CharacterDetail() {
   });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [relationships, setRelationships] = useState([]);
+  const [characterEvents, setCharacterEvents] = useState([]);
   const [speciesList, setSpeciesList] = useState([]);
   const [itemsList, setItemsList] = useState([]);
 
@@ -57,6 +59,18 @@ export default function CharacterDetail() {
       }
     }
     fetchRelationships();
+  }, [characterId]);
+
+  useEffect(() => {
+    async function fetchEvents() {
+      try {
+        const data = await getEventsForCharacter(characterId);
+        if (Array.isArray(data)) setCharacterEvents(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchEvents();
   }, [characterId]);
 
   useEffect(() => {
@@ -267,6 +281,35 @@ export default function CharacterDetail() {
                             </div>
                           );
                         })}
+                      </div>
+                    </div>
+                  )}
+
+                  {characterEvents.length > 0 && (
+                    <div>
+                      <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-4 border-b border-white/10 pb-2">
+                        Events
+                      </h3>
+                      <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden w-full">
+                        {characterEvents.map((event) => (
+                          <div
+                            key={event.event_id}
+                            className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-all"
+                          >
+                            <button
+                              onClick={() => navigate(`/worlds/${worldId}/events/${event.event_id}`)}
+                              className="text-white/80 hover:text-purple-300 text-sm tracking-wide transition-colors text-left"
+                              style={{ fontFamily: "'Cinzel', serif" }}
+                            >
+                              {event.event_name}
+                            </button>
+                            {(event.start_year || event.end_year) && (
+                              <span className="text-white/30 text-xs" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                {event.start_year}{event.end_year && event.end_year !== event.start_year ? ` – ${event.end_year}` : ""}
+                              </span>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}
