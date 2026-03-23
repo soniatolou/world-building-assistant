@@ -43,7 +43,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "worlds" (
         world_id BIGSERIAL PRIMARY KEY NOT NULL,
         world_name VARCHAR(255) NOT NULL,
-        world_description TEXT NOT NULL,
+        world_description TEXT,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         image_url VARCHAR (2048),
         user_id BIGINT NOT NULL REFERENCES "users"(user_id) ON DELETE CASCADE
@@ -67,7 +67,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "events" (
         event_id BIGSERIAL PRIMARY KEY NOT NULL,
         event_name VARCHAR(255) NOT NULL,
-        event_description TEXT NOT NULL,
+        event_description TEXT,
         start_year VARCHAR(20),
         end_year VARCHAR (20),
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -83,7 +83,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "items" (
         item_id BIGSERIAL PRIMARY KEY NOT NULL,
         item_name VARCHAR(255) NOT NULL,
-        item_description TEXT NOT NULL,
+        item_description TEXT,
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE
         );
         """
@@ -187,7 +187,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "locations" (
         location_id BIGSERIAL PRIMARY KEY NOT NULL,
         location_name VARCHAR(255) NOT NULL,
-        location_description TEXT NOT NULL,
+        location_description TEXT,
         location_type VARCHAR(100),
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
