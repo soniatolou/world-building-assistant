@@ -41,10 +41,10 @@ export default function Dashboard() {
                 {worlds.length === 0 ? (
                     <div className="flex items-center justify-center min-h-[60vh]">
                         <div className="text-center">
-                            <p className="text-3xl text-white font-light">
+                            <p className="text-3xl text-white font-light" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                 You don't have any worlds yet.
                             </p>
-                            <p className="text-3xl text-white font-light mt-2">
+                            <p className="text-3xl text-white font-light mt-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                 Click create world to get started.
                             </p>
                         </div>
@@ -67,7 +67,7 @@ export default function Dashboard() {
                                 <h2 className="text-2xl font-bold text-white mb-2">
                                     {world.world_name}
                                 </h2>
-                                <p className="text-white/80 line-clamp-3">
+                                <p className="text-white/80 line-clamp-3" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                     {world.world_description}
                                 </p>
                             </div>

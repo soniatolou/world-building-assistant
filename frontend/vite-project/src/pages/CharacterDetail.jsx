@@ -173,7 +173,7 @@ export default function CharacterDetail() {
                       <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-1 border-b border-white/10 pb-2">
                         Status
                       </h3>
-                      <p className="text-white/70 text-sm mt-2">
+                      <p className="text-white/70 text-sm mt-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                         {character.is_alive ? "Alive" : "Deceased"}
                       </p>
                     </div>
@@ -182,7 +182,7 @@ export default function CharacterDetail() {
                         <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-1 border-b border-white/10 pb-2 mt-2">
                           Birth Year
                         </h3>
-                        <p className="text-white/70 text-sm mt-2">
+                        <p className="text-white/70 text-sm mt-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                           {character.birth_year}
                         </p>
                       </div>
@@ -192,7 +192,7 @@ export default function CharacterDetail() {
                         <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-1 border-b border-white/10 pb-2 mt-2">
                           Death Year
                         </h3>
-                        <p className="text-white/70 text-sm mt-2">
+                        <p className="text-white/70 text-sm mt-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                           {character.death_year}
                         </p>
                       </div>
@@ -204,17 +204,25 @@ export default function CharacterDetail() {
                       {character.species_id && (
                         <div>
                           <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-1 border-b border-white/10 pb-2">Species</h3>
-                          <p className="text-white/70 text-sm mt-2">
+                          <button
+                            onClick={() => navigate(`/worlds/${worldId}/species/${character.species_id}`)}
+                            className="text-white/70 hover:text-purple-300 text-sm mt-2 transition-colors text-left"
+                            style={{ fontFamily: "'Cinzel', serif" }}
+                          >
                             {speciesList.find((s) => s.species_id === character.species_id)?.species_name || character.species_id}
-                          </p>
+                          </button>
                         </div>
                       )}
                       {character.item_id && (
                         <div>
                           <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-1 border-b border-white/10 pb-2 mt-2">Item</h3>
-                          <p className="text-white/70 text-sm mt-2">
+                          <button
+                            onClick={() => navigate(`/worlds/${worldId}/items/${character.item_id}`)}
+                            className="text-white/70 hover:text-purple-300 text-sm mt-2 transition-colors text-left"
+                            style={{ fontFamily: "'Cinzel', serif" }}
+                          >
                             {itemsList.find((i) => i.item_id === character.item_id)?.item_name || character.item_id}
-                          </p>
+                          </button>
                         </div>
                       )}
                     </div>
@@ -224,7 +232,7 @@ export default function CharacterDetail() {
                     <p className="text-white/30 text-xs tracking-widest uppercase mb-3">Biography</p>
                     <p
                       className="text-white/70 leading-relaxed text-sm"
-                      style={{ fontFamily: "sans-serif", whiteSpace: "pre-wrap" }}
+                      style={{ fontFamily: "'Montserrat', sans-serif", whiteSpace: "pre-wrap" }}
                     >
                       {character.character_description}
                     </p>
@@ -235,7 +243,7 @@ export default function CharacterDetail() {
                       <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-4 border-b border-white/10 pb-2">
                         Relationships
                       </h3>
-                      <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden w-1/2">
+                      <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden w-full">
                         {relationships.map((rel) => {
                           const isA = rel.character_a_id === parseInt(characterId);
                           const otherId = isA ? rel.character_b_id : rel.character_a_id;
@@ -267,7 +275,7 @@ export default function CharacterDetail() {
             </>
           ) : (
             <div className="flex items-center justify-center flex-1">
-              <p className="text-white/40">Loading...</p>
+              <p className="text-white/40" style={{ fontFamily: "'Montserrat', sans-serif" }}>Loading...</p>
             </div>
           )}
         </div>
@@ -294,7 +302,7 @@ export default function CharacterDetail() {
                   value={editForm.character_name}
                   onChange={(e) => setEditForm({ ...editForm, character_name: e.target.value })}
                   className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
-                  style={{ fontFamily: "sans-serif" }}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
 
@@ -307,7 +315,7 @@ export default function CharacterDetail() {
                   onChange={(e) => setEditForm({ ...editForm, character_description: e.target.value })}
                   rows={4}
                   className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 resize-none"
-                  style={{ fontFamily: "sans-serif" }}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
 
@@ -320,7 +328,7 @@ export default function CharacterDetail() {
                   value={editForm.image_url}
                   onChange={(e) => setEditForm({ ...editForm, image_url: e.target.value })}
                   className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
-                  style={{ fontFamily: "sans-serif" }}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
 
@@ -333,7 +341,7 @@ export default function CharacterDetail() {
                   value={editForm.birth_year}
                   onChange={(e) => setEditForm({ ...editForm, birth_year: e.target.value })}
                   className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
-                  style={{ fontFamily: "sans-serif" }}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
 
@@ -364,7 +372,7 @@ export default function CharacterDetail() {
                     onChange={(e) => setEditForm({ ...editForm, death_year: e.target.value })}
                     className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
                     placeholder="e.g. 1289"
-                    style={{ fontFamily: "sans-serif" }}
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                   />
                 </div>
               )}
@@ -418,7 +426,7 @@ export default function CharacterDetail() {
                 </button>
               ) : (
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-white/50" style={{ fontFamily: "sans-serif" }}>
+                  <span className="text-xs text-white/50" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     Are you sure?
                   </span>
                   <button

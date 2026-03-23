@@ -54,7 +54,7 @@ export default function Characters() {
 
         {characters.length === 0 ? (
           <div className="flex items-center justify-center min-h-[50vh]">
-            <p className="text-white/40 text-sm">
+            <p className="text-white/40 text-sm" style={{ fontFamily: "'Montserrat', sans-serif" }}>
               No characters yet. Create your first one!
             </p>
           </div>
@@ -85,7 +85,7 @@ export default function Characters() {
                   </h2>
                   <p
                     className="text-white/50 text-sm line-clamp-2"
-                    style={{ fontFamily: "sans-serif" }}
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
                     {character.character_description}
                   </p>

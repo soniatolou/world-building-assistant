@@ -49,7 +49,7 @@ export default function Login() {
                 />
             ))}
             {error && (
-                <p className="text-red-400 text-sm text-center">{error}</p>
+                <p className="text-red-400 text-sm text-center" style={{ fontFamily: "'Montserrat', sans-serif" }}>{error}</p>
             )}
             <button
                 onClick={handleSubmit}

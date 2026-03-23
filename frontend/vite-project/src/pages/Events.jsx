@@ -82,7 +82,7 @@ export default function Events() {
 
                     {events.length === 0 ? (
                         <div className="flex items-center justify-center min-h-[50vh]">
-                            <p className="text-white/40 text-sm">
+                            <p className="text-white/40 text-sm" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                 No events yet. Create your first one!
                             </p>
                         </div>
@@ -107,7 +107,7 @@ export default function Events() {
                                     {event.event_description && (
                                         <p
                                             className="text-white/50 text-sm line-clamp-3"
-                                            style={{ fontFamily: "sans-serif" }}
+                                            style={{ fontFamily: "'Montserrat', sans-serif" }}
                                         >
                                             {event.event_description}
                                         </p>
@@ -155,7 +155,7 @@ export default function Events() {
                                         setCreateForm((f) => ({ ...f, start_year: e.target.value }))
                                     }
                                     className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
-                                    style={{ fontFamily: "sans-serif" }}
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
                             <div>
@@ -169,7 +169,7 @@ export default function Events() {
                                         setCreateForm((f) => ({ ...f, end_year: e.target.value }))
                                     }
                                     className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
-                                    style={{ fontFamily: "sans-serif" }}
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
                             <div>
@@ -183,7 +183,7 @@ export default function Events() {
                                         setCreateForm((f) => ({ ...f, event_description: e.target.value }))
                                     }
                                     className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 resize-none"
-                                    style={{ fontFamily: "sans-serif" }}
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
                         </div>

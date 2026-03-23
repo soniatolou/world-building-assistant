@@ -105,19 +105,19 @@ export default function Profile() {
                                 <div className="grid grid-cols-2 gap-6">
                                     <div>
                                         <p className="text-white/30 text-xs tracking-widest uppercase mb-2">Username</p>
-                                        <p className="text-white text-sm tracking-wide">{user.username}</p>
+                                        <p className="text-white text-sm tracking-wide" style={{ fontFamily: "'Montserrat', sans-serif" }}>{user.username}</p>
                                     </div>
                                     <div>
                                         <p className="text-white/30 text-xs tracking-widest uppercase mb-2">Email</p>
-                                        <p className="text-white text-sm tracking-wide" style={{ fontFamily: "sans-serif" }}>{user.email}</p>
+                                        <p className="text-white text-sm tracking-wide" style={{ fontFamily: "'Montserrat', sans-serif" }}>{user.email}</p>
                                     </div>
                                     <div>
                                         <p className="text-white/30 text-xs tracking-widest uppercase mb-2">First Name</p>
-                                        <p className="text-white text-sm tracking-wide">{user.first_name}</p>
+                                        <p className="text-white text-sm tracking-wide" style={{ fontFamily: "'Montserrat', sans-serif" }}>{user.first_name}</p>
                                     </div>
                                     <div>
                                         <p className="text-white/30 text-xs tracking-widest uppercase mb-2">Last Name</p>
-                                        <p className="text-white text-sm tracking-wide">{user.last_name}</p>
+                                        <p className="text-white text-sm tracking-wide" style={{ fontFamily: "'Montserrat', sans-serif" }}>{user.last_name}</p>
                                     </div>
                                 </div>
 
@@ -131,7 +131,7 @@ export default function Profile() {
                                         </button>
                                     ) : (
                                         <div className="flex items-center gap-4">
-                                            <span className="text-xs text-white/50" style={{ fontFamily: "sans-serif" }}>
+                                            <span className="text-xs text-white/50" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                                 Are you sure? This cannot be undone.
                                             </span>
                                             <button
@@ -175,7 +175,7 @@ export default function Profile() {
                                             value={editForm.email}
                                             onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
                                             className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
-                                            style={{ fontFamily: "sans-serif" }}
+                                            style={{ fontFamily: "'Montserrat', sans-serif" }}
                                         />
                                     </div>
                                     <div>
@@ -230,7 +230,7 @@ export default function Profile() {
                         )}
                     </>
                 ) : (
-                    <p className="text-white/40">Loading...</p>
+                    <p className="text-white/40" style={{ fontFamily: "'Montserrat', sans-serif" }}>Loading...</p>
                 )}
             </div>
         </div>

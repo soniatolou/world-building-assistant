@@ -48,6 +48,7 @@ export default function CreateWorld() {
                                 onChange={handleChange}
                                 className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-white/50"
                                 placeholder="Enter world name"
+                                style={{ fontFamily: "'Montserrat', sans-serif" }}
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -59,6 +60,7 @@ export default function CreateWorld() {
                                 rows={4}
                                 className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-white/50 resize-none"
                                 placeholder="Describe your world"
+                                style={{ fontFamily: "'Montserrat', sans-serif" }}
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -72,6 +74,7 @@ export default function CreateWorld() {
                                 onChange={handleChange}
                                 className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-white/50"
                                 placeholder="https://..."
+                                style={{ fontFamily: "'Montserrat', sans-serif" }}
                             />
                         </div>
                         <button

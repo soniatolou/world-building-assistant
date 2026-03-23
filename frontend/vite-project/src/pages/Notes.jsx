@@ -68,7 +68,7 @@ export default function Notes() {
 
                 {notes.length === 0 ? (
                     <div className="flex items-center justify-center min-h-[50vh]">
-                        <p className="text-white/40 text-sm">No notes yet. Create your first one!</p>
+                        <p className="text-white/40 text-sm" style={{ fontFamily: "'Montserrat', sans-serif" }}>No notes yet. Create your first one!</p>
                     </div>
                 ) : (
                     <div className="flex flex-col gap-3">
@@ -113,7 +113,7 @@ export default function Notes() {
                                     value={createForm.note_text}
                                     onChange={(e) => setCreateForm((f) => ({ ...f, note_text: e.target.value }))}
                                     className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 resize-none"
-                                    style={{ fontFamily: "sans-serif" }}
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
                         </div>

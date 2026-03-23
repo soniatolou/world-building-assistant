@@ -64,23 +64,23 @@ export default function WorldSidebar({ worldId, worldName }) {
                         </button>
                     </div>
                     {consistencyResult.contradictions && consistencyResult.contradictions.length === 0 ? (
-                        <p className="text-amber-200/60 text-xs" style={{ fontFamily: "sans-serif" }}>
+                        <p className="text-amber-200/60 text-xs" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                             No issues found. Your world is consistent!
                         </p>
                     ) : (
                         <div className="flex flex-col gap-4">
                             {(consistencyResult.contradictions || []).map((item, i) => (
                                 <div key={i} className="flex flex-col gap-1">
-                                    <p className="text-amber-100/80 text-xs leading-relaxed" style={{ fontFamily: "sans-serif" }}>
+                                    <p className="text-amber-100/80 text-xs leading-relaxed" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                         {item.description}
                                     </p>
                                     {item.elements_involved && item.elements_involved.length > 0 && (
-                                        <p className="text-amber-400/60 text-xs" style={{ fontFamily: "sans-serif" }}>
+                                        <p className="text-amber-400/60 text-xs" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                             Involves: {item.elements_involved.join(", ")}
                                         </p>
                                     )}
                                     {item.suggestion && (
-                                        <p className="text-amber-300/70 text-xs italic" style={{ fontFamily: "sans-serif" }}>
+                                        <p className="text-amber-300/70 text-xs italic" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                             {item.suggestion}
                                         </p>
                                     )}

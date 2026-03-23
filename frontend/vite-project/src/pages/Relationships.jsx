@@ -148,13 +148,13 @@ export default function Relationships() {
                         <div className="flex-1">
                             {!selectedChar ? (
                                 <div className="flex items-center justify-center h-64">
-                                    <p className="text-white/30 text-sm tracking-widest">
+                                    <p className="text-white/30 text-sm" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                         Select a character to view their relationships
                                     </p>
                                 </div>
                             ) : relationships.length === 0 ? (
                                 <div className="flex items-center justify-center h-64">
-                                    <p className="text-white/30 text-sm tracking-widest">
+                                    <p className="text-white/30 text-sm" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                         {selectedChar.character_name} has no relationships yet
                                     </p>
                                 </div>
@@ -257,7 +257,7 @@ export default function Relationships() {
                                         setForm((f) => ({ ...f, relationship_type: e.target.value }))
                                     }
                                     className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 placeholder:text-white/20"
-                                    style={{ fontFamily: "sans-serif" }}
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
 
@@ -325,7 +325,7 @@ export default function Relationships() {
                         </h2>
                         <p
                             className="text-white/50 text-sm mb-8"
-                            style={{ fontFamily: "sans-serif" }}
+                            style={{ fontFamily: "'Montserrat', sans-serif" }}
                         >
                             Are you sure you want to delete this relationship? This cannot be undone.
                         </p>

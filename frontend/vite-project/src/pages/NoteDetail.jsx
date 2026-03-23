@@ -85,7 +85,7 @@ export default function NoteDetail() {
                             <div className="bg-white/5 border border-white/10 rounded-lg p-6">
                                 <p
                                     className="text-white/70 leading-relaxed text-sm whitespace-pre-wrap"
-                                    style={{ fontFamily: "sans-serif" }}
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 >
                                     {note.note_text}
                                 </p>
@@ -94,7 +94,7 @@ export default function NoteDetail() {
                     </>
                 ) : (
                     <div className="flex items-center justify-center flex-1">
-                        <p className="text-white/40">Loading...</p>
+                        <p className="text-white/40" style={{ fontFamily: "'Montserrat', sans-serif" }}>Loading...</p>
                     </div>
                 )}
             </div>
@@ -125,7 +125,7 @@ export default function NoteDetail() {
                                     value={editForm.note_text}
                                     onChange={(e) => setEditForm({ ...editForm, note_text: e.target.value })}
                                     className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 resize-none"
-                                    style={{ fontFamily: "sans-serif" }}
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
                         </div>
@@ -140,7 +140,7 @@ export default function NoteDetail() {
                                 </button>
                             ) : (
                                 <div className="flex items-center gap-3">
-                                    <span className="text-xs text-white/50" style={{ fontFamily: "sans-serif" }}>Are you sure?</span>
+                                    <span className="text-xs text-white/50" style={{ fontFamily: "'Montserrat', sans-serif" }}>Are you sure?</span>
                                     <button
                                         onClick={handleDelete}
                                         className="text-xs text-red-400 border border-red-400/30 hover:border-red-400/60 px-3 py-1 rounded tracking-widest uppercase transition-all"
