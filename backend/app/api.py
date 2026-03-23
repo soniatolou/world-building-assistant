@@ -1,13 +1,13 @@
-from db_setup import get_connection
+from db.db_setup import get_connection
 from fastapi import FastAPI, HTTPException, status, Depends, Cookie, Response
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from psycopg2 import errors
-from db import pwd_hash
+from db.db import pwd_hash
 import anthropic
-import consistency
-import schemas
-import db
+from app import consistency
+import app.schemas as schemas
+from db import db
 
 app = FastAPI()
 
