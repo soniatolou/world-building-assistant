@@ -171,32 +171,38 @@ class CreateLocation(BaseModel):
     location_type: Optional[str] = None
     world_id: int
     map_id: Optional[int] = None
+    image_url: Optional[str] = None
 
 class LocationUpdate(BaseModel):
     location_name: Optional[str] = None
     location_description: Optional[str] = None
     location_type: Optional[str] = None
     map_id: Optional[int] = None
+    image_url: Optional[str] = None
 
 # Items
 class CreateItem(BaseModel):
     item_name: str = Field(min_length=1)
     item_description: Optional[str] = None
     world_id: int
+    image_url: Optional[str] = None
 
 class ItemUpdate(BaseModel):
     item_name: Optional[str] = None
     item_description: Optional[str] = None
+    image_url: Optional[str] = None
 
 # Species
 class CreateSpecies(BaseModel):
     species_name: str = Field(min_length=1)
     species_description: Optional[str] = None
     world_id: int
+    image_url: Optional[str] = None
 
 class SpeciesUpdate(BaseModel):
     species_name: Optional[str] = None
     species_description: Optional[str] = None
+    image_url: Optional[str] = None
 
 # Notes
 class CreateNote(BaseModel):

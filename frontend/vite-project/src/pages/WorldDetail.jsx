@@ -164,8 +164,8 @@ export default function WorldDetail() {
   const quickActions = [
     { label: "New Character", path: `/worlds/${worldId}/characters/create` },
     { label: "New Location", path: `/worlds/${worldId}/locations/create` },
-    { label: "New Event", path: `/worlds/${worldId}/events` },
-    { label: "New Map", path: `/worlds/${worldId}/maps` },
+    { label: "New Event", path: `/worlds/${worldId}/events/create` },
+    { label: "New Map", path: `/worlds/${worldId}/maps/create` },
   ];
 
   const stats = [
@@ -249,23 +249,23 @@ export default function WorldDetail() {
                       </button>
                     </div>
                     {consistencyResult.contradictions && consistencyResult.contradictions.length === 0 ? (
-                      <p className="text-amber-200/60 text-xs" style={{ fontFamily: "sans-serif" }}>
+                      <p className="text-amber-200/60 text-xs" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                         No issues found. Your world is consistent!
                       </p>
                     ) : (
                       <div className="flex flex-col gap-4">
                         {(consistencyResult.contradictions || []).map((item, i) => (
                           <div key={i} className="flex flex-col gap-1">
-                            <p className="text-amber-100/80 text-xs leading-relaxed" style={{ fontFamily: "sans-serif" }}>
+                            <p className="text-amber-100/80 text-xs leading-relaxed" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                               {item.description}
                             </p>
                             {item.elements_involved && item.elements_involved.length > 0 && (
-                              <p className="text-amber-400/60 text-xs" style={{ fontFamily: "sans-serif" }}>
+                              <p className="text-amber-400/60 text-xs" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                 Involves: {item.elements_involved.join(", ")}
                               </p>
                             )}
                             {item.suggestion && (
-                              <p className="text-amber-300/70 text-xs italic" style={{ fontFamily: "sans-serif" }}>
+                              <p className="text-amber-300/70 text-xs italic" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                 {item.suggestion}
                               </p>
                             )}
@@ -282,7 +282,7 @@ export default function WorldDetail() {
             {/* Right: Content */}
             <div className="flex flex-col gap-8 flex-1">
               {world.world_description && (
-                <p className="text-white/50 text-sm whitespace-pre-wrap" style={{ fontFamily: "sans-serif" }}>
+                <p className="text-white/50 text-sm whitespace-pre-wrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   {world.world_description}
                 </p>
               )}
@@ -326,7 +326,7 @@ export default function WorldDetail() {
                       onKeyDown={(e) => e.key === "Enter" && handleAddRule()}
                       placeholder="Enter rule..."
                       className="flex-1 bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
-                      style={{ fontFamily: "sans-serif" }}
+                      style={{ fontFamily: "'Montserrat', sans-serif" }}
                       autoFocus
                     />
                     <button
@@ -346,7 +346,7 @@ export default function WorldDetail() {
                 )}
 
                 {rules.length === 0 && !showAddRule ? (
-                  <p className="text-white/30 text-xs" style={{ fontFamily: "sans-serif" }}>
+                  <p className="text-white/30 text-xs" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     No rules yet.
                   </p>
                 ) : (
@@ -356,6 +356,7 @@ export default function WorldDetail() {
                         key={rule.rule_id}
                         className="flex items-start justify-between gap-4 py-2 border-b border-white/5 last:border-b-0"
                       >
+
                         {editingRuleId === rule.rule_id ? (
                           <div className="flex flex-col gap-2 flex-1">
                             <textarea
@@ -402,6 +403,7 @@ export default function WorldDetail() {
                             </button>
                           </div>
                         )}
+
                       </div>
                     ))}
                   </div>
@@ -427,7 +429,7 @@ export default function WorldDetail() {
             </div>
           </div>
         ) : (
-          <p className="text-white/40 p-10">Loading...</p>
+          <p className="text-white/40 p-10" style={{ fontFamily: "'Montserrat', sans-serif" }}>Loading...</p>
         )}
       </div>
 
@@ -453,8 +455,13 @@ export default function WorldDetail() {
                   onChange={(e) =>
                     setEditForm({ ...editForm, world_name: e.target.value })
                   }
+<<<<<<< HEAD
                   className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${editError && !editForm.world_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                   style={{ fontFamily: "sans-serif" }}
+=======
+                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+>>>>>>> sonias
                 />
               </div>
 
@@ -472,7 +479,7 @@ export default function WorldDetail() {
                   }
                   rows={4}
                   className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 resize-none"
-                  style={{ fontFamily: "sans-serif" }}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
 
@@ -487,7 +494,7 @@ export default function WorldDetail() {
                     setEditForm({ ...editForm, image_url: e.target.value })
                   }
                   className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
-                  style={{ fontFamily: "sans-serif" }}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
             </div>
@@ -506,7 +513,7 @@ export default function WorldDetail() {
                 <div className="flex items-center gap-3">
                   <span
                     className="text-xs text-white/50"
-                    style={{ fontFamily: "sans-serif" }}
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
                     Are you sure?
                   </span>

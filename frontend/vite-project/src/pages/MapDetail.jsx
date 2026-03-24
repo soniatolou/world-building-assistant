@@ -151,7 +151,7 @@ export default function MapDetail() {
                                         </p>
                                         <p
                                             className="text-white/70 leading-relaxed text-sm"
-                                            style={{ fontFamily: "sans-serif", whiteSpace: "pre-wrap" }}
+                                            style={{ fontFamily: "'Montserrat', sans-serif", whiteSpace: "pre-wrap" }}
                                         >
                                             {map.map_description}
                                         </p>
@@ -187,7 +187,7 @@ export default function MapDetail() {
                         </>
                     ) : (
                         <div className="flex items-center justify-center flex-1">
-                            <p className="text-white/40">Loading...</p>
+                            <p className="text-white/40" style={{ fontFamily: "'Montserrat', sans-serif" }}>Loading...</p>
                         </div>
                     )}
                 </div>
@@ -220,8 +220,13 @@ export default function MapDetail() {
                                     type="text"
                                     value={editForm.map_url}
                                     onChange={(e) => setEditForm({ ...editForm, map_url: e.target.value })}
+<<<<<<< HEAD
                                     className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${editError && !editForm.map_url.trim() ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "sans-serif" }}
+=======
+                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+>>>>>>> sonias
                                 />
                             </div>
                             <div>
@@ -231,7 +236,7 @@ export default function MapDetail() {
                                     value={editForm.map_description}
                                     onChange={(e) => setEditForm({ ...editForm, map_description: e.target.value })}
                                     className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 resize-none"
-                                    style={{ fontFamily: "sans-serif" }}
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
                             <div>
@@ -244,7 +249,7 @@ export default function MapDetail() {
                                     value={editForm.scale_factor}
                                     onChange={(e) => setEditForm({ ...editForm, scale_factor: e.target.value })}
                                     className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
-                                    style={{ fontFamily: "sans-serif" }}
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
                         </div>
@@ -261,7 +266,7 @@ export default function MapDetail() {
                                 </button>
                             ) : (
                                 <div className="flex items-center gap-3">
-                                    <span className="text-xs text-white/50" style={{ fontFamily: "sans-serif" }}>
+                                    <span className="text-xs text-white/50" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                         Are you sure?
                                     </span>
                                     <button

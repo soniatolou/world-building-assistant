@@ -92,7 +92,7 @@ export default function CreateCharacter() {
                 onChange={handleChange}
                 className={`bg-white/10 border rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 ${submitted && !formData.character_name.trim() ? "border-red-500/60" : "border-white/20"}`}
                 placeholder="Character name"
-                style={{ fontFamily: "sans-serif" }}
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
               />
             </div>
 
@@ -107,7 +107,7 @@ export default function CreateCharacter() {
                 rows={4}
                 className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 resize-none"
                 placeholder="Describe this character"
-                style={{ fontFamily: "sans-serif" }}
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
               />
             </div>
 
@@ -122,7 +122,7 @@ export default function CreateCharacter() {
                 onChange={handleChange}
                 className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
                 placeholder="e.g. 1205"
-                style={{ fontFamily: "sans-serif" }}
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
               />
             </div>
 
@@ -137,7 +137,7 @@ export default function CreateCharacter() {
                 onChange={handleChange}
                 className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
                 placeholder="https://..."
-                style={{ fontFamily: "sans-serif" }}
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
               />
             </div>
 
@@ -193,7 +193,7 @@ export default function CreateCharacter() {
                   onChange={handleChange}
                   className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
                   placeholder="e.g. 1289"
-                  style={{ fontFamily: "sans-serif" }}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
             )}

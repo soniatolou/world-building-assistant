@@ -1,11 +1,32 @@
+import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useConsistency } from "../context/ConsistencyContext"
+import { getUserWorlds } from "../api/dashboard"
 
-export default function WorldSidebar({ worldId, worldName }) {
+export default function WorldSidebar({ worldId, worldName: worldNameProp }) {
     const navigate = useNavigate()
     const location = useLocation()
     const { consistencyResult, clearResult } = useConsistency()
     const isWorldDetail = location.pathname === `/worlds/${worldId}`
+    const [worldName, setWorldName] = useState(worldNameProp || "")
+
+    useEffect(() => {
+        if (worldNameProp) {
+            setWorldName(worldNameProp)
+            return
+        }
+        async function fetchWorldName() {
+            try {
+                const userId = localStorage.getItem("user_id")
+                const worlds = await getUserWorlds(userId)
+                const found = worlds.find((w) => String(w.world_id) === String(worldId))
+                if (found) setWorldName(found.world_name)
+            } catch (err) {
+                console.error(err)
+            }
+        }
+        fetchWorldName()
+    }, [worldId, worldNameProp])
 
     const links = [
         { label: "Dashboard", path: `/worlds/${worldId}` },
@@ -27,7 +48,7 @@ export default function WorldSidebar({ worldId, worldName }) {
                 World-Building Assistant
             </p>
             {worldName && (
-                <p className="text-white/50 text-xs mb-8 truncate">{worldName}</p>
+                <p className="text-white/50 text-xs mb-8 truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>{worldName}</p>
             )}
 
             <nav className="flex flex-col gap-1">
@@ -64,23 +85,23 @@ export default function WorldSidebar({ worldId, worldName }) {
                         </button>
                     </div>
                     {consistencyResult.contradictions && consistencyResult.contradictions.length === 0 ? (
-                        <p className="text-amber-200/60 text-xs" style={{ fontFamily: "sans-serif" }}>
+                        <p className="text-amber-200/60 text-xs" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                             No issues found. Your world is consistent!
                         </p>
                     ) : (
                         <div className="flex flex-col gap-4">
                             {(consistencyResult.contradictions || []).map((item, i) => (
                                 <div key={i} className="flex flex-col gap-1">
-                                    <p className="text-amber-100/80 text-xs leading-relaxed" style={{ fontFamily: "sans-serif" }}>
+                                    <p className="text-amber-100/80 text-xs leading-relaxed" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                         {item.description}
                                     </p>
                                     {item.elements_involved && item.elements_involved.length > 0 && (
-                                        <p className="text-amber-400/60 text-xs" style={{ fontFamily: "sans-serif" }}>
+                                        <p className="text-amber-400/60 text-xs" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                             Involves: {item.elements_involved.join(", ")}
                                         </p>
                                     )}
                                     {item.suggestion && (
-                                        <p className="text-amber-300/70 text-xs italic" style={{ fontFamily: "sans-serif" }}>
+                                        <p className="text-amber-300/70 text-xs italic" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                             {item.suggestion}
                                         </p>
                                     )}

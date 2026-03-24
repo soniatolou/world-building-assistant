@@ -690,7 +690,8 @@ def create_location(location: schemas.CreateLocation, connection=Depends(get_db)
             location.world_id,
             location.map_id,
             location.location_type,
-            location.location_description
+            location.location_description,
+            location.image_url
         )
         return new_location
     except HTTPException:
@@ -742,6 +743,7 @@ def update_location(
             location.location_description,
             location.location_type,
             location.map_id,
+            location.image_url,
         )
         if not updated_location:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Location not found")
@@ -771,7 +773,7 @@ def delete_location(location_id: int, connection=Depends(get_db), current_user: 
 @app.post("/items", status_code=status.HTTP_201_CREATED)
 def create_item(item: schemas.CreateItem, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
     try:
-        new_item = db.create_item(connection, item.world_id, item.item_name, item.item_description)
+        new_item = db.create_item(connection, item.item_name, item.world_id, item.item_description, item.image_url)
         return new_item
     except HTTPException:
         raise
@@ -813,7 +815,7 @@ def update_item(
     current_user: int = Depends(get_current_user),
 ):
     try:
-        updated_item = db.update_item(connection, item_id, item.item_name, item.item_description)
+        updated_item = db.update_item(connection, item_id, item.item_name, item.item_description, item.image_url)
         if not updated_item:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
         return updated_item
@@ -844,9 +846,10 @@ def create_species(species: schemas.CreateSpecies, connection=Depends(get_db), c
     try:
         new_species = db.create_species(
             connection,
-            species.world_id,
             species.species_name,
-            species.species_description
+            species.world_id,
+            species.species_description,
+            species.image_url
         )
         return new_species
     except HTTPException:
@@ -890,7 +893,7 @@ def update_species(
 ):
     try:
         updated_species = db.update_species(
-            connection, species_id, species.species_name, species.species_description
+            connection, species_id, species.species_name, species.species_description, species.image_url
         )
         if not updated_species:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Species not found")

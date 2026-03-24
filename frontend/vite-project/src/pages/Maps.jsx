@@ -92,7 +92,7 @@ export default function Maps() {
 
                     {maps.length === 0 ? (
                         <div className="flex items-center justify-center min-h-[50vh]">
-                            <p className="text-white/40 text-sm">
+                            <p className="text-white/40 text-sm" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                 No maps yet. Create your first one!
                             </p>
                         </div>
@@ -118,7 +118,7 @@ export default function Maps() {
                                         {map.map_description && (
                                             <p
                                                 className="text-white/50 text-sm line-clamp-2"
-                                                style={{ fontFamily: "sans-serif" }}
+                                                style={{ fontFamily: "'Montserrat', sans-serif" }}
                                             >
                                                 {map.map_description}
                                             </p>
@@ -158,8 +158,13 @@ export default function Maps() {
                                     type="text"
                                     value={createForm.map_url}
                                     onChange={(e) => setCreateForm((f) => ({ ...f, map_url: e.target.value }))}
+<<<<<<< HEAD
                                     className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 ${createError && !createForm.map_url.trim() ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "sans-serif" }}
+=======
+                                    className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+>>>>>>> sonias
                                 />
                             </div>
                             <div>
@@ -169,7 +174,7 @@ export default function Maps() {
                                     value={createForm.map_description}
                                     onChange={(e) => setCreateForm((f) => ({ ...f, map_description: e.target.value }))}
                                     className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 resize-none"
-                                    style={{ fontFamily: "sans-serif" }}
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
                             <div>
@@ -182,7 +187,7 @@ export default function Maps() {
                                     value={createForm.scale_factor}
                                     onChange={(e) => setCreateForm((f) => ({ ...f, scale_factor: e.target.value }))}
                                     className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
-                                    style={{ fontFamily: "sans-serif" }}
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
                         </div>
