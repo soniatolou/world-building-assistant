@@ -10,13 +10,21 @@ export default function CreateWorld() {
         world_description: "",
         image_url: "",
     })
+    const [errorMsg, setErrorMsg] = useState("")
+    const [submitted, setSubmitted] = useState(false)
 
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value })
+        setErrorMsg("")
     }
 
     async function handleSubmit(e) {
         e.preventDefault()
+        setSubmitted(true)
+        if (!formData.world_name.trim()) {
+            setErrorMsg("Please fill in all the required fields")
+            return
+        }
         await createWorld(formData)
         navigate("/dashboard")
     }
@@ -40,18 +48,18 @@ export default function CreateWorld() {
                     </h2>
                     <div className="flex flex-col gap-6">
                         <div className="flex flex-col gap-2">
-                            <label className="text-white/90 text-sm">World Name</label>
+                            <label className="text-white/90 text-sm">World Name <span className="text-white/40">(required)</span></label>
                             <input
                                 type="text"
                                 name="world_name"
                                 value={formData.world_name}
                                 onChange={handleChange}
-                                className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-white/50"
+                                className={`bg-white/10 border rounded-md px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-white/50 ${submitted && !formData.world_name.trim() ? "border-red-500/60" : "border-white/20"}`}
                                 placeholder="Enter world name"
                             />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-white/90 text-sm">Description</label>
+                            <label className="text-white/90 text-sm">Description <span className="text-white/40">(optional)</span></label>
                             <textarea
                                 name="world_description"
                                 value={formData.world_description}
@@ -74,6 +82,9 @@ export default function CreateWorld() {
                                 placeholder="https://..."
                             />
                         </div>
+                        {errorMsg && (
+                            <p className="text-red-400 text-sm">{errorMsg}</p>
+                        )}
                         <button
                             onClick={handleSubmit}
                             className="mt-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-md transition-colors border border-white/20 text-lg"

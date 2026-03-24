@@ -1,6 +1,6 @@
 import anthropic
 import json
-import settings
+from app.settings import settings
 
 def run_consistency_check(world_id: int, connection):
     # Gets world data from the database

@@ -6,8 +6,9 @@ export async function register(userData) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData)
     })
-    return res.json()
-    }
+    const data = await res.json()
+    return { ok: res.ok, data }
+}
 
 export async function login(credentials) {
     const res = await fetch(`${BASE_URL}/login`, {

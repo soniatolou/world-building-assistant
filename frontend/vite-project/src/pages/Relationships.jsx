@@ -13,6 +13,7 @@ export default function Relationships() {
     const [showModal, setShowModal] = useState(false)
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(null)
     const [successMsg, setSuccessMsg] = useState("")
+    const [createError, setCreateError] = useState("")
     const [form, setForm] = useState({
         character_a_id: "",
         character_b_id: "",
@@ -45,7 +46,10 @@ export default function Relationships() {
     }, [selectedChar])
 
     async function handleCreate() {
-        if (!form.character_a_id || !form.character_b_id || !form.relationship_type.trim()) return
+        if (!form.character_a_id || !form.character_b_id || !form.relationship_type.trim()) {
+            setCreateError("Please fill in all the required fields")
+            return
+        }
         try {
             await createRelationship(form.character_a_id, {
                 relationship_type: form.relationship_type.trim(),
@@ -54,6 +58,7 @@ export default function Relationships() {
             })
             setShowModal(false)
             setForm({ character_a_id: "", character_b_id: "", relationship_type: "" })
+            setCreateError("")
             setSuccessMsg("Relationship created!")
             setTimeout(() => setSuccessMsg(""), 3000)
             if (
@@ -226,14 +231,14 @@ export default function Relationships() {
                         <div className="flex flex-col gap-4">
                             <div>
                                 <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">
-                                    Character A
+                                    Character A <span className="text-white/20 normal-case tracking-normal">(required)</span>
                                 </label>
                                 <select
                                     value={form.character_a_id}
                                     onChange={(e) =>
                                         setForm((f) => ({ ...f, character_a_id: e.target.value }))
                                     }
-                                    className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
+                                    className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 ${createError && !form.character_a_id ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "'Cinzel', serif" }}
                                 >
                                     <option value="" style={{ backgroundColor: 'white', color: 'black' }}>Select character...</option>
@@ -247,7 +252,7 @@ export default function Relationships() {
 
                             <div>
                                 <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">
-                                    Relationship Type
+                                    Relationship Type <span className="text-white/20 normal-case tracking-normal">(required)</span>
                                 </label>
                                 <input
                                     type="text"
@@ -256,21 +261,21 @@ export default function Relationships() {
                                     onChange={(e) =>
                                         setForm((f) => ({ ...f, relationship_type: e.target.value }))
                                     }
-                                    className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 placeholder:text-white/20"
+                                    className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 placeholder:text-white/20 ${createError && !form.relationship_type.trim() ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "sans-serif" }}
                                 />
                             </div>
 
                             <div>
                                 <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">
-                                    Character B
+                                    Character B <span className="text-white/20 normal-case tracking-normal">(required)</span>
                                 </label>
                                 <select
                                     value={form.character_b_id}
                                     onChange={(e) =>
                                         setForm((f) => ({ ...f, character_b_id: e.target.value }))
                                     }
-                                    className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
+                                    className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 ${createError && !form.character_b_id ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "'Cinzel', serif" }}
                                 >
                                     <option value="" style={{ backgroundColor: 'white', color: 'black' }}>Select character...</option>
@@ -287,15 +292,13 @@ export default function Relationships() {
                             </div>
                         </div>
 
-                        <div className="flex gap-3 mt-8">
+                        {createError && (
+                            <p className="text-red-400 text-sm mt-4">{createError}</p>
+                        )}
+                        <div className="flex gap-3 mt-4">
                             <button
                                 onClick={handleCreate}
-                                disabled={
-                                    !form.character_a_id ||
-                                    !form.character_b_id ||
-                                    !form.relationship_type.trim()
-                                }
-                                className="flex-1 px-4 py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white text-sm rounded-md transition-all tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="flex-1 px-4 py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white text-sm rounded-md transition-all tracking-wide"
                             >
                                 Create
                             </button>
@@ -303,6 +306,7 @@ export default function Relationships() {
                                 onClick={() => {
                                     setShowModal(false)
                                     setForm({ character_a_id: "", character_b_id: "", relationship_type: "" })
+                                    setCreateError("")
                                 }}
                                 className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 text-sm rounded-md transition-all tracking-wide"
                             >

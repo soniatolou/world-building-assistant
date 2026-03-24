@@ -9,6 +9,8 @@ export default function Profile() {
     const [isEditing, setIsEditing] = useState(false)
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
     const [successMsg, setSuccessMsg] = useState("")
+    const [saveError, setSaveError] = useState("")
+    const [submitted, setSubmitted] = useState(false)
     const [editForm, setEditForm] = useState({
         username: "",
         first_name: "",
@@ -35,11 +37,18 @@ export default function Profile() {
     }, [])
 
     async function handleUpdate() {
+        setSubmitted(true)
+        if (Object.values(editForm).some((v) => v.trim() === "")) {
+            setSaveError("Please make sure all the fields are filled in.")
+            return
+        }
         try {
             const updated = await updateMe(editForm)
             setUser(updated)
             localStorage.setItem("username", updated.username)
             setIsEditing(false)
+            setSaveError("")
+            setSubmitted(false)
             setSuccessMsg("Profile updated!")
             setTimeout(() => setSuccessMsg(""), 3000)
         } catch (err) {
@@ -162,7 +171,7 @@ export default function Profile() {
                                             type="text"
                                             value={editForm.username}
                                             onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                            className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${submitted && !editForm.username.trim() ? "border-red-500/60" : "border-white/10"}`}
                                             style={{ fontFamily: "'Cinzel', serif" }}
                                         />
                                     </div>
@@ -174,7 +183,7 @@ export default function Profile() {
                                             type="email"
                                             value={editForm.email}
                                             onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                            className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${submitted && !editForm.email.trim() ? "border-red-500/60" : "border-white/10"}`}
                                             style={{ fontFamily: "sans-serif" }}
                                         />
                                     </div>
@@ -186,7 +195,7 @@ export default function Profile() {
                                             type="text"
                                             value={editForm.first_name}
                                             onChange={(e) => setEditForm({ ...editForm, first_name: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                            className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${submitted && !editForm.first_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                                             style={{ fontFamily: "'Cinzel', serif" }}
                                         />
                                     </div>
@@ -198,12 +207,15 @@ export default function Profile() {
                                             type="text"
                                             value={editForm.last_name}
                                             onChange={(e) => setEditForm({ ...editForm, last_name: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                            className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${submitted && !editForm.last_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                                             style={{ fontFamily: "'Cinzel', serif" }}
                                         />
                                     </div>
                                 </div>
 
+                                {saveError && (
+                                    <p className="text-red-400 text-sm">{saveError}</p>
+                                )}
                                 <div className="flex gap-3 pt-2">
                                     <button
                                         onClick={handleUpdate}
@@ -214,6 +226,8 @@ export default function Profile() {
                                     <button
                                         onClick={() => {
                                             setIsEditing(false)
+                                            setSaveError("")
+                                            setSubmitted(false)
                                             setEditForm({
                                                 username: user.username || "",
                                                 first_name: user.first_name || "",

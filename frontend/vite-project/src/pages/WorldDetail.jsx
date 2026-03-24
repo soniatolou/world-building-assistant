@@ -5,7 +5,7 @@ import { getCharacters } from "../api/characters";
 import { getLocations } from "../api/locations";
 import { getEvents } from "../api/events";
 import { getMaps } from "../api/maps";
-import { updateWorld, deleteWorld, getRules, createRule, deleteRule, runConsistencyCheck } from "../api/worlds";
+import { updateWorld, deleteWorld, getRules, createRule, deleteRule, updateRule, runConsistencyCheck } from "../api/worlds";
 import WorldSidebar from "../components/WorldSidebar";
 import Navbar from "../components/Navbar";
 import { useConsistency } from "../context/ConsistencyContext";
@@ -28,10 +28,13 @@ export default function WorldDetail() {
     world_description: "",
     image_url: "",
   });
+  const [editError, setEditError] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [rules, setRules] = useState([]);
   const [showAddRule, setShowAddRule] = useState(false);
   const [newRuleText, setNewRuleText] = useState("");
+  const [editingRuleId, setEditingRuleId] = useState(null);
+  const [editingRuleText, setEditingRuleText] = useState("");
   const { consistencyResult, consistencyWorldId, setResultForWorld, clearResult } = useConsistency();
   const [isCheckingConsistency, setIsCheckingConsistency] = useState(false);
 
@@ -89,10 +92,15 @@ export default function WorldDetail() {
   }, [worldId]);
 
   async function handleUpdate() {
+    if (!editForm.world_name.trim()) {
+      setEditError("Please make sure all the required fields are filled in.")
+      return
+    }
     try {
       const updated = await updateWorld(worldId, editForm);
       setWorld(updated);
       setShowEditModal(false);
+      setEditError("");
     } catch (err) {
       console.error(err);
     }
@@ -106,6 +114,17 @@ export default function WorldDetail() {
       if (Array.isArray(data)) setRules(data)
       setNewRuleText("")
       setShowAddRule(false)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  async function handleSaveRule(ruleId) {
+    try {
+      const updated = await updateRule(ruleId, editingRuleText)
+      setRules((prev) => prev.map((r) => r.rule_id === ruleId ? updated : r))
+      setEditingRuleId(null)
+      setEditingRuleText("")
     } catch (err) {
       console.error(err)
     }
@@ -337,15 +356,52 @@ export default function WorldDetail() {
                         key={rule.rule_id}
                         className="flex items-start justify-between gap-4 py-2 border-b border-white/5 last:border-b-0"
                       >
-                        <p className="text-white/70 text-sm" style={{ fontFamily: "sans-serif", whiteSpace: "pre-wrap" }}>
-                          {rule.rule_text}
-                        </p>
-                        <button
-                          onClick={() => handleDeleteRule(rule.rule_id)}
-                          className="text-white/20 hover:text-red-400 text-xs transition-colors shrink-0 mt-0.5"
-                        >
-                          ✕
-                        </button>
+                        {editingRuleId === rule.rule_id ? (
+                          <div className="flex flex-col gap-2 flex-1">
+                            <textarea
+                              value={editingRuleText}
+                              onChange={(e) => setEditingRuleText(e.target.value)}
+                              rows={3}
+                              className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 resize-none"
+                              style={{ fontFamily: "sans-serif" }}
+                              autoFocus
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleSaveRule(rule.rule_id)}
+                                className="text-purple-400 hover:text-purple-300 text-xs transition-colors"
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={() => { setEditingRuleId(null); setEditingRuleText("") }}
+                                className="text-white/30 hover:text-white/60 text-xs transition-colors"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-white/70 text-sm flex-1" style={{ fontFamily: "sans-serif", whiteSpace: "pre-wrap" }}>
+                            {rule.rule_text}
+                          </p>
+                        )}
+                        {editingRuleId !== rule.rule_id && (
+                          <div className="flex items-center gap-2 shrink-0 mt-0.5">
+                            <button
+                              onClick={() => { setEditingRuleId(rule.rule_id); setEditingRuleText(rule.rule_text) }}
+                              className="text-white/20 hover:text-purple-400 text-xs transition-colors"
+                            >
+                              ✎
+                            </button>
+                            <button
+                              onClick={() => handleDeleteRule(rule.rule_id)}
+                              className="text-white/20 hover:text-red-400 text-xs transition-colors"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -389,7 +445,7 @@ export default function WorldDetail() {
             <div className="flex flex-col gap-4">
               <div>
                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                  World Name
+                  World Name <span className="text-white/20 normal-case tracking-normal">(required)</span>
                 </label>
                 <input
                   type="text"
@@ -397,14 +453,14 @@ export default function WorldDetail() {
                   onChange={(e) =>
                     setEditForm({ ...editForm, world_name: e.target.value })
                   }
-                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                  className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${editError && !editForm.world_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                   style={{ fontFamily: "sans-serif" }}
                 />
               </div>
 
               <div>
                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                  Description
+                  Description <span className="text-white/20 normal-case tracking-normal">(optional)</span>
                 </label>
                 <textarea
                   value={editForm.world_description}
@@ -422,7 +478,7 @@ export default function WorldDetail() {
 
               <div>
                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                  Image URL
+                  Image URL <span className="text-white/20 normal-case">(optional)</span>
                 </label>
                 <input
                   type="text"
@@ -435,6 +491,8 @@ export default function WorldDetail() {
                 />
               </div>
             </div>
+
+            {editError && <p className="text-red-400 text-sm mt-4">{editError}</p>}
 
             <div className="flex justify-between items-center mt-8">
               {!showDeleteConfirm ? (
@@ -472,6 +530,12 @@ export default function WorldDetail() {
                   onClick={() => {
                     setShowEditModal(false);
                     setShowDeleteConfirm(false);
+                    setEditError("");
+                    setEditForm({
+                      world_name: world.world_name || "",
+                      world_description: world.world_description || "",
+                      image_url: world.image_url || "",
+                    });
                   }}
                   className="text-xs text-white/40 hover:text-white/70 border border-white/10 px-4 py-2 rounded tracking-widest uppercase transition-all"
                 >

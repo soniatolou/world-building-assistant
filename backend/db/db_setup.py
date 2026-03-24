@@ -1,7 +1,7 @@
+from app.settings import settings
 import psycopg2
-import settings
 
-settings = settings.Settings()
+# settings = settings.Settings()
 
 def get_connection():
     return psycopg2.connect(settings.DB_URL)
@@ -19,7 +19,7 @@ def create_tables():
         first_name VARCHAR(255) NOT NULL,
         last_name VARCHAR (255) NOT NULL,
         email VARCHAR(255) NOT NULL UNIQUE,
-        password VARCHAR(60) NOT NULL,
+        password VARCHAR(255) NOT NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         is_active BOOLEAN NOT NULL DEFAULT TRUE
         );
@@ -43,7 +43,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "worlds" (
         world_id BIGSERIAL PRIMARY KEY NOT NULL,
         world_name VARCHAR(255) NOT NULL,
-        world_description TEXT NOT NULL,
+        world_description TEXT,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         image_url VARCHAR (2048),
         user_id BIGINT NOT NULL REFERENCES "users"(user_id) ON DELETE CASCADE
@@ -67,7 +67,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "events" (
         event_id BIGSERIAL PRIMARY KEY NOT NULL,
         event_name VARCHAR(255) NOT NULL,
-        event_description TEXT NOT NULL,
+        event_description TEXT,
         start_year VARCHAR(20),
         end_year VARCHAR (20),
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -83,7 +83,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "items" (
         item_id BIGSERIAL PRIMARY KEY NOT NULL,
         item_name VARCHAR(255) NOT NULL,
-        item_description TEXT NOT NULL,
+        item_description TEXT,
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE
         );
         """
@@ -106,7 +106,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "species" (
         species_id BIGSERIAL PRIMARY KEY NOT NULL,
         species_name VARCHAR(255) NOT NULL,
-        species_description TEXT NOT NULL,
+        species_description TEXT,
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE
         );
         """
@@ -157,16 +157,6 @@ def create_tables():
         """
     )
 
-    # # Embeddings
-    #     cursor.execute(
-    #         """
-    #         CREATE TABLE IF NOT EXISTS "embeddings" (
-    #         embedding_id BIGSERIAL PRIMARY KEY NOT NULL,
-    #         vector_data VECTOR(1536)
-    #         );
-    #         """
-    #     )
-
     # Images
     cursor.execute(
         """
@@ -197,7 +187,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "locations" (
         location_id BIGSERIAL PRIMARY KEY NOT NULL,
         location_name VARCHAR(255) NOT NULL,
-        location_description TEXT NOT NULL,
+        location_description TEXT,
         location_type VARCHAR(100),
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -213,7 +203,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS "characters" (
         character_id BIGSERIAL PRIMARY KEY NOT NULL,
         character_name VARCHAR(255) NOT NULL,
-        character_description TEXT NOT NULL,
+        character_description TEXT,
         birth_year VARCHAR(20),
         is_alive BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -9,6 +9,7 @@ export default function SpeciesDetail() {
     const navigate = useNavigate()
     const [species, setSpecies] = useState(null)
     const [showEditModal, setShowEditModal] = useState(false)
+    const [editError, setEditError] = useState("")
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
     const [editForm, setEditForm] = useState({ species_name: "", species_description: "" })
     useEffect(() => {
@@ -25,11 +26,16 @@ export default function SpeciesDetail() {
     }, [speciesId])
 
     async function handleUpdate() {
+        if (!editForm.species_name.trim()) {
+            setEditError("Please make sure all the required fields are filled in.")
+            return
+        }
         try {
             const updated = await updateSpecies(speciesId, editForm)
             setSpecies(updated)
             setShowEditModal(false)
             setShowDeleteConfirm(false)
+            setEditError("")
         } catch (err) {
             console.error(err)
         }
@@ -115,17 +121,17 @@ export default function SpeciesDetail() {
                         <h2 className="text-white text-lg font-bold tracking-wide uppercase mb-6">Edit Species</h2>
                         <div className="flex flex-col gap-4">
                             <div>
-                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">Name</label>
+                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">Name <span className="text-white/20 normal-case tracking-normal">(required)</span></label>
                                 <input
                                     type="text"
                                     value={editForm.species_name}
                                     onChange={(e) => setEditForm({ ...editForm, species_name: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                    className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${editError && !editForm.species_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "'Cinzel', serif" }}
                                 />
                             </div>
                             <div>
-                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">Description</label>
+                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">Description <span className="text-white/20 normal-case tracking-normal">(optional)</span></label>
                                 <textarea
                                     rows={4}
                                     value={editForm.species_description}
@@ -135,6 +141,8 @@ export default function SpeciesDetail() {
                                 />
                             </div>
                         </div>
+
+                        {editError && <p className="text-red-400 text-sm mt-4">{editError}</p>}
 
                         <div className="flex justify-between items-center mt-8">
                             {!showDeleteConfirm ? (
@@ -163,7 +171,15 @@ export default function SpeciesDetail() {
                             )}
                             <div className="flex gap-3">
                                 <button
-                                    onClick={() => { setShowEditModal(false); setShowDeleteConfirm(false) }}
+                                    onClick={() => {
+                                        setShowEditModal(false);
+                                        setShowDeleteConfirm(false);
+                                        setEditError("");
+                                        setEditForm({
+                                            species_name: species.species_name || "",
+                                            species_description: species.species_description || "",
+                                        });
+                                    }}
                                     className="text-xs text-white/40 hover:text-white/70 border border-white/10 px-4 py-2 rounded tracking-widests uppercase transition-all"
                                 >
                                     Cancel
