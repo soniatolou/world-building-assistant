@@ -12,6 +12,7 @@ Each function execute a query and returns the result.
 
 pwd_hash = PasswordHash([Argon2Hasher()])
 
+
 # Sessions
 def create_session(connection, user_id):
     with connection:
@@ -108,7 +109,9 @@ def get_user_by_email(connection, email):
         return user_by_email
 
 
-def update_user(connection, user_id, username=None, first_name=None, last_name=None, email=None):
+def update_user(
+    connection, user_id, username=None, first_name=None, last_name=None, email=None
+):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -159,7 +162,9 @@ def change_password(connection, user_id, new_password):
 
 
 # Worlds
-def create_world(connection, user_id, world_name, world_description=None, image_url=None):
+def create_world(
+    connection, user_id, world_name, world_description=None, image_url=None
+):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -205,7 +210,9 @@ def get_world_by_id(connection, world_id):
         return world
 
 
-def update_world(connection, world_id, world_name=None, world_description=None, image_url=None):
+def update_world(
+    connection, world_id, world_name=None, world_description=None, image_url=None
+):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -282,7 +289,7 @@ def update_rule(connection, rule_id, rule_text):
                 WHERE rule_id = %s
                 RETURNING *;
                 """,
-                (rule_text, rule_id)
+                (rule_text, rule_id),
             )
             updated_rule = cursor.fetchone()
         return updated_rule
@@ -309,8 +316,8 @@ def create_character(
     connection,
     world_id,
     character_name,
-    character_description = None,
-    birth_year = None,
+    character_description=None,
+    birth_year=None,
     death_year=None,
     is_alive=True,
     image_url=None,
@@ -407,7 +414,7 @@ def update_character(
                     character_name = COALESCE (%s, character_name),
                     character_description = COALESCE (%s, character_description),
                     birth_year = COALESCE (%s, birth_year),
-                    death_year = %s,
+                    death_year = COALESCE (%s, death_year),
                     is_alive = COALESCE (%s, is_alive),
                     image_url = COALESCE (%s, image_url),
                     image_id = COALESCE (%s, image_id),
@@ -537,7 +544,14 @@ def delete_relationship(connection, relationship_id):
 
 
 # Events
-def create_event(connection, world_id, event_name, event_description=None, start_year=None, end_year=None):
+def create_event(
+    connection,
+    world_id,
+    event_name,
+    event_description=None,
+    start_year=None,
+    end_year=None,
+):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -560,7 +574,12 @@ def create_event(connection, world_id, event_name, event_description=None, start
 
 
 def update_event(
-    connection, event_id, event_name=None, event_description=None, start_year=None, end_year=None
+    connection,
+    event_id,
+    event_name=None,
+    event_description=None,
+    start_year=None,
+    end_year=None,
 ):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -696,12 +715,7 @@ def get_all_events_for_one_character(connection, character_id):
 
 # Maps
 def create_map(
-    connection, 
-    world_id, 
-    map_name, 
-    map_url, 
-    map_description=None, 
-    scale_factor=None
+    connection, world_id, map_name, map_url, map_description=None, scale_factor=None
 ):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -760,7 +774,7 @@ def update_map(
     map_name=None,
     map_url=None,
     map_description=None,
-    scale_factor=None
+    scale_factor=None,
 ):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -805,7 +819,7 @@ def create_location(
     map_id,
     location_type=None,
     location_description=None,
-    image_url=None
+    image_url=None,
 ):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -815,7 +829,14 @@ def create_location(
                 VALUES (%s, %s, %s, %s, %s, %s)
                 RETURNING *;
                 """,
-                (location_name, location_description, world_id, map_id, location_type, image_url)
+                (
+                    location_name,
+                    location_description,
+                    world_id,
+                    map_id,
+                    location_type,
+                    image_url,
+                ),
             )
             new_location = cursor.fetchone()
         return new_location
@@ -913,7 +934,7 @@ def create_item(connection, item_name, world_id, item_description=None, image_ur
                 VALUES (%s, %s, %s, %s)
                 RETURNING *;
                 """,
-                (item_name, world_id, item_description, image_url)
+                (item_name, world_id, item_description, image_url),
             )
             new_item = cursor.fetchone()
         return new_item
@@ -949,7 +970,9 @@ def get_item_by_id(connection, item_id):
         return item
 
 
-def update_item(connection, item_id, item_name=None, item_description=None, image_url=None):
+def update_item(
+    connection, item_id, item_name=None, item_description=None, image_url=None
+):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -984,7 +1007,9 @@ def delete_item(connection, item_id):
 
 
 # Species - Sonia
-def create_species(connection, species_name, world_id, species_description=None, image_url=None):
+def create_species(
+    connection, species_name, world_id, species_description=None, image_url=None
+):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -1029,7 +1054,9 @@ def get_species_by_id(connection, species_id):
         return species
 
 
-def update_species(connection, species_id, species_name=None, species_description=None, image_url=None):
+def update_species(
+    connection, species_id, species_name=None, species_description=None, image_url=None
+):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(

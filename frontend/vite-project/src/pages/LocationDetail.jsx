@@ -18,6 +18,7 @@ export default function LocationDetail() {
         location_description: "",
         location_type: "",
         map_id: "",
+        image_url: "",
     })
 
     useEffect(() => {
@@ -33,6 +34,7 @@ export default function LocationDetail() {
                     location_description: locData.location_description || "",
                     location_type: locData.location_type || "",
                     map_id: locData.map_id || "",
+                    image_url: locData.image_url || "",
                 })
                 if (Array.isArray(mapData)) setMaps(mapData)
             } catch (err) {
@@ -53,6 +55,7 @@ export default function LocationDetail() {
                 location_description: editForm.location_description,
                 location_type: editForm.location_type || null,
                 map_id: editForm.map_id ? parseInt(editForm.map_id) : null,
+                image_url: editForm.image_url || null,
             })
             setLocation(updated)
             setShowEditModal(false)
@@ -113,6 +116,11 @@ export default function LocationDetail() {
 
                             {/* Main content */}
                             <div className="flex flex-col gap-8 p-10 max-w-2xl">
+                                {location.image_url && (
+                                    <div className="rounded-lg overflow-hidden border border-white/10">
+                                        <img src={location.image_url} alt={location.location_name} className="w-full object-cover max-h-[400px]" />
+                                    </div>
+                                )}
                                 <div>
                                     {location.location_type && (
                                         <p className="text-purple-400 text-xs tracking-widest uppercase mb-3">
@@ -232,6 +240,19 @@ export default function LocationDetail() {
                             </div>
                             <div>
                                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
+                                    Image URL <span className="text-white/20 normal-case tracking-normal">(optional)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editForm.image_url}
+                                    onChange={(e) => setEditForm({ ...editForm, image_url: e.target.value })}
+                                    placeholder="https://..."
+                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
                                     Description <span className="text-white/20 normal-case tracking-normal">(optional)</span>
                                 </label>
                                 <textarea
@@ -284,6 +305,7 @@ export default function LocationDetail() {
                                             location_description: location.location_description || "",
                                             location_type: location.location_type || "",
                                             map_id: location.map_id || "",
+                                            image_url: location.image_url || "",
                                         });
                                     }}
                                     className="text-xs text-white/40 hover:text-white/70 border border-white/10 px-4 py-2 rounded tracking-widest uppercase transition-all"

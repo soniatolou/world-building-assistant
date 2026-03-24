@@ -10,7 +10,7 @@ export default function Items() {
     const [items, setItems] = useState([])
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [successMsg, setSuccessMsg] = useState("")
-    const [createForm, setCreateForm] = useState({ item_name: "", item_description: "" })
+    const [createForm, setCreateForm] = useState({ item_name: "", item_description: "", image_url: "" })
     const [createError, setCreateError] = useState("")
 
     useEffect(() => {
@@ -34,7 +34,7 @@ export default function Items() {
             const newItem = await createItem(worldId, createForm)
             setItems((prev) => [...prev, newItem])
             setShowCreateModal(false)
-            setCreateForm({ item_name: "", item_description: "" })
+            setCreateForm({ item_name: "", item_description: "", image_url: "" })
             setCreateError("")
             setSuccessMsg("Item created!")
             setTimeout(() => setSuccessMsg(""), 3000)
@@ -85,16 +85,25 @@ export default function Items() {
                                 <div
                                     key={item.item_id}
                                     onClick={() => navigate(`/worlds/${worldId}/items/${item.item_id}`)}
-                                    className="bg-white/5 border border-white/10 rounded-lg p-6 hover:border-purple-500/40 hover:bg-white/10 transition-all cursor-pointer group"
+                                    className="bg-white/5 border border-white/10 rounded-lg overflow-hidden hover:border-purple-500/40 hover:bg-white/10 transition-all cursor-pointer group"
                                 >
-                                    <h2 className="text-lg font-bold text-white mb-2 group-hover:text-purple-300 transition-colors tracking-wide">
-                                        {item.item_name}
-                                    </h2>
-                                    {item.item_description && (
-                                        <p className="text-white/50 text-sm line-clamp-3" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                            {item.item_description}
-                                        </p>
+                                    {item.image_url && (
+                                        <img
+                                            src={item.image_url}
+                                            alt={item.item_name}
+                                            className="w-full h-48 object-cover"
+                                        />
                                     )}
+                                    <div className="p-6">
+                                        <h2 className="text-lg font-bold text-white mb-2 group-hover:text-purple-300 transition-colors tracking-wide">
+                                            {item.item_name}
+                                        </h2>
+                                        {item.item_description && (
+                                            <p className="text-white/50 text-sm line-clamp-3" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                                {item.item_description}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -121,6 +130,17 @@ export default function Items() {
                                 />
                             </div>
                             <div>
+                                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">Image URL <span className="text-white/20 normal-case tracking-normal">(optional)</span></label>
+                                <input
+                                    type="text"
+                                    value={createForm.image_url}
+                                    onChange={(e) => setCreateForm((f) => ({ ...f, image_url: e.target.value }))}
+                                    placeholder="https://..."
+                                    className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                                />
+                            </div>
+                            <div>
                                 <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">Description <span className="text-white/20 normal-case tracking-normal">(optional)</span></label>
                                 <textarea
                                     rows={4}
@@ -142,7 +162,7 @@ export default function Items() {
                                 Create
                             </button>
                             <button
-                                onClick={() => { setShowCreateModal(false); setCreateForm({ item_name: "", item_description: "" }); setCreateError("") }}
+                                onClick={() => { setShowCreateModal(false); setCreateForm({ item_name: "", item_description: "", image_url: "" }); setCreateError("") }}
                                 className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 text-sm rounded-md transition-all tracking-wide"
                             >
                                 Cancel

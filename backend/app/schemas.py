@@ -1,12 +1,14 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 
+
 class UserResponse(BaseModel):
     user_id: int
     username: str
     first_name: str
     last_name: str
     email: str
+
 
 class CreateUser(BaseModel):
     username: str = Field(min_length=1)
@@ -15,11 +17,13 @@ class CreateUser(BaseModel):
     email: EmailStr = Field(min_length=1)
     password: str = Field(min_length=1)
 
+
 class UserUpdate(BaseModel):
     username: Optional[str] = Field(default=None, min_length=1)
     first_name: Optional[str] = Field(default=None, min_length=1)
     last_name: Optional[str] = Field(default=None, min_length=1)
     email: Optional[str] = Field(default=None, min_length=1)
+
 
 class UserLogin(BaseModel):
     email: str = Field(min_length=1)
@@ -86,23 +90,28 @@ class NoteUpdate(BaseModel):
     note_name: Optional[str] = None
     note_text: Optional[str] = None
 
+
 # Worlds
 class CreateWorld(BaseModel):
     world_name: str = Field(min_length=1)
     world_description: Optional[str] = None
     image_url: Optional[str] = None
 
+
 class CreateRule(BaseModel):
     rule_text: str = Field(min_length=1)
 
+
 class UpdateRule(BaseModel):
     rule_text: Optional[str] = None
+
 
 class UpdateWorld(BaseModel):
     # Optional allows None as a value, = None makes the field not required
     world_name: Optional[str] = None
     world_description: Optional[str] = None
     image_url: Optional[str] = None
+
 
 # Characters
 class CreateCharacter(BaseModel):
@@ -116,6 +125,7 @@ class CreateCharacter(BaseModel):
     species_id: Optional[int] = None
     item_id: Optional[int] = None
 
+
 class UpdateCharacter(BaseModel):
     character_name: Optional[str] = None
     character_description: Optional[str] = None
@@ -127,16 +137,19 @@ class UpdateCharacter(BaseModel):
     species_id: Optional[int] = None
     item_id: Optional[int] = None
 
+
 # Relationships
 class CreateRelationship(BaseModel):
     relationship_type: str = Field(min_length=1)
     character_a_id: int
     character_b_id: int
 
+
 class UpdateRelationship(BaseModel):
     relationship_type: Optional[str] = None
     character_a_id: Optional[int] = None
     character_b_id: Optional[int] = None
+
 
 # Events
 class CreateEvent(BaseModel):
@@ -145,11 +158,13 @@ class CreateEvent(BaseModel):
     start_year: Optional[str] = None
     end_year: Optional[str] = None
 
+
 class UpdateEvent(BaseModel):
     event_name: Optional[str] = None
     event_description: Optional[str] = None
     start_year: Optional[str] = None
     end_year: Optional[str] = None
+
 
 # Maps
 class CreateMap(BaseModel):
@@ -158,11 +173,13 @@ class CreateMap(BaseModel):
     map_description: Optional[str] = None
     scale_factor: Optional[float] = None
 
+
 class UpdateMap(BaseModel):
     map_name: Optional[str] = None
     map_url: Optional[str] = None
     scale_factor: Optional[float] = None
     map_description: Optional[str] = None
+
 
 # Locations
 class CreateLocation(BaseModel):
@@ -173,12 +190,14 @@ class CreateLocation(BaseModel):
     map_id: Optional[int] = None
     image_url: Optional[str] = None
 
+
 class LocationUpdate(BaseModel):
     location_name: Optional[str] = None
     location_description: Optional[str] = None
     location_type: Optional[str] = None
     map_id: Optional[int] = None
     image_url: Optional[str] = None
+
 
 # Items
 class CreateItem(BaseModel):
@@ -187,10 +206,12 @@ class CreateItem(BaseModel):
     world_id: int
     image_url: Optional[str] = None
 
+
 class ItemUpdate(BaseModel):
     item_name: Optional[str] = None
     item_description: Optional[str] = None
     image_url: Optional[str] = None
+
 
 # Species
 class CreateSpecies(BaseModel):
@@ -199,15 +220,18 @@ class CreateSpecies(BaseModel):
     world_id: int
     image_url: Optional[str] = None
 
+
 class SpeciesUpdate(BaseModel):
     species_name: Optional[str] = None
     species_description: Optional[str] = None
     image_url: Optional[str] = None
 
+
 # Notes
 class CreateNote(BaseModel):
     note_name: str = Field(min_length=1)
     note_text: str
+
 
 class NoteUpdate(BaseModel):
     note_name: Optional[str] = None

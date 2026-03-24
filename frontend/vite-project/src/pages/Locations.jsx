@@ -18,6 +18,7 @@ export default function Locations() {
         location_description: "",
         location_type: "",
         map_id: "",
+        image_url: "",
     })
 
     useEffect(() => {
@@ -47,11 +48,12 @@ export default function Locations() {
                 location_description: createForm.location_description,
                 location_type: createForm.location_type || null,
                 map_id: createForm.map_id ? parseInt(createForm.map_id) : null,
+                image_url: createForm.image_url || null,
                 world_id: parseInt(worldId),
             })
             setLocations((prev) => [...prev, newLocation])
             setShowCreateModal(false)
-            setCreateForm({ location_name: "", location_description: "", location_type: "", map_id: "" })
+            setCreateForm({ location_name: "", location_description: "", location_type: "", map_id: "", image_url: "" })
             setCreateError("")
             setSuccessMsg("Location created!")
             setTimeout(() => setSuccessMsg(""), 3000)
@@ -109,24 +111,33 @@ export default function Locations() {
                                 <div
                                     key={loc.location_id}
                                     onClick={() => navigate(`/worlds/${worldId}/locations/${loc.location_id}`)}
-                                    className="bg-white/5 border border-white/10 rounded-lg p-6 hover:border-purple-500/40 hover:bg-white/10 transition-all cursor-pointer group"
+                                    className="bg-white/5 border border-white/10 rounded-lg overflow-hidden hover:border-purple-500/40 hover:bg-white/10 transition-all cursor-pointer group"
                                 >
-                                    {loc.location_type && (
-                                        <p className="text-purple-400 text-xs tracking-widest uppercase mb-3">
-                                            {loc.location_type}
-                                        </p>
+                                    {loc.image_url && (
+                                        <img
+                                            src={loc.image_url}
+                                            alt={loc.location_name}
+                                            className="w-full h-48 object-cover"
+                                        />
                                     )}
-                                    <h2 className="text-lg font-bold text-white mb-2 group-hover:text-purple-300 transition-colors tracking-wide">
-                                        {loc.location_name}
-                                    </h2>
-                                    {loc.location_description && (
-                                        <p
-                                            className="text-white/50 text-sm line-clamp-3"
-                                            style={{ fontFamily: "'Montserrat', sans-serif" }}
-                                        >
-                                            {loc.location_description}
-                                        </p>
-                                    )}
+                                    <div className="p-6">
+                                        {loc.location_type && (
+                                            <p className="text-purple-400 text-xs tracking-widest uppercase mb-3">
+                                                {loc.location_type}
+                                            </p>
+                                        )}
+                                        <h2 className="text-lg font-bold text-white mb-2 group-hover:text-purple-300 transition-colors tracking-wide">
+                                            {loc.location_name}
+                                        </h2>
+                                        {loc.location_description && (
+                                            <p
+                                                className="text-white/50 text-sm line-clamp-3"
+                                                style={{ fontFamily: "'Montserrat', sans-serif" }}
+                                            >
+                                                {loc.location_description}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -190,6 +201,19 @@ export default function Locations() {
                             </div>
                             <div>
                                 <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">
+                                    Image URL <span className="text-white/20 normal-case tracking-normal">(optional)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={createForm.image_url}
+                                    onChange={(e) => setCreateForm((f) => ({ ...f, image_url: e.target.value }))}
+                                    placeholder="https://..."
+                                    className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">
                                     Description <span className="text-white/20 normal-case tracking-normal">(optional)</span>
                                 </label>
                                 <textarea
@@ -214,7 +238,7 @@ export default function Locations() {
                             <button
                                 onClick={() => {
                                     setShowCreateModal(false)
-                                    setCreateForm({ location_name: "", location_description: "", location_type: "", map_id: "" })
+                                    setCreateForm({ location_name: "", location_description: "", location_type: "", map_id: "", image_url: "" })
                                     setCreateError("")
                                 }}
                                 className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 text-sm rounded-md transition-all tracking-wide"

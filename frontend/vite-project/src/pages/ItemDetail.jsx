@@ -11,13 +11,13 @@ export default function ItemDetail() {
     const [showEditModal, setShowEditModal] = useState(false)
     const [editError, setEditError] = useState("")
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-    const [editForm, setEditForm] = useState({ item_name: "", item_description: "" })
+    const [editForm, setEditForm] = useState({ item_name: "", item_description: "", image_url: "" })
     useEffect(() => {
         async function fetchItem() {
             try {
                 const data = await getItem(itemId)
                 setItem(data)
-                setEditForm({ item_name: data.item_name || "", item_description: data.item_description || "" })
+                setEditForm({ item_name: data.item_name || "", item_description: data.item_description || "", image_url: data.image_url || "" })
             } catch (err) {
                 console.error(err)
             }
@@ -88,6 +88,11 @@ export default function ItemDetail() {
 
                             {/* Content */}
                             <div className="flex flex-col gap-8 p-10 max-w-2xl">
+                                {item.image_url && (
+                                    <div className="rounded-lg overflow-hidden border border-white/10">
+                                        <img src={item.image_url} alt={item.item_name} className="w-full object-cover max-h-[400px]" />
+                                    </div>
+                                )}
                                 <h1 className="text-4xl font-bold text-white uppercase tracking-wide">
                                     {item.item_name}
                                 </h1>
@@ -128,6 +133,17 @@ export default function ItemDetail() {
                                     onChange={(e) => setEditForm({ ...editForm, item_name: e.target.value })}
                                     className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${editError && !editForm.item_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "'Cinzel', serif" }}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">Image URL <span className="text-white/20 normal-case tracking-normal">(optional)</span></label>
+                                <input
+                                    type="text"
+                                    value={editForm.image_url}
+                                    onChange={(e) => setEditForm({ ...editForm, image_url: e.target.value })}
+                                    placeholder="https://..."
+                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
                             <div>
@@ -178,6 +194,7 @@ export default function ItemDetail() {
                                         setEditForm({
                                             item_name: item.item_name || "",
                                             item_description: item.item_description || "",
+                                            image_url: item.image_url || "",
                                         });
                                     }}
                                     className="text-xs text-white/40 hover:text-white/70 border border-white/10 px-4 py-2 rounded tracking-widest uppercase transition-all"

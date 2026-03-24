@@ -11,13 +11,13 @@ export default function SpeciesDetail() {
     const [showEditModal, setShowEditModal] = useState(false)
     const [editError, setEditError] = useState("")
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-    const [editForm, setEditForm] = useState({ species_name: "", species_description: "" })
+    const [editForm, setEditForm] = useState({ species_name: "", species_description: "", image_url: "" })
     useEffect(() => {
         async function fetchSpecies() {
             try {
                 const data = await getOneSpecies(speciesId)
                 setSpecies(data)
-                setEditForm({ species_name: data.species_name || "", species_description: data.species_description || "" })
+                setEditForm({ species_name: data.species_name || "", species_description: data.species_description || "", image_url: data.image_url || "" })
             } catch (err) {
                 console.error(err)
             }
@@ -88,6 +88,11 @@ export default function SpeciesDetail() {
 
                             {/* Content */}
                             <div className="flex flex-col gap-8 p-10 max-w-2xl">
+                                {species.image_url && (
+                                    <div className="rounded-lg overflow-hidden border border-white/10">
+                                        <img src={species.image_url} alt={species.species_name} className="w-full object-cover max-h-[400px]" />
+                                    </div>
+                                )}
                                 <h1 className="text-4xl font-bold text-white uppercase tracking-wide">
                                     {species.species_name}
                                 </h1>
@@ -128,6 +133,17 @@ export default function SpeciesDetail() {
                                     onChange={(e) => setEditForm({ ...editForm, species_name: e.target.value })}
                                     className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${editError && !editForm.species_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "'Cinzel', serif" }}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">Image URL <span className="text-white/20 normal-case tracking-normal">(optional)</span></label>
+                                <input
+                                    type="text"
+                                    value={editForm.image_url}
+                                    onChange={(e) => setEditForm({ ...editForm, image_url: e.target.value })}
+                                    placeholder="https://..."
+                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
                             <div>
@@ -178,6 +194,7 @@ export default function SpeciesDetail() {
                                         setEditForm({
                                             species_name: species.species_name || "",
                                             species_description: species.species_description || "",
+                                            image_url: species.image_url || "",
                                         });
                                     }}
                                     className="text-xs text-white/40 hover:text-white/70 border border-white/10 px-4 py-2 rounded tracking-widests uppercase transition-all"
