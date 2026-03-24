@@ -84,6 +84,7 @@ def create_tables():
         item_id BIGSERIAL PRIMARY KEY NOT NULL,
         item_name VARCHAR(255) NOT NULL,
         item_description TEXT,
+        image_url VARCHAR(2048),
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE
         );
         """
@@ -107,6 +108,7 @@ def create_tables():
         species_id BIGSERIAL PRIMARY KEY NOT NULL,
         species_name VARCHAR(255) NOT NULL,
         species_description TEXT,
+        image_url VARCHAR(2048),
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE
         );
         """
@@ -189,6 +191,7 @@ def create_tables():
         location_name VARCHAR(255) NOT NULL,
         location_description TEXT,
         location_type VARCHAR(100),
+        image_url VARCHAR(2048),
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         world_id BIGINT NOT NULL REFERENCES "worlds"(world_id) ON DELETE CASCADE,
@@ -205,6 +208,7 @@ def create_tables():
         character_name VARCHAR(255) NOT NULL,
         character_description TEXT,
         birth_year VARCHAR(20),
+        death_year VARCHAR(20),
         is_alive BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,

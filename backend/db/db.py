@@ -311,6 +311,7 @@ def create_character(
     character_name,
     character_description = None,
     birth_year = None,
+    death_year=None,
     is_alive=True,
     image_url=None,
     image_id=None,
@@ -321,26 +322,28 @@ def create_character(
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                INSERT 
+                INSERT
                 INTO characters (
-                    world_id, 
-                    character_name, 
-                    character_description, 
+                    world_id,
+                    character_name,
+                    character_description,
                     birth_year,
-                    is_alive, 
+                    death_year,
+                    is_alive,
                     image_url,
-                    image_id, 
-                    species_id, 
+                    image_id,
+                    species_id,
                     item_id
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) 
-                RETURNING *; 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING *;
                 """,
                 (
                     world_id,
                     character_name,
                     character_description,
                     birth_year,
+                    death_year,
                     is_alive,
                     image_url,
                     image_id,
@@ -388,6 +391,7 @@ def update_character(
     character_name=None,
     character_description=None,
     birth_year=None,
+    death_year=None,
     is_alive=None,
     image_url=None,
     image_id=None,
@@ -399,10 +403,11 @@ def update_character(
             cursor.execute(
                 """
                 UPDATE characters
-                SET 
+                SET
                     character_name = COALESCE (%s, character_name),
                     character_description = COALESCE (%s, character_description),
                     birth_year = COALESCE (%s, birth_year),
+                    death_year = %s,
                     is_alive = COALESCE (%s, is_alive),
                     image_url = COALESCE (%s, image_url),
                     image_id = COALESCE (%s, image_id),
@@ -415,6 +420,7 @@ def update_character(
                     character_name,
                     character_description,
                     birth_year,
+                    death_year,
                     is_alive,
                     image_url,
                     image_id,
@@ -798,17 +804,18 @@ def create_location(
     world_id,
     map_id,
     location_type=None,
-    location_description=None
+    location_description=None,
+    image_url=None
 ):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                INSERT INTO locations (location_name, location_description, world_id, map_id, location_type)
-                VALUES (%s, %s, %s, %s, %s) 
-                RETURNING *; 
+                INSERT INTO locations (location_name, location_description, world_id, map_id, location_type, image_url)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING *;
                 """,
-                (location_name, location_description, world_id, map_id, location_type),
+                (location_name, location_description, world_id, map_id, location_type, image_url)
             )
             new_location = cursor.fetchone()
         return new_location
@@ -851,16 +858,18 @@ def update_location(
     location_description=None,
     location_type=None,
     map_id=None,
+    image_url=None,
 ):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 UPDATE locations
-                SET location_name = COALESCE (%s, location_name), -- COALESCE: use the new value if updated, otherwise keep the old one --
+                SET location_name = COALESCE (%s, location_name),
                 location_description = COALESCE (%s, location_description),
                 location_type = COALESCE (%s, location_type),
                 map_id = COALESCE (%s, map_id),
+                image_url = %s,
                 updated_at = CURRENT_TIMESTAMP
                 WHERE location_id = %s
                 RETURNING *;
@@ -870,6 +879,7 @@ def update_location(
                     location_description,
                     location_type,
                     map_id,
+                    image_url,
                     location_id,
                 ),
             )
@@ -894,16 +904,16 @@ def delete_location(connection, location_id):
 
 
 # Items - Sonia
-def create_item(connection, world_id, item_name, item_description=None):
+def create_item(connection, item_name, world_id, item_description=None, image_url=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                INSERT INTO items (item_name, item_description, world_id)
-                VALUES (%s, %s, %s) 
-                RETURNING *; 
+                INSERT INTO items (item_name, world_id, item_description, image_url)                
+                VALUES (%s, %s, %s, %s)
+                RETURNING *;
                 """,
-                (item_name, item_description, world_id),
+                (item_name, world_id, item_description, image_url)
             )
             new_item = cursor.fetchone()
         return new_item
@@ -939,18 +949,19 @@ def get_item_by_id(connection, item_id):
         return item
 
 
-def update_item(connection, item_id, item_name=None, item_description=None):
+def update_item(connection, item_id, item_name=None, item_description=None, image_url=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 UPDATE items
-                SET item_name = COALESCE (%s, item_name), -- COALESCE: use the new value if updated, otherwise keep the old one --
-                item_description = COALESCE (%s, item_description)
+                SET item_name = COALESCE (%s, item_name),
+                item_description = COALESCE (%s, item_description),
+                image_url = %s
                 WHERE item_id = %s
                 RETURNING *;
                 """,
-                (item_name, item_description, item_id),
+                (item_name, item_description, image_url, item_id),
             )
             updated_item = cursor.fetchone()
         return updated_item
@@ -973,16 +984,16 @@ def delete_item(connection, item_id):
 
 
 # Species - Sonia
-def create_species(connection, world_id, species_name, species_description=None):
+def create_species(connection, species_name, world_id, species_description=None, image_url=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                INSERT INTO species (species_name, species_description, world_id)
-                VALUES (%s, %s, %s) -- Placeholders to prevent SQL injection, psycopg2 inserts values safely --
-                RETURNING *; -- Returns all columns of the newly created row --
+                INSERT INTO species (species_name, world_id, species_description, image_url)
+                VALUES (%s, %s, %s, %s)
+                RETURNING *;
                 """,
-                (species_name, species_description, world_id),
+                (species_name, world_id, species_description, image_url),
             )
             new_species = cursor.fetchone()
         return new_species
@@ -1018,18 +1029,19 @@ def get_species_by_id(connection, species_id):
         return species
 
 
-def update_species(connection, species_id, species_name=None, species_description=None):
+def update_species(connection, species_id, species_name=None, species_description=None, image_url=None):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
                 UPDATE species
-                SET species_name = COALESCE (%s, species_name), -- COALESCE: use the new value if updated, otherwise keep the old one --
-                species_description = COALESCE (%s, species_description)
+                SET species_name = COALESCE (%s, species_name),
+                species_description = COALESCE (%s, species_description),
+                image_url = %s
                 WHERE species_id = %s
                 RETURNING *;
                 """,
-                (species_name, species_description, species_id),
+                (species_name, species_description, image_url, species_id),
             )
             updated_species = cursor.fetchone()
         return updated_species

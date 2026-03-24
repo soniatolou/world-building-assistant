@@ -12,6 +12,7 @@ export default function CreateCharacter() {
     character_name: "",
     character_description: "",
     birth_year: "",
+    death_year: "",
     is_alive: true,
     image_url: "",
     species_id: "",
@@ -48,6 +49,7 @@ export default function CreateCharacter() {
     }
     const payload = {
       ...formData,
+      death_year: formData.is_alive ? null : (formData.death_year || null),
       species_id: formData.species_id === "" ? null : Number(formData.species_id),
     };
     await createCharacter(worldId, payload);
@@ -179,6 +181,23 @@ export default function CreateCharacter() {
             {errorMsg && (
               <p className="text-red-400 text-sm">{errorMsg}</p>
             )}
+            {!formData.is_alive && (
+              <div className="flex flex-col gap-2">
+                <label className="text-white/70 text-xs tracking-widest uppercase">
+                  Death Year <span className="text-white/30">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  name="death_year"
+                  value={formData.death_year}
+                  onChange={handleChange}
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                  placeholder="e.g. 1289"
+                  style={{ fontFamily: "sans-serif" }}
+                />
+              </div>
+            )}
+
             <div className="flex gap-3 mt-2">
               <button
                 onClick={handleSubmit}
