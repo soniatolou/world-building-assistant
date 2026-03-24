@@ -4,10 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from psycopg2 import errors
 from db.db import pwd_hash
-import anthropic
 from app import consistency
 import app.schemas as schemas
 from db import db
+import anthropic
 
 app = FastAPI()
 
