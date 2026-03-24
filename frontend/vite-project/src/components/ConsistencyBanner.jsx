@@ -28,7 +28,7 @@ export default function ConsistencyBanner() {
 
       <div className="p-4">
         {!hasContradictions ? (
-          <p className="text-amber-200/60 text-xs" style={{ fontFamily: "sans-serif" }}>
+          <p className="text-amber-200/60 text-xs" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             No issues found. Your world is consistent!
           </p>
         ) : (
@@ -37,19 +37,19 @@ export default function ConsistencyBanner() {
               <div key={i} className="flex flex-col gap-1">
                 <p
                   className="text-amber-100/80 text-xs leading-relaxed"
-                  style={{ fontFamily: "sans-serif" }}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
                 >
                   {item.description}
                 </p>
                 {item.elements_involved && item.elements_involved.length > 0 && (
-                  <p className="text-amber-400/60 text-xs" style={{ fontFamily: "sans-serif" }}>
+                  <p className="text-amber-400/60 text-xs" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     Involves: {item.elements_involved.join(", ")}
                   </p>
                 )}
                 {item.suggestion && (
                   <p
                     className="text-amber-300/70 text-xs italic"
-                    style={{ fontFamily: "sans-serif" }}
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
                     {item.suggestion}
                   </p>
