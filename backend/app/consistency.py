@@ -1,6 +1,6 @@
 import anthropic
 import json
-import settings
+from app.settings import settings
 
 def run_consistency_check(world_id: int, connection):
     # Gets world data from the database
@@ -53,7 +53,7 @@ def run_consistency_check(world_id: int, connection):
         "relationships": relationships
     }
 
-    client = anthropic.Anthropic(api_key=settings.settings.ANTHROPIC_API_KEY)
+    client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
 
     response = client.messages.create(
         model="claude-sonnet-4-5",
@@ -63,6 +63,8 @@ def run_consistency_check(world_id: int, connection):
             "content": f"""
             You are a consistency checker for a fantasy-world.
             Analyze the world data and find logical contradictions. 
+            Do not stop after finding the first contradiction. 
+            Return ALL contradictions you find, not just the most obvious ones.
 
             WORLDDATA:
             {json.dumps(world_data, ensure_ascii=False, indent=2)}

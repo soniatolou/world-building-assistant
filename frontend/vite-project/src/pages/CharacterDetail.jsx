@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getCharacter, updateCharacter, deleteCharacter } from "../api/characters";
+import {
+  getCharacter,
+  updateCharacter,
+  deleteCharacter,
+} from "../api/characters";
 import { getRelationshipsForCharacter } from "../api/relationships";
+import { getEventsForCharacter } from "../api/events";
+import { getSpecies } from "../api/species";
+import { getItems } from "../api/items";
 import WorldSidebar from "../components/WorldSidebar";
 import Navbar from "../components/Navbar";
 
@@ -15,10 +22,15 @@ export default function CharacterDetail() {
     character_description: "",
     image_url: "",
     birth_year: "",
+    death_year: "",
     is_alive: true,
   });
+  const [editError, setEditError] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [relationships, setRelationships] = useState([]);
+  const [characterEvents, setCharacterEvents] = useState([]);
+  const [speciesList, setSpeciesList] = useState([]);
+  const [itemsList, setItemsList] = useState([]);
 
   useEffect(() => {
     async function fetchCharacter() {
@@ -30,7 +42,10 @@ export default function CharacterDetail() {
           character_description: data.character_description || "",
           image_url: data.image_url || "",
           birth_year: data.birth_year || "",
+          death_year: data.death_year || "",
           is_alive: data.is_alive ?? true,
+          species_id: data.species_id || "",
+          item_id: data.item_id || "",
         });
       } catch (err) {
         console.error(err);
@@ -51,11 +66,51 @@ export default function CharacterDetail() {
     fetchRelationships();
   }, [characterId]);
 
+  useEffect(() => {
+    async function fetchEvents() {
+      try {
+        const data = await getEventsForCharacter(characterId);
+        if (Array.isArray(data)) setCharacterEvents(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchEvents();
+  }, [characterId]);
+
+  useEffect(() => {
+    async function fetchSpeciesAndItems() {
+      try {
+        const [s, i] = await Promise.all([
+          getSpecies(worldId),
+          getItems(worldId),
+        ]);
+        if (Array.isArray(s)) setSpeciesList(s);
+        if (Array.isArray(i)) setItemsList(i);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchSpeciesAndItems();
+  }, [worldId]);
+
   async function handleUpdate() {
+    if (!editForm.character_name.trim()) {
+      setEditError("Please make sure all the required fields are filled in.");
+      return;
+    }
     try {
-      const updated = await updateCharacter(characterId, editForm);
+      const payload = {
+        ...editForm,
+        death_year: editForm.is_alive ? null : editForm.death_year || null,
+        species_id:
+          editForm.species_id === "" ? null : Number(editForm.species_id),
+        item_id: editForm.item_id === "" ? null : Number(editForm.item_id),
+      };
+      const updated = await updateCharacter(characterId, payload);
       setCharacter(updated);
       setShowEditModal(false);
+      setEditError("");
     } catch (err) {
       console.error(err);
     }
@@ -99,7 +154,9 @@ export default function CharacterDetail() {
                     Characters
                   </span>
                   <span>/</span>
-                  <span className="text-white/70">{character.character_name}</span>
+                  <span className="text-white/70">
+                    {character.character_name}
+                  </span>
                 </div>
                 <button
                   onClick={() => setShowEditModal(true)}
@@ -111,7 +168,6 @@ export default function CharacterDetail() {
 
               {/* Main content */}
               <div className="flex gap-8 p-10">
-
                 {/* Left: Portrait card */}
                 <div className="relative w-72 shrink-0 rounded-lg overflow-hidden border border-white/10 self-start">
                   {character.image_url ? (
@@ -133,7 +189,11 @@ export default function CharacterDetail() {
                     </h2>
                     <p className="text-purple-400 text-xs tracking-widest uppercase mt-1">
                       {character.is_alive ? "Alive" : "Deceased"}
-                      {character.birth_year && ` · Born ${character.birth_year}`}
+                      {character.birth_year &&
+                        ` · Born ${character.birth_year}`}
+                      {!character.is_alive &&
+                        character.death_year &&
+                        ` · Died ${character.death_year}`}
                     </p>
                   </div>
                 </div>
@@ -145,7 +205,10 @@ export default function CharacterDetail() {
                       <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-1 border-b border-white/10 pb-2">
                         Status
                       </h3>
-                      <p className="text-white/70 text-sm mt-2">
+                      <p
+                        className="text-white/70 text-sm mt-2"
+                        style={{ fontFamily: "'Montserrat', sans-serif" }}
+                      >
                         {character.is_alive ? "Alive" : "Deceased"}
                       </p>
                     </div>
@@ -154,18 +217,84 @@ export default function CharacterDetail() {
                         <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-1 border-b border-white/10 pb-2 mt-2">
                           Birth Year
                         </h3>
-                        <p className="text-white/70 text-sm mt-2">
+                        <p
+                          className="text-white/70 text-sm mt-2"
+                          style={{ fontFamily: "'Montserrat', sans-serif" }}
+                        >
                           {character.birth_year}
+                        </p>
+                      </div>
+                    )}
+                    {!character.is_alive && character.death_year && (
+                      <div>
+                        <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-1 border-b border-white/10 pb-2 mt-2">
+                          Death Year
+                        </h3>
+                        <p
+                          className="text-white/70 text-sm mt-2"
+                          style={{ fontFamily: "'Montserrat', sans-serif" }}
+                        >
+                          {character.death_year}
                         </p>
                       </div>
                     )}
                   </div>
 
+                  {(character.species_id || character.item_id) && (
+                    <div className="flex flex-col gap-2">
+                      {character.species_id && (
+                        <div>
+                          <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-1 border-b border-white/10 pb-2">
+                            Species
+                          </h3>
+                          <button
+                            onClick={() =>
+                              navigate(
+                                `/worlds/${worldId}/species/${character.species_id}`,
+                              )
+                            }
+                            className="text-white/70 hover:text-purple-300 text-sm mt-2 transition-colors text-left"
+                            style={{ fontFamily: "'Cinzel', serif" }}
+                          >
+                            {speciesList.find(
+                              (s) => s.species_id === character.species_id,
+                            )?.species_name || character.species_id}
+                          </button>
+                        </div>
+                      )}
+                      {character.item_id && (
+                        <div>
+                          <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-1 border-b border-white/10 pb-2 mt-2">
+                            Item
+                          </h3>
+                          <button
+                            onClick={() =>
+                              navigate(
+                                `/worlds/${worldId}/items/${character.item_id}`,
+                              )
+                            }
+                            className="text-white/70 hover:text-purple-300 text-sm mt-2 transition-colors text-left"
+                            style={{ fontFamily: "'Cinzel', serif" }}
+                          >
+                            {itemsList.find(
+                              (i) => i.item_id === character.item_id,
+                            )?.item_name || character.item_id}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div className="bg-white/5 border border-white/10 rounded-lg p-5 w-1/2">
-                    <p className="text-white/30 text-xs tracking-widest uppercase mb-3">Biography</p>
+                    <p className="text-white/30 text-xs tracking-widest uppercase mb-3">
+                      Biography
+                    </p>
                     <p
                       className="text-white/70 leading-relaxed text-sm"
-                      style={{ fontFamily: "sans-serif" }}
+                      style={{
+                        fontFamily: "'Montserrat', sans-serif",
+                        whiteSpace: "pre-wrap",
+                      }}
                     >
                       {character.character_description}
                     </p>
@@ -176,11 +305,16 @@ export default function CharacterDetail() {
                       <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-4 border-b border-white/10 pb-2">
                         Relationships
                       </h3>
-                      <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden w-1/2">
+                      <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden w-full">
                         {relationships.map((rel) => {
-                          const isA = rel.character_a_id === parseInt(characterId);
-                          const otherId = isA ? rel.character_b_id : rel.character_a_id;
-                          const otherName = isA ? rel.character_b_name : rel.character_a_name;
+                          const isA =
+                            rel.character_a_id === parseInt(characterId);
+                          const otherId = isA
+                            ? rel.character_b_id
+                            : rel.character_a_id;
+                          const otherName = isA
+                            ? rel.character_b_name
+                            : rel.character_a_name;
                           return (
                             <div
                               key={rel.relationship_id}
@@ -191,7 +325,11 @@ export default function CharacterDetail() {
                               </span>
                               <span className="text-white/30 text-xs">→</span>
                               <button
-                                onClick={() => navigate(`/worlds/${worldId}/characters/${otherId}`)}
+                                onClick={() =>
+                                  navigate(
+                                    `/worlds/${worldId}/characters/${otherId}`,
+                                  )
+                                }
                                 className="text-white/80 hover:text-purple-300 text-sm tracking-wide transition-colors text-left"
                                 style={{ fontFamily: "'Cinzel', serif" }}
                               >
@@ -203,12 +341,59 @@ export default function CharacterDetail() {
                       </div>
                     </div>
                   )}
+
+                  {characterEvents.length > 0 && (
+                    <div>
+                      <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-4 border-b border-white/10 pb-2">
+                        Events
+                      </h3>
+                      <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden w-full">
+                        {characterEvents.map((event) => (
+                          <div
+                            key={event.event_id}
+                            className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-all"
+                          >
+                            <button
+                              onClick={() =>
+                                navigate(
+                                  `/worlds/${worldId}/events/${event.event_id}`,
+                                )
+                              }
+                              className="text-white/80 hover:text-purple-300 text-sm tracking-wide transition-colors text-left"
+                              style={{ fontFamily: "'Cinzel', serif" }}
+                            >
+                              {event.event_name}
+                            </button>
+                            {(event.start_year || event.end_year) && (
+                              <span
+                                className="text-white/30 text-xs"
+                                style={{
+                                  fontFamily: "'Montserrat', sans-serif",
+                                }}
+                              >
+                                {event.start_year}
+                                {event.end_year &&
+                                event.end_year !== event.start_year
+                                  ? ` – ${event.end_year}`
+                                  : ""}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </>
           ) : (
             <div className="flex items-center justify-center flex-1">
-              <p className="text-white/40">Loading...</p>
+              <p
+                className="text-white/40"
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
+              >
+                Loading...
+              </p>
             </div>
           )}
         </div>
@@ -228,53 +413,76 @@ export default function CharacterDetail() {
             <div className="flex flex-col gap-4">
               <div>
                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                  Name
+                  Name{" "}
+                  <span className="text-white/20 normal-case tracking-normal">
+                    (required)
+                  </span>
                 </label>
                 <input
                   type="text"
                   value={editForm.character_name}
-                  onChange={(e) => setEditForm({ ...editForm, character_name: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
-                  style={{ fontFamily: "sans-serif" }}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, character_name: e.target.value })
+                  }
+                  className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${editError && !editForm.character_name.trim() ? "border-red-500/60" : "border-white/10"}`}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
 
               <div>
                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                  Description
+                  Description{" "}
+                  <span className="text-white/20 normal-case tracking-normal">
+                    (optional)
+                  </span>
                 </label>
                 <textarea
                   value={editForm.character_description}
-                  onChange={(e) => setEditForm({ ...editForm, character_description: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      character_description: e.target.value,
+                    })
+                  }
                   rows={4}
                   className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 resize-none"
-                  style={{ fontFamily: "sans-serif" }}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
 
               <div>
                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                  Image URL
+                  Image URL{" "}
+                  <span className="text-white/20 normal-case tracking-normal">
+                    (optional)
+                  </span>
                 </label>
                 <input
                   type="text"
                   value={editForm.image_url}
-                  onChange={(e) => setEditForm({ ...editForm, image_url: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, image_url: e.target.value })
+                  }
                   className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
-                  style={{ fontFamily: "sans-serif" }}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
 
               <div>
                 <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
-                  Birth Year
+                  Birth Year{" "}
+                  <span className="text-white/20 normal-case tracking-normal">
+                    (optional)
+                  </span>
                 </label>
                 <input
                   type="text"
                   value={editForm.birth_year}
-                  onChange={(e) => setEditForm({ ...editForm, birth_year: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, birth_year: e.target.value })
+                  }
                   className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
-                  style={{ fontFamily: "sans-serif" }}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
 
@@ -283,7 +491,9 @@ export default function CharacterDetail() {
                   type="checkbox"
                   id="edit_is_alive"
                   checked={editForm.is_alive}
-                  onChange={(e) => setEditForm({ ...editForm, is_alive: e.target.checked })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, is_alive: e.target.checked })
+                  }
                   className="accent-purple-500 w-4 h-4"
                 />
                 <label
@@ -293,7 +503,93 @@ export default function CharacterDetail() {
                   Alive
                 </label>
               </div>
+
+              {!editForm.is_alive && (
+                <div>
+                  <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
+                    Death Year <span className="text-white/20">(optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.death_year}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, death_year: e.target.value })
+                    }
+                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                    placeholder="e.g. 1289"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  />
+                </div>
+              )}
+
+              {speciesList.length > 0 && (
+                <div>
+                  <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
+                    Species <span className="text-white/20">(optional)</span>
+                  </label>
+                  <select
+                    value={editForm.species_id}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, species_id: e.target.value })
+                    }
+                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                    style={{ fontFamily: "'Cinzel', serif" }}
+                  >
+                    <option
+                      value=""
+                      style={{ backgroundColor: "white", color: "black" }}
+                    >
+                      No species
+                    </option>
+                    {speciesList.map((s) => (
+                      <option
+                        key={s.species_id}
+                        value={s.species_id}
+                        style={{ backgroundColor: "white", color: "black" }}
+                      >
+                        {s.species_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {itemsList.length > 0 && (
+                <div>
+                  <label className="text-white/50 text-xs tracking-widest uppercase block mb-1">
+                    Item <span className="text-white/20">(optional)</span>
+                  </label>
+                  <select
+                    value={editForm.item_id}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, item_id: e.target.value })
+                    }
+                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                    style={{ fontFamily: "'Cinzel', serif" }}
+                  >
+                    <option
+                      value=""
+                      style={{ backgroundColor: "white", color: "black" }}
+                    >
+                      No item
+                    </option>
+                    {itemsList.map((i) => (
+                      <option
+                        key={i.item_id}
+                        value={i.item_id}
+                        style={{ backgroundColor: "white", color: "black" }}
+                      >
+                        {i.item_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
+
+            {editError && (
+              <p className="text-red-400 text-sm mt-4">{editError}</p>
+            )}
 
             <div className="flex justify-between items-center mt-8">
               {!showDeleteConfirm ? (
@@ -305,7 +601,10 @@ export default function CharacterDetail() {
                 </button>
               ) : (
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-white/50" style={{ fontFamily: "sans-serif" }}>
+                  <span
+                    className="text-xs text-white/50"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  >
                     Are you sure?
                   </span>
                   <button
@@ -325,7 +624,21 @@ export default function CharacterDetail() {
 
               <div className="flex gap-3">
                 <button
-                  onClick={() => { setShowEditModal(false); setShowDeleteConfirm(false); }}
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setShowDeleteConfirm(false);
+                    setEditError("");
+                    setEditForm({
+                      character_name: character.character_name || "",
+                      character_description:
+                        character.character_description || "",
+                      image_url: character.image_url || "",
+                      birth_year: character.birth_year || "",
+                      is_alive: character.is_alive ?? true,
+                      species_id: character.species_id || "",
+                      item_id: character.item_id || "",
+                    });
+                  }}
                   className="text-xs text-white/40 hover:text-white/70 border border-white/10 px-4 py-2 rounded tracking-widest uppercase transition-all"
                 >
                   Cancel

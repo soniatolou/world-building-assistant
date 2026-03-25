@@ -1,23 +1,13 @@
-# GET /worlds - hämta alla
-# GET /worlds/{id} - hämta en
-# POST /worlds - skapa
-# PATCH /worlds/{id} - uppdatera
-# DELETE /worlds/{id} - ta bort
-
-# get_world()
-# get_all_worlds()
-# create_world()
-# update_world()
-# delete_world()
-
-from db_setup import get_connection
+from db.db_setup import get_connection
 from fastapi import FastAPI, HTTPException, status, Depends, Cookie, Response
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
-import bcrypt
-import consistency
-import schemas
-import db
+from psycopg2 import errors
+from db.db import pwd_hash
+from app import consistency
+import app.schemas as schemas
+from db import db
+import anthropic
 
 app = FastAPI()
 
@@ -31,16 +21,24 @@ app.add_middleware(
 
 
 def get_db():
-    connection = get_connection()
+    try:
+        connection = get_connection()
+    except errors.ConnectionFailure:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Could not connect to database",
+        )
     try:
         yield connection
     finally:
         connection.close()
 
 
-# Dependency function, to protect endpoints 
+# Dependency function, to protect endpoints
 # Verifies that there is a valid session connected to the request
-def get_current_user(session_id: Optional[str] = Cookie(None), connection=Depends(get_db)):
+def get_current_user(
+    session_id: Optional[str] = Cookie(None), connection=Depends(get_db)
+):
     if not session_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     session = db.get_session(connection, session_id)
@@ -49,7 +47,11 @@ def get_current_user(session_id: Optional[str] = Cookie(None), connection=Depend
     return session["user_id"]
 
 
-@app.post("/register", status_code=status.HTTP_201_CREATED, response_model=schemas.UserResponse)
+@app.post(
+    "/register",
+    status_code=status.HTTP_201_CREATED,
+    response_model=schemas.UserResponse,
+)
 def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
     try:
         new_user = db.create_user(
@@ -61,14 +63,31 @@ def create_user(user: schemas.CreateUser, connection=Depends(get_db)):
             user.password,
         )
         return new_user
+    except errors.UniqueViolation as error:
+        if "users_email_key" in str(error):
+            detail = "Email already exists"
+        elif "users_username_key" in str(error):
+            detail = "Username already taken"
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Something went wrong:{detail}",
+        )
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong:{error}")
+            detail=f"Something went wrong:{error}",
+        )
 
 
 @app.get("/users/me", response_model=schemas.UserResponse)
-def get_current_user_profile(connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def get_current_user_profile(
+    connection=Depends(get_db), current_user: int = Depends(get_current_user)
+):
     try:
         user = db.get_user_by_id(connection, current_user)
         # Returns dictionary with all user data
@@ -76,23 +95,16 @@ def get_current_user_profile(connection=Depends(get_db), current_user: int = Dep
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong {error}")
-
-
-# @app.get("/users/email")
-# def get_user_by_email(user_id: int, connection=Depends(get_db)):
-#     try:
-#         user_by_email = db.get_user_by_email(connection, user_id)
-#         # Returns dictionary with all user data
-#         return user_by_email
-#     except Exception as error:
-#         raise HTTPException(
-#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-#             detail=f"Something went wrong {error}")
+            detail=f"Something went wrong {error}",
+        )
 
 
 @app.patch("/users/me", response_model=schemas.UserResponse)
-def update_user(user: schemas.UserUpdate, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def update_user(
+    user: schemas.UserUpdate,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         updated_user = db.update_user(
             connection,
@@ -100,17 +112,25 @@ def update_user(user: schemas.UserUpdate, connection=Depends(get_db), current_us
             user.username,
             user.first_name,
             user.last_name,
-            user.email
+            user.email,
         )
         return updated_user
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong {error}")
+            detail=f"Something went wrong {error}",
+        )
 
 
 @app.delete("/users/me", response_model=schemas.UserResponse)
-def delete_user(connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def delete_user(
+    connection=Depends(get_db), current_user: int = Depends(get_current_user)
+):
     try:
         deleted_user = db.delete_user(connection, current_user)
         # Returns dictionary with deleted user's data, returns None if user doesn't exist
@@ -120,26 +140,37 @@ def delete_user(connection=Depends(get_db), current_user: int = Depends(get_curr
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong {error}")
+            detail=f"Something went wrong {error}",
+        )
 
 
 @app.post("/login")
 def login(data: schemas.UserLogin, response: Response, connection=Depends(get_db)):
     user = db.get_user_by_email(connection, data.email)
 
-    if not user or not bcrypt.checkpw(data.password.encode(), user["password"].encode()):
+    if not user or not pwd_hash.verify(data.password, user["password"]):
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password"
         )
-    
+
     session_id = db.create_session(connection, user["user_id"])
-    response.set_cookie(key="session_id", value=session_id, httponly=True, samesite="lax")
-    return {"message": "Login successful", "user_id": user["user_id"], "username": user["username"]}
+    response.set_cookie(
+        key="session_id", value=session_id, httponly=True, samesite="lax"
+    )
+    return {
+        "message": "Login successful",
+        "user_id": user["user_id"],
+        "username": user["username"],
+    }
 
 
 # Log out
 @app.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-def logout(response: Response, session_id: Optional[str] = Cookie(None), connection=Depends(get_db),):
+def logout(
+    response: Response,
+    session_id: Optional[str] = Cookie(None),
+    connection=Depends(get_db),
+):
     if session_id:
         db.delete_session(connection, session_id)
         response.delete_cookie("session_id")
@@ -147,7 +178,11 @@ def logout(response: Response, session_id: Optional[str] = Cookie(None), connect
 
 # Worlds
 @app.post("/worlds", status_code=status.HTTP_201_CREATED)
-def create_world(world: schemas.CreateWorld, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def create_world(
+    world: schemas.CreateWorld,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         new_world = db.create_world(
             connection,
@@ -159,14 +194,22 @@ def create_world(world: schemas.CreateWorld, connection=Depends(get_db), current
         return new_world
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.get("/worlds")
-def get_all_worlds(connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def get_all_worlds(
+    connection=Depends(get_db), current_user: int = Depends(get_current_user)
+):
     try:
         all_worlds = db.get_all_worlds(connection, current_user)
         return all_worlds
@@ -175,11 +218,16 @@ def get_all_worlds(connection=Depends(get_db), current_user: int = Depends(get_c
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.get("/worlds/{world_id}")
-def get_world_by_id(world_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def get_world_by_id(
+    world_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         world = db.get_world_by_id(connection, world_id)
         if not world:
@@ -192,11 +240,17 @@ def get_world_by_id(world_id: int, connection=Depends(get_db), current_user: int
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.patch("/worlds/{world_id}")
-def update_world(world_id: int, world: schemas.UpdateWorld, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def update_world(
+    world_id: int,
+    world: schemas.UpdateWorld,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         updated_world = db.update_world(
             connection,
@@ -212,14 +266,24 @@ def update_world(world_id: int, world: schemas.UpdateWorld, connection=Depends(g
         return updated_world
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.delete("/worlds/{world_id}")
-def delete_world(world_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def delete_world(
+    world_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         deleted_world = db.delete_world(connection, world_id)
         if not deleted_world:
@@ -232,12 +296,18 @@ def delete_world(world_id: int, connection=Depends(get_db), current_user: int = 
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 # World_rules
 @app.post("/worlds/{world_id}/world_rules", status_code=status.HTTP_201_CREATED)
-def create_rule(world_id: int, rule: schemas.CreateRule, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def create_rule(
+    world_id: int,
+    rule: schemas.CreateRule,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         new_rule = db.create_rule(
             connection,
@@ -247,14 +317,24 @@ def create_rule(world_id: int, rule: schemas.CreateRule, connection=Depends(get_
         return new_rule
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.get("/worlds/{world_id}/world_rules")
-def get_all_rules(world_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def get_all_rules(
+    world_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         all_rules = db.get_all_rules(connection, world_id)
         return all_rules
@@ -263,11 +343,17 @@ def get_all_rules(world_id: int, connection=Depends(get_db), current_user: int =
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.patch("/world_rules/{rule_id}")
-def update_rule(rule_id: int, rule: schemas.UpdateRule, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def update_rule(
+    rule_id: int,
+    rule: schemas.UpdateRule,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         updated_rule = db.update_rule(
             connection,
@@ -281,14 +367,24 @@ def update_rule(rule_id: int, rule: schemas.UpdateRule, connection=Depends(get_d
         return updated_rule
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.delete("/world_rules/{rule_id}")
-def delete_rule(rule_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def delete_rule(
+    rule_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         deleted_rule = db.delete_rule(connection, rule_id)
         if not deleted_rule:
@@ -301,12 +397,18 @@ def delete_rule(rule_id: int, connection=Depends(get_db), current_user: int = De
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 # Characters
 @app.post("/worlds/{world_id}/characters", status_code=status.HTTP_201_CREATED)
-def create_character(world_id: int, character: schemas.CreateCharacter, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def create_character(
+    world_id: int,
+    character: schemas.CreateCharacter,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         new_character = db.create_character(
             connection,
@@ -314,6 +416,7 @@ def create_character(world_id: int, character: schemas.CreateCharacter, connecti
             character.character_name,
             character.character_description,
             character.birth_year,
+            character.death_year,
             character.is_alive,
             character.image_url,
             character.image_id,
@@ -323,14 +426,24 @@ def create_character(world_id: int, character: schemas.CreateCharacter, connecti
         return new_character
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.get("/worlds/{world_id}/characters")
-def get_all_characters(world_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def get_all_characters(
+    world_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         all_characters = db.get_all_characters(connection, world_id)
         return all_characters
@@ -339,11 +452,16 @@ def get_all_characters(world_id: int, connection=Depends(get_db), current_user: 
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.get("/characters/{character_id}")
-def get_character_by_id(character_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def get_character_by_id(
+    character_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         character = db.get_character_by_id(connection, character_id)
         if not character:
@@ -356,11 +474,17 @@ def get_character_by_id(character_id: int, connection=Depends(get_db), current_u
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.patch("/characters/{character_id}")
-def update_character(character_id: int, character: schemas.UpdateCharacter, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def update_character(
+    character_id: int,
+    character: schemas.UpdateCharacter,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         updated_character = db.update_character(
             connection,
@@ -368,6 +492,7 @@ def update_character(character_id: int, character: schemas.UpdateCharacter, conn
             character.character_name,
             character.character_description,
             character.birth_year,
+            character.death_year,
             character.is_alive,
             character.image_url,
             character.image_id,
@@ -381,14 +506,24 @@ def update_character(character_id: int, character: schemas.UpdateCharacter, conn
         return updated_character
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.delete("/characters/{character_id}")
-def delete_character(character_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def delete_character(
+    character_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         deleted_character = db.delete_character(connection, character_id)
         if not deleted_character:
@@ -401,12 +536,20 @@ def delete_character(character_id: int, connection=Depends(get_db), current_user
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 # Relationships
-@app.post("/characters/{character_id}/relationships", status_code=status.HTTP_201_CREATED)
-def create_relationship(character_id: int, relationship: schemas.CreateRelationship, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+@app.post(
+    "/characters/{character_id}/relationships", status_code=status.HTTP_201_CREATED
+)
+def create_relationship(
+    character_id: int,
+    relationship: schemas.CreateRelationship,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         new_relationship = db.create_relationship(
             connection,
@@ -417,14 +560,24 @@ def create_relationship(character_id: int, relationship: schemas.CreateRelations
         return new_relationship
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.get("/characters/{character_id}/relationships")
-def get_relationships_for_character(character_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def get_relationships_for_character(
+    character_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         relationships = db.get_relationships_for_character(connection, character_id)
         return relationships
@@ -433,11 +586,17 @@ def get_relationships_for_character(character_id: int, connection=Depends(get_db
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.patch("/relationships/{relationship_id}")
-def update_relationship(relationship_id: int, relationship: schemas.UpdateRelationship, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def update_relationship(
+    relationship_id: int,
+    relationship: schemas.UpdateRelationship,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         updated_relationship = db.update_relationship(
             connection,
@@ -453,14 +612,24 @@ def update_relationship(relationship_id: int, relationship: schemas.UpdateRelati
         return updated_relationship
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.delete("/relationships/{relationship_id}")
-def delete_relationship(relationship_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def delete_relationship(
+    relationship_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         deleted_relationship = db.delete_relationship(connection, relationship_id)
         if not deleted_relationship:
@@ -473,12 +642,18 @@ def delete_relationship(relationship_id: int, connection=Depends(get_db), curren
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 # Events
 @app.post("/worlds/{world_id}/events", status_code=status.HTTP_201_CREATED)
-def create_event(world_id: int, event: schemas.CreateEvent, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def create_event(
+    world_id: int,
+    event: schemas.CreateEvent,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         new_event = db.create_event(
             connection,
@@ -491,14 +666,24 @@ def create_event(world_id: int, event: schemas.CreateEvent, connection=Depends(g
         return new_event
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.get("/worlds/{world_id}/events")
-def get_all_events(world_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def get_all_events(
+    world_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         all_events = db.get_all_events(connection, world_id)
         return all_events
@@ -507,11 +692,16 @@ def get_all_events(world_id: int, connection=Depends(get_db), current_user: int 
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.get("/events/{event_id}")
-def get_event_by_id(event_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def get_event_by_id(
+    event_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         event = db.get_event_by_id(connection, event_id)
         if not event:
@@ -524,11 +714,17 @@ def get_event_by_id(event_id: int, connection=Depends(get_db), current_user: int
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.patch("/events/{event_id}")
-def update_event(event_id: int, event: schemas.UpdateEvent, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def update_event(
+    event_id: int,
+    event: schemas.UpdateEvent,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         updated_event = db.update_event(
             connection,
@@ -545,14 +741,24 @@ def update_event(event_id: int, event: schemas.UpdateEvent, connection=Depends(g
         return updated_event
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.delete("/events/{event_id}")
-def delete_event(event_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def delete_event(
+    event_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         deleted_event = db.delete_event(connection, event_id)
         if not deleted_event:
@@ -565,25 +771,44 @@ def delete_event(event_id: int, connection=Depends(get_db), current_user: int = 
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 # Character_events
-@app.post("/events/{event_id}/characters/{character_id}", status_code=status.HTTP_201_CREATED)
-def add_character_to_event(event_id: int, character_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+@app.post(
+    "/events/{event_id}/characters/{character_id}", status_code=status.HTTP_201_CREATED
+)
+def add_character_to_event(
+    event_id: int,
+    character_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         added_to_event = db.add_character_to_event(connection, event_id, character_id)
         return added_to_event
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.delete("/events/{event_id}/characters/{character_id}")
-def remove_character_from_event(event_id: int, character_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def remove_character_from_event(
+    event_id: int,
+    character_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         removed_from_event = db.remove_character_from_event(
             connection, event_id, character_id
@@ -599,11 +824,16 @@ def remove_character_from_event(event_id: int, character_id: int, connection=Dep
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.get("/events/{event_id}/characters")
-def get_all_characters_for_event(event_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def get_all_characters_for_event(
+    event_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         characters = db.get_all_characters_for_event(connection, event_id)
         return characters
@@ -612,11 +842,16 @@ def get_all_characters_for_event(event_id: int, connection=Depends(get_db), curr
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.get("/characters/{character_id}/events")
-def get_all_events_for_one_character(character_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def get_all_events_for_one_character(
+    character_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         events = db.get_all_events_for_one_character(connection, character_id)
         return events
@@ -625,12 +860,18 @@ def get_all_events_for_one_character(character_id: int, connection=Depends(get_d
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 # Maps
 @app.post("/worlds/{world_id}/maps", status_code=status.HTTP_201_CREATED)
-def create_map(world_id: int, map_input: schemas.CreateMap, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def create_map(
+    world_id: int,
+    map_input: schemas.CreateMap,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         new_map = db.create_map(
             connection,
@@ -643,14 +884,24 @@ def create_map(world_id: int, map_input: schemas.CreateMap, connection=Depends(g
         return new_map
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.get("/worlds/{world_id}/maps")
-def get_all_maps_for_one_world(world_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def get_all_maps_for_one_world(
+    world_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         all_maps = db.get_all_maps_for_one_world(connection, world_id)
         return all_maps
@@ -659,11 +910,16 @@ def get_all_maps_for_one_world(world_id: int, connection=Depends(get_db), curren
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.get("/maps/{map_id}")
-def get_map_by_id(map_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def get_map_by_id(
+    map_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         map_by_id = db.get_map_by_id(connection, map_id)
         if not map_by_id:
@@ -676,11 +932,17 @@ def get_map_by_id(map_id: int, connection=Depends(get_db), current_user: int = D
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.patch("/maps/{map_id}")
-def update_map(map_id: int, map_input: schemas.UpdateMap, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def update_map(
+    map_id: int,
+    map_input: schemas.UpdateMap,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         updated_map = db.update_map(
             connection,
@@ -697,14 +959,24 @@ def update_map(map_id: int, map_input: schemas.UpdateMap, connection=Depends(get
         return updated_map
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
 @app.delete("/maps/{map_id}")
-def delete_map(map_id: int, connection=Depends(get_db), current_user: int = Depends(get_current_user)):
+def delete_map(
+    map_id: int,
+    connection=Depends(get_db),
+    current_user: int = Depends(get_current_user),
+):
     try:
         deleted_map = db.delete_map(connection, map_id)
         if not deleted_map:
@@ -717,10 +989,11 @@ def delete_map(map_id: int, connection=Depends(get_db), current_user: int = Depe
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )
 
 
-# Locations - skapa plats
+# Locations
 @app.post("/locations", status_code=status.HTTP_201_CREATED)
 def create_location(
     location: schemas.CreateLocation,
@@ -731,14 +1004,20 @@ def create_location(
         new_location = db.create_location(
             connection,
             location.location_name,
-            location.location_description,
             location.world_id,
             location.map_id,
             location.location_type,
+            location.location_description,
+            location.image_url,
         )
         return new_location
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -746,7 +1025,6 @@ def create_location(
         )
 
 
-# Locations - hämta alla platser
 @app.get("/worlds/{world_id}/locations")
 def get_all_locations(
     world_id: int,
@@ -758,6 +1036,11 @@ def get_all_locations(
         return all_locations
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -765,7 +1048,6 @@ def get_all_locations(
         )
 
 
-# Locations - hämta specifik plats med id
 @app.get("/locations/{location_id}")
 def get_location_by_id(
     location_id: int,
@@ -788,7 +1070,6 @@ def get_location_by_id(
         )
 
 
-# Locations - uppdatera plats
 @app.patch("/locations/{location_id}")
 def update_location(
     location_id: int,
@@ -804,6 +1085,7 @@ def update_location(
             location.location_description,
             location.location_type,
             location.map_id,
+            location.image_url,
         )
         if not updated_location:
             raise HTTPException(
@@ -812,6 +1094,11 @@ def update_location(
         return updated_location
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -819,7 +1106,6 @@ def update_location(
         )
 
 
-# Locations - radera en location
 @app.delete("/locations/{location_id}")
 def delete_location(
     location_id: int,
@@ -842,10 +1128,7 @@ def delete_location(
         )
 
 
-# -----------ITEMS - SONIA--------
-
-
-# Items - Skapa föremål
+# Items
 @app.post("/items", status_code=status.HTTP_201_CREATED)
 def create_item(
     item: schemas.CreateItem,
@@ -854,11 +1137,20 @@ def create_item(
 ):
     try:
         new_item = db.create_item(
-            connection, item.item_name, item.item_description, item.world_id
+            connection,
+            item.item_name,
+            item.world_id,
+            item.item_description,
+            item.image_url,
         )
         return new_item
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -866,7 +1158,6 @@ def create_item(
         )
 
 
-# Items - Hämta alla föremål
 @app.get("/worlds/{world_id}/items")
 def get_all_items(
     world_id: int,
@@ -885,7 +1176,6 @@ def get_all_items(
         )
 
 
-# Items - Hämta specifikt föremål med id
 @app.get("/items/{item_id}")
 def get_item_by_id(
     item_id: int,
@@ -908,7 +1198,6 @@ def get_item_by_id(
         )
 
 
-# Items - Uppdatera föremål
 @app.patch("/items/{item_id}")
 def update_item(
     item_id: int,
@@ -918,7 +1207,7 @@ def update_item(
 ):
     try:
         updated_item = db.update_item(
-            connection, item_id, item.item_name, item.item_description
+            connection, item_id, item.item_name, item.item_description, item.image_url
         )
         if not updated_item:
             raise HTTPException(
@@ -927,6 +1216,11 @@ def update_item(
         return updated_item
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -934,7 +1228,6 @@ def update_item(
         )
 
 
-# Items - Radera föremål
 @app.delete("/items/{item_id}")
 def delete_item(
     item_id: int,
@@ -957,10 +1250,7 @@ def delete_item(
         )
 
 
-# ----------- SPECIES - SONIA -------
-
-
-# Species - Skapa varelse
+# Species
 @app.post("/species", status_code=status.HTTP_201_CREATED)
 def create_species(
     species: schemas.CreateSpecies,
@@ -971,12 +1261,18 @@ def create_species(
         new_species = db.create_species(
             connection,
             species.species_name,
-            species.species_description,
             species.world_id,
+            species.species_description,
+            species.image_url,
         )
         return new_species
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -984,7 +1280,6 @@ def create_species(
         )
 
 
-# Species - Hämta alla varelser
 @app.get("/worlds/{world_id}/species")
 def get_all_species(
     world_id: int,
@@ -1003,7 +1298,6 @@ def get_all_species(
         )
 
 
-# Species - Hämta specifikt varelse med id
 @app.get("/species/{species_id}")
 def get_species_by_id(
     species_id: int,
@@ -1026,7 +1320,6 @@ def get_species_by_id(
         )
 
 
-# Species - Uppdatera varelse
 @app.patch("/species/{species_id}")
 def update_species(
     species_id: int,
@@ -1036,7 +1329,11 @@ def update_species(
 ):
     try:
         updated_species = db.update_species(
-            connection, species_id, species.species_name, species.species_description
+            connection,
+            species_id,
+            species.species_name,
+            species.species_description,
+            species.image_url,
         )
         if not updated_species:
             raise HTTPException(
@@ -1045,6 +1342,11 @@ def update_species(
         return updated_species
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1052,7 +1354,6 @@ def update_species(
         )
 
 
-# Species - Radera varelse
 @app.delete("/species/{species_id}")
 def delete_species(
     species_id: int,
@@ -1075,10 +1376,7 @@ def delete_species(
         )
 
 
-#   ------ NOTES - SONIA ---------
-
-
-# Notes - Skapa anteckning
+# Notes
 @app.post("/notes", status_code=status.HTTP_201_CREATED)
 def create_note(
     note: schemas.CreateNote,
@@ -1086,13 +1384,17 @@ def create_note(
     current_user: int = Depends(get_current_user),
 ):
     try:
-        # Använd current_user från session istället för note.user_id
         new_note = db.create_note(
             connection, note.note_name, note.note_text, current_user
         )
         return new_note
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1100,7 +1402,6 @@ def create_note(
         )
 
 
-# Notes - Hämta alla anteckningar
 @app.get("/users/{user_id}/notes")
 def get_all_notes(
     user_id: int,
@@ -1108,7 +1409,6 @@ def get_all_notes(
     current_user: int = Depends(get_current_user),
 ):
     try:
-        # Säkerhet, användare kan bara se sina egna notes
         if user_id != current_user:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -1126,7 +1426,6 @@ def get_all_notes(
         )
 
 
-# Notes - Hämta specifik anteckning med id
 @app.get("/notes/{notes_id}")
 def get_note_by_id(
     notes_id: int,
@@ -1140,7 +1439,6 @@ def get_note_by_id(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Note not found"
             )
 
-        # Säk, användare kan bara se sina egna notes
         if note["user_id"] != current_user:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -1157,7 +1455,6 @@ def get_note_by_id(
         )
 
 
-# Notes - Uppdatera anteckningar
 @app.patch("/notes/{notes_id}")
 def update_note(
     notes_id: int,
@@ -1166,7 +1463,6 @@ def update_note(
     current_user: int = Depends(get_current_user),
 ):
     try:
-        # Kollar att note tillhör användaren
         existing_note = db.get_note_by_id(connection, notes_id)
         if not existing_note:
             raise HTTPException(
@@ -1185,6 +1481,11 @@ def update_note(
         return updated_note
     except HTTPException:
         raise
+    except errors.NotNullViolation:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Required fields cannot be empty",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1192,7 +1493,6 @@ def update_note(
         )
 
 
-# Notes - Radera anteckning
 @app.delete("/notes/{notes_id}")
 def delete_note(
     notes_id: int,
@@ -1200,7 +1500,6 @@ def delete_note(
     current_user: int = Depends(get_current_user),
 ):
     try:
-        # Kollar att note tillhör användaren
         existing_note = db.get_note_by_id(connection, notes_id)
         if not existing_note:
             raise HTTPException(
@@ -1224,11 +1523,7 @@ def delete_note(
         )
 
 
-# -------- JUNCTION TABLES - SONIA ---------
-
-
-# ------Wordl-Items junction------
-# World-Items junction - Koppla item till en värld
+# World_items
 @app.post("/worlds/{world_id}/items/{item_id}", status_code=status.HTTP_201_CREATED)
 def add_item_to_world(
     world_id: int,
@@ -1256,7 +1551,6 @@ def add_item_to_world(
         )
 
 
-# World-Items junction - Ta bort kopplingen
 @app.delete("/worlds/{world_id}/items/{item_id}")
 def remove_item_from_world(
     world_id: int,
@@ -1284,7 +1578,6 @@ def remove_item_from_world(
         )
 
 
-# World-Items junction - Hämta alla items för en värld (använder annan route)
 @app.get("/worlds/{world_id}/items/all")
 def get_world_items(
     world_id: int,
@@ -1303,8 +1596,7 @@ def get_world_items(
         )
 
 
-# --------World-species Junction----------
-# World-Species junction - Koppla species till värld
+# World_species
 @app.post(
     "/worlds/{world_id}/species/{species_id}", status_code=status.HTTP_201_CREATED
 )
@@ -1334,7 +1626,6 @@ def add_species_to_world(
         )
 
 
-# World-Species junction - Ta bort koppling
 @app.delete("/worlds/{world_id}/species/{species_id}")
 def remove_species_from_world(
     world_id: int,
@@ -1362,7 +1653,6 @@ def remove_species_from_world(
         )
 
 
-# World-Species junction - Hämta alla species för en värld (använder annan route)
 @app.get("/worlds/{world_id}/species/all")
 def get_world_species(
     world_id: int,
@@ -1381,12 +1671,34 @@ def get_world_species(
         )
 
 
+# Consistency check
 @app.post("/worlds/{world_id}/consistency-check", status_code=status.HTTP_200_OK)
 def consistency_check(world_id: int, connection=Depends(get_db)):
     try:
         result = consistency.run_consistency_check(world_id, connection)
         return result
+    except anthropic.AuthenticationError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing Anthropic API key",
+        )
+    except anthropic.APIConnectionError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Could not connect to Anthropic API",
+        )
+    except anthropic.InternalServerError:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Anthropic API internal error",
+        )
+    except anthropic.RateLimitError:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Anthropic rate limit reached, try again later",
+        )
     except Exception as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Something went wrong: {error}")
+            detail=f"Something went wrong: {error}",
+        )

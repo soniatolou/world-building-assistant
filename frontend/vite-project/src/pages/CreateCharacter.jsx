@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { createCharacter } from "../api/characters";
+import { getSpecies } from "../api/species";
 import WorldSidebar from "../components/WorldSidebar";
 import Navbar from "../components/Navbar";
 
@@ -11,19 +12,47 @@ export default function CreateCharacter() {
     character_name: "",
     character_description: "",
     birth_year: "",
+    death_year: "",
     is_alive: true,
     image_url: "",
+    species_id: "",
   });
+  const [speciesList, setSpeciesList] = useState([]);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    async function fetchSpecies() {
+      try {
+        const data = await getSpecies(worldId);
+        if (Array.isArray(data)) setSpeciesList(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchSpecies();
+  }, [worldId]);
 
   function handleChange(e) {
     const value =
       e.target.type === "checkbox" ? e.target.checked : e.target.value;
     setFormData({ ...formData, [e.target.name]: value });
+    setErrorMsg("");
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await createCharacter(worldId, formData);
+    setSubmitted(true);
+    if (!formData.character_name.trim()) {
+      setErrorMsg("Please fill in all the required fields");
+      return;
+    }
+    const payload = {
+      ...formData,
+      death_year: formData.is_alive ? null : (formData.death_year || null),
+      species_id: formData.species_id === "" ? null : Number(formData.species_id),
+    };
+    await createCharacter(worldId, payload);
     navigate(`/worlds/${worldId}/characters`);
   }
 
@@ -54,22 +83,22 @@ export default function CreateCharacter() {
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
               <label className="text-white/70 text-xs tracking-widest uppercase">
-                Name
+                Name <span className="text-white/30">(required)</span>
               </label>
               <input
                 type="text"
                 name="character_name"
                 value={formData.character_name}
                 onChange={handleChange}
-                className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                className={`bg-white/10 border rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 ${submitted && !formData.character_name.trim() ? "border-red-500/60" : "border-white/20"}`}
                 placeholder="Character name"
-                style={{ fontFamily: "sans-serif" }}
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
               />
             </div>
 
             <div className="flex flex-col gap-2">
               <label className="text-white/70 text-xs tracking-widest uppercase">
-                Description
+                Description <span className="text-white/30">(optional)</span>
               </label>
               <textarea
                 name="character_description"
@@ -78,13 +107,13 @@ export default function CreateCharacter() {
                 rows={4}
                 className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 resize-none"
                 placeholder="Describe this character"
-                style={{ fontFamily: "sans-serif" }}
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
               />
             </div>
 
             <div className="flex flex-col gap-2">
               <label className="text-white/70 text-xs tracking-widest uppercase">
-                Birth Year
+                Birth Year <span className="text-white/30">(optional)</span>
               </label>
               <input
                 type="text"
@@ -93,7 +122,7 @@ export default function CreateCharacter() {
                 onChange={handleChange}
                 className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
                 placeholder="e.g. 1205"
-                style={{ fontFamily: "sans-serif" }}
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
               />
             </div>
 
@@ -108,9 +137,29 @@ export default function CreateCharacter() {
                 onChange={handleChange}
                 className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
                 placeholder="https://..."
-                style={{ fontFamily: "sans-serif" }}
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
               />
             </div>
+
+            {speciesList.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <label className="text-white/70 text-xs tracking-widest uppercase">
+                  Species <span className="text-white/30">(optional)</span>
+                </label>
+                <select
+                  name="species_id"
+                  value={formData.species_id}
+                  onChange={handleChange}
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white focus:outline-none focus:border-purple-500/50"
+                  style={{ fontFamily: "'Cinzel', serif" }}
+                >
+                  <option value="" style={{ backgroundColor: 'white', color: 'black' }}>No species</option>
+                  {speciesList.map((s) => (
+                    <option key={s.species_id} value={s.species_id} style={{ backgroundColor: 'white', color: 'black' }}>{s.species_name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div className="flex items-center gap-3">
               <input
@@ -128,6 +177,26 @@ export default function CreateCharacter() {
                 Alive
               </label>
             </div>
+
+            {errorMsg && (
+              <p className="text-red-400 text-sm">{errorMsg}</p>
+            )}
+            {!formData.is_alive && (
+              <div className="flex flex-col gap-2">
+                <label className="text-white/70 text-xs tracking-widest uppercase">
+                  Death Year <span className="text-white/30">(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  name="death_year"
+                  value={formData.death_year}
+                  onChange={handleChange}
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                  placeholder="e.g. 1289"
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                />
+              </div>
+            )}
 
             <div className="flex gap-3 mt-2">
               <button
