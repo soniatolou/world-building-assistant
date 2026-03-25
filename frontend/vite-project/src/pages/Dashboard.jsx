@@ -50,26 +50,54 @@ export default function Dashboard() {
                         </div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {worlds.map((world) => (
                             <div
                                 key={world.world_id}
                                 onClick={() => navigate(`/worlds/${world.world_id}`)}
-                                className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-6 hover:bg-white/20 transition-all cursor-pointer"
+                                className="cursor-pointer group transition-all duration-300"
+                                style={{
+                                    borderRadius: "14px",
+                                    border: "2px solid rgba(148,163,184,0.45)",
+                                    boxShadow: "0 4px 24px rgba(0,0,0,0.6)",
+                                    background: "rgba(13,15,30,0.9)",
+                                    overflow: "hidden",
+                                }}
+                                onMouseEnter={e => {
+                                    e.currentTarget.style.border = "2px solid rgba(168,85,247,0.8)"
+                                    e.currentTarget.style.boxShadow = "0 0 20px rgba(168,85,247,0.35), 0 4px 24px rgba(0,0,0,0.6)"
+                                }}
+                                onMouseLeave={e => {
+                                    e.currentTarget.style.border = "2px solid rgba(148,163,184,0.45)"
+                                    e.currentTarget.style.boxShadow = "0 4px 24px rgba(0,0,0,0.6)"
+                                }}
                             >
-                                {world.image_url && (
-                                    <img
-                                        src={world.image_url}
-                                        alt={world.world_name}
-                                        className="w-full h-48 object-cover rounded-md mb-4"
-                                    />
-                                )}
-                                <h2 className="text-2xl font-bold text-white mb-2">
-                                    {world.world_name}
-                                </h2>
-                                <p className="text-white/80 line-clamp-3" style={{ fontFamily: "'Cinzel', serif" }}>
-                                    {world.world_description}
-                                </p>
+                                <div className="aspect-square w-full shrink-0 overflow-hidden">
+                                    {world.image_url ? (
+                                        <img
+                                            src={world.image_url}
+                                            alt={world.world_name}
+                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-white/5 flex items-center justify-center">
+                                            <span className="text-white/20 text-4xl">✦</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="p-4 flex flex-col gap-2">
+                                    <h2
+                                        className="text-base text-white leading-snug"
+                                        style={{ fontFamily: "'Cinzel', serif", fontVariant: "small-caps" }}
+                                    >
+                                        {world.world_name}
+                                    </h2>
+                                    {world.world_description && (
+                                        <p className="text-white/50 text-xs line-clamp-3 leading-relaxed" style={{ fontFamily: "sans-serif" }}>
+                                            {world.world_description}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>
