@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="62 34 76 44" fill="none">
+  <!-- Large 4-pointed star (center top) -->
+  <path d="M100 40 L103.5 53 L117 56 L103.5 59 L100 72 L96.5 59 L83 56 L96.5 53 Z"
+        fill="white"/>
+
+  <!-- Small 4-pointed star (left) -->
+  <path d="M76 55 L77.8 61 L84 62.5 L77.8 64 L76 70 L74.2 64 L68 62.5 L74.2 61 Z"
+        fill="white"/>
+
+  <!-- Small 4-pointed star (right) -->
+  <path d="M124 55 L125.8 61 L132 62.5 L125.8 64 L124 70 L122.2 64 L116 62.5 L122.2 61 Z"
+        fill="white"/>
+</svg>

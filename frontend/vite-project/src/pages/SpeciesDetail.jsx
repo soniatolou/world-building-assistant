@@ -88,9 +88,13 @@ export default function SpeciesDetail() {
 
                             {/* Content */}
                             <div className="flex flex-col gap-8 p-10 max-w-2xl">
-                                {species.image_url && (
+                                {species.image_url ? (
                                     <div className="rounded-lg overflow-hidden border border-white/10">
                                         <img src={species.image_url} alt={species.species_name} className="w-full object-cover max-h-[400px]" />
+                                    </div>
+                                ) : (
+                                    <div className="rounded-lg border border-white/10 bg-white/5 flex items-center justify-center" style={{ minHeight: "200px" }}>
+                                        <img src="/logo.svg" alt="logo" style={{ width: "80px", opacity: 0.55 }} />
                                     </div>
                                 )}
                                 <h1 className="text-4xl font-bold text-white uppercase tracking-wide">

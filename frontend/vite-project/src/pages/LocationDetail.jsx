@@ -116,9 +116,13 @@ export default function LocationDetail() {
 
                             {/* Main content */}
                             <div className="flex flex-col gap-8 p-10 max-w-2xl">
-                                {location.image_url && (
+                                {location.image_url ? (
                                     <div className="rounded-lg overflow-hidden border border-white/10">
                                         <img src={location.image_url} alt={location.location_name} className="w-full object-cover max-h-[400px]" />
+                                    </div>
+                                ) : (
+                                    <div className="rounded-lg border border-white/10 bg-white/5 flex items-center justify-center" style={{ minHeight: "200px" }}>
+                                        <img src="/logo.svg" alt="logo" style={{ width: "80px", opacity: 0.55 }} />
                                     </div>
                                 )}
                                 <div>

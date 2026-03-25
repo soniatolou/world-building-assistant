@@ -87,12 +87,16 @@ export default function SpeciesPage() {
                                     onClick={() => navigate(`/worlds/${worldId}/species/${s.species_id}`)}
                                     className="bg-white/5 border border-white/10 rounded-lg overflow-hidden hover:border-purple-500/40 hover:bg-white/10 transition-all cursor-pointer group"
                                 >
-                                    {s.image_url && (
+                                    {s.image_url ? (
                                         <img
                                             src={s.image_url}
                                             alt={s.species_name}
                                             className="w-full h-48 object-cover"
                                         />
+                                    ) : (
+                                        <div className="w-full h-48 bg-white/5 flex items-center justify-center">
+                                            <img src="/logo.svg" alt="logo" style={{ width: "56px", opacity: 0.55 }} />
+                                        </div>
                                     )}
                                     <div className="p-6">
                                         <h2 className="text-lg font-bold text-white mb-2 group-hover:text-purple-300 transition-colors tracking-wide">

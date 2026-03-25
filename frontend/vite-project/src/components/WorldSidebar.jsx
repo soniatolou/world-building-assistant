@@ -45,7 +45,7 @@ export default function WorldSidebar({ worldId, worldName: worldNameProp }) {
             style={{ fontFamily: "'Cinzel', serif" }}
         >
             <p className="text-purple-400 text-xs tracking-widest uppercase mb-1">
-                World-Building Assistant
+                Credea
             </p>
             {worldName && (
                 <p className="text-white/50 text-xs mb-8 truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>{worldName}</p>

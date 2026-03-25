@@ -113,12 +113,16 @@ export default function Locations() {
                                     onClick={() => navigate(`/worlds/${worldId}/locations/${loc.location_id}`)}
                                     className="bg-white/5 border border-white/10 rounded-lg overflow-hidden hover:border-purple-500/40 hover:bg-white/10 transition-all cursor-pointer group"
                                 >
-                                    {loc.image_url && (
+                                    {loc.image_url ? (
                                         <img
                                             src={loc.image_url}
                                             alt={loc.location_name}
                                             className="w-full h-48 object-cover"
                                         />
+                                    ) : (
+                                        <div className="w-full h-48 bg-white/5 flex items-center justify-center">
+                                            <img src="/logo.svg" alt="logo" style={{ width: "56px", opacity: 0.55 }} />
+                                        </div>
                                     )}
                                     <div className="p-6">
                                         {loc.location_type && (

@@ -14,7 +14,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 
         <div className="relative z-10 flex flex-col items-center gap-8 px-4 text-center">
             <div className="flex flex-col items-center gap-3">
-            <h1 className="text-5xl font-bold text-white">World-Building Assistant</h1>
+            <h1 className="text-5xl font-bold text-white" style={{ fontFamily: "'Cinzel', serif" }}>Credea</h1>
             <p className="text-xl font-light text-white">The intelligent backbone of your universe</p>
             </div>
             <div className="flex gap-4">

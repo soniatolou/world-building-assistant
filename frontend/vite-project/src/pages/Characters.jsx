@@ -77,7 +77,9 @@ export default function Characters() {
                     className="w-full h-48 object-cover object-top"
                   />
                 ) : (
-                  <div className="w-full h-48 bg-white/5" />
+                  <div className="w-full h-48 bg-white/5 flex items-center justify-center">
+                    <img src="/logo.svg" alt="logo" style={{ width: "56px", opacity: 0.55 }} />
+                  </div>
                 )}
                 <div className="p-5">
                   <h2 className="text-lg font-bold text-white mb-1 group-hover:text-purple-300 transition-colors">

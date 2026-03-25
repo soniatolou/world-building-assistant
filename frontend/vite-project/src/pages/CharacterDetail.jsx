@@ -179,22 +179,16 @@ export default function CharacterDetail() {
                     />
                   ) : (
                     <div
-                      className="w-full bg-white/5"
+                      className="w-full bg-white/5 flex items-center justify-center"
                       style={{ minHeight: "420px" }}
-                    />
+                    >
+                      <img src="/logo.svg" alt="logo" style={{ width: "90px", opacity: 0.55 }} />
+                    </div>
                   )}
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6">
                     <h2 className="text-2xl font-bold text-white uppercase tracking-wide">
                       {character.character_name}
                     </h2>
-                    <p className="text-purple-400 text-xs tracking-widest uppercase mt-1">
-                      {character.is_alive ? "Alive" : "Deceased"}
-                      {character.birth_year &&
-                        ` · Born ${character.birth_year}`}
-                      {!character.is_alive &&
-                        character.death_year &&
-                        ` · Died ${character.death_year}`}
-                    </p>
                   </div>
                 </div>
 
@@ -285,104 +279,80 @@ export default function CharacterDetail() {
                     </div>
                   )}
 
-                  <div className="bg-white/5 border border-white/10 rounded-lg p-5 w-1/2">
-                    <p className="text-white/30 text-xs tracking-widest uppercase mb-3">
-                      Biography
-                    </p>
-                    <p
-                      className="text-white/70 leading-relaxed text-sm"
-                      style={{
-                        fontFamily: "'Montserrat', sans-serif",
-                        whiteSpace: "pre-wrap",
-                      }}
-                    >
-                      {character.character_description}
-                    </p>
-                  </div>
-
-                  {relationships.length > 0 && (
-                    <div>
-                      <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-4 border-b border-white/10 pb-2">
-                        Relationships
-                      </h3>
-                      <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden w-full">
-                        {relationships.map((rel) => {
-                          const isA =
-                            rel.character_a_id === parseInt(characterId);
-                          const otherId = isA
-                            ? rel.character_b_id
-                            : rel.character_a_id;
-                          const otherName = isA
-                            ? rel.character_b_name
-                            : rel.character_a_name;
-                          return (
-                            <div
-                              key={rel.relationship_id}
-                              className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-all"
-                            >
-                              <span className="text-purple-400 text-xs tracking-widest uppercase border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 rounded shrink-0">
-                                {rel.relationship_type}
-                              </span>
-                              <span className="text-white/30 text-xs">→</span>
-                              <button
-                                onClick={() =>
-                                  navigate(
-                                    `/worlds/${worldId}/characters/${otherId}`,
-                                  )
-                                }
-                                className="text-white/80 hover:text-purple-300 text-sm tracking-wide transition-colors text-left"
-                                style={{ fontFamily: "'Cinzel', serif" }}
-                              >
-                                {otherName}
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
+                  {/* Biography + Relationships/Events side by side */}
+                  <div className="flex gap-6 flex-1">
+                    {/* Biography */}
+                    <div className="w-1/2 bg-white/5 border border-white/10 rounded-lg p-5">
+                      <p className="text-white/30 text-xs tracking-widest uppercase mb-3">
+                        Biography
+                      </p>
+                      <p
+                        className="text-white/70 leading-relaxed text-sm"
+                        style={{ fontFamily: "'Montserrat', sans-serif", whiteSpace: "pre-wrap" }}
+                      >
+                        {character.character_description}
+                      </p>
                     </div>
-                  )}
 
-                  {characterEvents.length > 0 && (
-                    <div>
-                      <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-4 border-b border-white/10 pb-2">
-                        Events
-                      </h3>
-                      <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden w-full">
-                        {characterEvents.map((event) => (
-                          <div
-                            key={event.event_id}
-                            className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-all"
-                          >
-                            <button
-                              onClick={() =>
-                                navigate(
-                                  `/worlds/${worldId}/events/${event.event_id}`,
-                                )
-                              }
-                              className="text-white/80 hover:text-purple-300 text-sm tracking-wide transition-colors text-left"
-                              style={{ fontFamily: "'Cinzel', serif" }}
-                            >
-                              {event.event_name}
-                            </button>
-                            {(event.start_year || event.end_year) && (
-                              <span
-                                className="text-white/30 text-xs"
-                                style={{
-                                  fontFamily: "'Montserrat', sans-serif",
-                                }}
-                              >
-                                {event.start_year}
-                                {event.end_year &&
-                                event.end_year !== event.start_year
-                                  ? ` – ${event.end_year}`
-                                  : ""}
-                              </span>
-                            )}
+                    {/* Right column: Relationships + Events (only if data exists) */}
+                    <div className="w-1/2 flex flex-col gap-6">
+                      {relationships.length > 0 && (
+                        <div>
+                          <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-4 border-b border-white/10 pb-2">
+                            Relationships
+                          </h3>
+                          <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden">
+                            {relationships.map((rel) => {
+                              const isA = rel.character_a_id === parseInt(characterId);
+                              const otherId = isA ? rel.character_b_id : rel.character_a_id;
+                              const otherName = isA ? rel.character_b_name : rel.character_a_name;
+                              return (
+                                <div key={rel.relationship_id} className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-all">
+                                  <span className="text-purple-400 text-xs tracking-widest uppercase border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 rounded shrink-0">
+                                    {rel.relationship_type}
+                                  </span>
+                                  <span className="text-white/30 text-xs">→</span>
+                                  <button
+                                    onClick={() => navigate(`/worlds/${worldId}/characters/${otherId}`)}
+                                    className="text-white/80 hover:text-purple-300 text-sm tracking-wide transition-colors text-left"
+                                    style={{ fontFamily: "'Cinzel', serif" }}
+                                  >
+                                    {otherName}
+                                  </button>
+                                </div>
+                              );
+                            })}
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      )}
+
+                      {characterEvents.length > 0 && (
+                        <div>
+                          <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-4 border-b border-white/10 pb-2">
+                            Events
+                          </h3>
+                          <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden">
+                            {characterEvents.map((event) => (
+                              <div key={event.event_id} className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-all">
+                                <button
+                                  onClick={() => navigate(`/worlds/${worldId}/events/${event.event_id}`)}
+                                  className="text-white/80 hover:text-purple-300 text-sm tracking-wide transition-colors text-left"
+                                  style={{ fontFamily: "'Cinzel', serif" }}
+                                >
+                                  {event.event_name}
+                                </button>
+                                {(event.start_year || event.end_year) && (
+                                  <span className="text-white/30 text-xs" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                    {event.start_year}{event.end_year && event.end_year !== event.start_year ? ` – ${event.end_year}` : ""}
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </>

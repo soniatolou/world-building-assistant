@@ -207,8 +207,8 @@ export default function WorldDetail() {
           {/* Breadcrumb / header bar */}
           <div className="flex items-center justify-between px-10 py-4 border-b border-white/10">
             <div className="flex items-center gap-3">
-              <div className="w-1 h-6 bg-purple-500" />
-              <h1 className="text-xl font-bold text-white tracking-wide uppercase">
+              <div className="w-1 h-8 bg-purple-500" />
+              <h1 className="text-3xl font-bold text-white tracking-widest uppercase">
                 {world?.world_name}
               </h1>
             </div>
@@ -223,23 +223,24 @@ export default function WorldDetail() {
           {world ? (
             <div className="flex gap-8 p-10 flex-1">
               {/* Left: World image + consistency check */}
-              {world.image_url && (
-                <div className="w-72 shrink-0 flex flex-col gap-4">
+              <div className="w-72 shrink-0 flex flex-col gap-4">
                   <div
                     className="relative rounded-lg overflow-hidden"
                     style={{ aspectRatio: "3/4" }}
                   >
-                    <img
-                      src={world.image_url}
-                      alt={world.world_name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-5">
-                      <h2 className="text-white font-bold text-xl uppercase tracking-wide">
-                        {world.world_name}
-                      </h2>
-                    </div>
+                    {world.image_url ? (
+                      <>
+                        <img
+                          src={world.image_url}
+                          alt={world.world_name}
+                          className="w-full h-full object-cover"
+                        />
+                      </>
+                    ) : (
+                      <div className="w-full h-full bg-white/5 border border-white/10 rounded-lg flex items-center justify-center">
+                        <img src="/logo.svg" alt="logo" style={{ width: "72px", opacity: 0.55 }} />
+                      </div>
+                    )}
                   </div>
 
                   <button
@@ -317,19 +318,9 @@ export default function WorldDetail() {
                     </div>
                   )}
                 </div>
-              )}
 
               {/* Right: Content */}
               <div className="flex flex-col gap-8 flex-1">
-                {world.world_description && (
-                  <p
-                    className="text-white/50 text-sm whitespace-pre-wrap"
-                    style={{ fontFamily: "'Montserrat', sans-serif" }}
-                  >
-                    {world.world_description}
-                  </p>
-                )}
-
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {stats.map((stat) => (
                     <div
@@ -487,6 +478,15 @@ export default function WorldDetail() {
                     ))}
                   </div>
                 </div>
+
+                {world.world_description && (
+                  <p
+                    className="text-white/50 text-sm whitespace-pre-wrap"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  >
+                    {world.world_description}
+                  </p>
+                )}
               </div>
             </div>
           ) : (
