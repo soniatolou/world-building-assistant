@@ -42,7 +42,7 @@ export default function CreateEvent() {
 
         <div className="relative z-10 flex flex-col flex-1 p-10">
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-1 h-8 bg-purple-500" />
+            <div className="w-1 h-8 bg-purple-300" />
             <h1 className="text-3xl font-bold text-white tracking-widest uppercase">
               New Event
             </h1>
@@ -59,7 +59,7 @@ export default function CreateEvent() {
                   name="event_name"
                   value={formData.event_name}
                   onChange={handleChange}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50"
                   placeholder="Event name"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
@@ -74,7 +74,7 @@ export default function CreateEvent() {
                   name="start_year"
                   value={formData.start_year}
                   onChange={handleChange}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50"
                   placeholder="e.g. 1200"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
@@ -89,7 +89,7 @@ export default function CreateEvent() {
                   name="end_year"
                   value={formData.end_year}
                   onChange={handleChange}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50"
                   placeholder="e.g. 1205"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
@@ -104,7 +104,7 @@ export default function CreateEvent() {
                   value={formData.event_description}
                   onChange={handleChange}
                   rows={4}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 resize-none"
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50 resize-none"
                   placeholder="Describe this event"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
@@ -114,7 +114,7 @@ export default function CreateEvent() {
                 <button
                   onClick={handleSubmit}
                   disabled={!formData.event_name.trim()}
-                  className="flex-1 py-3 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white rounded-md transition-all tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex-1 py-3 bg-purple-400/40 hover:bg-purple-400/60 border border-purple-300/40 text-white rounded-md transition-all tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Create Event
                 </button>

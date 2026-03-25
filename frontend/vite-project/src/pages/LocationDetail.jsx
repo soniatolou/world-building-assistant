@@ -115,70 +115,77 @@ export default function LocationDetail() {
                             </div>
 
                             {/* Main content */}
-                            <div className="flex flex-col gap-8 p-10 max-w-2xl">
-                                {location.image_url ? (
-                                    <div className="rounded-lg overflow-hidden border border-white/10">
-                                        <img src={location.image_url} alt={location.location_name} className="w-full object-cover max-h-[400px]" />
-                                    </div>
-                                ) : (
-                                    <div className="rounded-lg border border-white/10 bg-white/5 flex items-center justify-center" style={{ minHeight: "200px" }}>
-                                        <img src="/logo.svg" alt="logo" style={{ width: "80px", opacity: 0.55 }} />
-                                    </div>
-                                )}
-                                <div>
-                                    {location.location_type && (
-                                        <p className="text-purple-400 text-xs tracking-widest uppercase mb-3">
-                                            {location.location_type}
-                                        </p>
+                            <div className="flex gap-8 p-10 items-start">
+                                {/* Left: image */}
+                                <div className="w-80 shrink-0">
+                                    {location.image_url ? (
+                                        <div className="rounded-lg overflow-hidden border border-white/10">
+                                            <img src={location.image_url} alt={location.location_name} className="w-full object-cover" />
+                                        </div>
+                                    ) : (
+                                        <div className="rounded-lg border border-white/10 bg-white/5 flex items-center justify-center" style={{ minHeight: "280px" }}>
+                                            <img src="/logo.svg" alt="logo" style={{ width: "80px", opacity: 0.55 }} />
+                                        </div>
                                     )}
-                                    <h1 className="text-4xl font-bold text-white uppercase tracking-wide">
-                                        {location.location_name}
-                                    </h1>
                                 </div>
 
-                                {location.location_description && (
-                                    <div className="bg-white/5 border border-white/10 rounded-lg p-6">
-                                        <p className="text-white/30 text-xs tracking-widest uppercase mb-3">
-                                            Description
-                                        </p>
-                                        <p
-                                            className="text-white/70 leading-relaxed text-sm"
-                                            style={{ fontFamily: "'Montserrat', sans-serif", whiteSpace: "pre-wrap" }}
-                                        >
-                                            {location.location_description}
-                                        </p>
+                                {/* Right: info */}
+                                <div className="flex-1 flex flex-col gap-6">
+                                    <div>
+                                        {location.location_type && (
+                                            <p className="text-purple-400 text-xs tracking-widest uppercase mb-3">
+                                                {location.location_type}
+                                            </p>
+                                        )}
+                                        <h1 className="text-4xl font-bold text-white uppercase tracking-wide">
+                                            {location.location_name}
+                                        </h1>
                                     </div>
-                                )}
 
-                                {location.map_id && maps.length > 0 && (() => {
-                                    const linkedMap = maps.find((m) => m.map_id === location.map_id)
-                                    return linkedMap ? (
-                                        <div>
-                                            <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-3 border-b border-white/10 pb-2">
-                                                Map
-                                            </h3>
-                                            <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden">
-                                                <div
-                                                    onClick={() => navigate(`/worlds/${worldId}/maps/${linkedMap.map_id}`)}
-                                                    className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 cursor-pointer transition-all"
-                                                >
-                                                    <span className="text-white/80 hover:text-purple-300 text-sm tracking-wide transition-colors">
-                                                        {linkedMap.map_name}
-                                                    </span>
-                                                </div>
-                                                {linkedMap.map_url && (
-                                                    <div className="border-t border-white/10">
-                                                        <img
-                                                            src={linkedMap.map_url}
-                                                            alt={linkedMap.map_name}
-                                                            className="w-full object-cover max-h-[300px]"
-                                                        />
-                                                    </div>
-                                                )}
-                                            </div>
+                                    {location.location_description && (
+                                        <div className="bg-white/5 border border-white/10 rounded-lg p-6">
+                                            <p className="text-white/30 text-xs tracking-widest uppercase mb-3">
+                                                Description
+                                            </p>
+                                            <p
+                                                className="text-white/70 leading-relaxed text-sm"
+                                                style={{ fontFamily: "'Montserrat', sans-serif", whiteSpace: "pre-wrap" }}
+                                            >
+                                                {location.location_description}
+                                            </p>
                                         </div>
-                                    ) : null
-                                })()}
+                                    )}
+
+                                    {location.map_id && maps.length > 0 && (() => {
+                                        const linkedMap = maps.find((m) => m.map_id === location.map_id)
+                                        return linkedMap ? (
+                                            <div>
+                                                <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-3 border-b border-white/10 pb-2">
+                                                    Map
+                                                </h3>
+                                                <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden">
+                                                    <div
+                                                        onClick={() => navigate(`/worlds/${worldId}/maps/${linkedMap.map_id}`)}
+                                                        className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 cursor-pointer transition-all"
+                                                    >
+                                                        <span className="text-white/80 hover:text-purple-300 text-sm tracking-wide transition-colors">
+                                                            {linkedMap.map_name}
+                                                        </span>
+                                                    </div>
+                                                    {linkedMap.map_url && (
+                                                        <div className="border-t border-white/10">
+                                                            <img
+                                                                src={linkedMap.map_url}
+                                                                alt={linkedMap.map_name}
+                                                                className="w-full object-cover max-h-[300px]"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ) : null
+                                    })()}
+                                </div>
                             </div>
                         </>
                     ) : (

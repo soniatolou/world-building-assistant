@@ -62,7 +62,7 @@ export default function CreateLocation() {
 
         <div className="relative z-10 flex flex-col flex-1 p-10">
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-1 h-8 bg-purple-500" />
+            <div className="w-1 h-8 bg-purple-300" />
             <h1 className="text-3xl font-bold text-white tracking-widest uppercase">
               New Location
             </h1>
@@ -79,7 +79,7 @@ export default function CreateLocation() {
                   name="location_name"
                   value={formData.location_name}
                   onChange={handleChange}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50"
                   placeholder="Location name"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
@@ -94,7 +94,7 @@ export default function CreateLocation() {
                   name="location_type"
                   value={formData.location_type}
                   onChange={handleChange}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50"
                   placeholder="e.g. City, Forest, Castle..."
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
@@ -108,7 +108,7 @@ export default function CreateLocation() {
                   name="map_id"
                   value={formData.map_id}
                   onChange={handleChange}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white focus:outline-none focus:border-purple-500/50"
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white focus:outline-none focus:border-purple-300/50"
                   style={{ fontFamily: "'Cinzel', serif" }}
                 >
                   <option value="" style={{ backgroundColor: "white", color: "black" }}>No map selected</option>
@@ -129,7 +129,7 @@ export default function CreateLocation() {
                   value={formData.location_description}
                   onChange={handleChange}
                   rows={4}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 resize-none"
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50 resize-none"
                   placeholder="Describe this location"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
@@ -139,7 +139,7 @@ export default function CreateLocation() {
                 <button
                   onClick={handleSubmit}
                   disabled={!formData.location_name.trim() || !formData.location_description.trim()}
-                  className="flex-1 py-3 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white rounded-md transition-all tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex-1 py-3 bg-purple-400/40 hover:bg-purple-400/60 border border-purple-300/40 text-white rounded-md transition-all tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Create Location
                 </button>

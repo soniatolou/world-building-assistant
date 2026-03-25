@@ -47,7 +47,7 @@ export default function CreateMap() {
 
         <div className="relative z-10 flex flex-col flex-1 p-10">
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-1 h-8 bg-purple-500" />
+            <div className="w-1 h-8 bg-purple-300" />
             <h1 className="text-3xl font-bold text-white tracking-widest uppercase">
               New Map
             </h1>
@@ -64,7 +64,7 @@ export default function CreateMap() {
                   name="map_name"
                   value={formData.map_name}
                   onChange={handleChange}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50"
                   placeholder="Map name"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
@@ -79,7 +79,7 @@ export default function CreateMap() {
                   name="map_url"
                   value={formData.map_url}
                   onChange={handleChange}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50"
                   placeholder="https://..."
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
@@ -94,7 +94,7 @@ export default function CreateMap() {
                   value={formData.map_description}
                   onChange={handleChange}
                   rows={4}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 resize-none"
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50 resize-none"
                   placeholder="Describe this map"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
@@ -110,7 +110,7 @@ export default function CreateMap() {
                   name="scale_factor"
                   value={formData.scale_factor}
                   onChange={handleChange}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50"
                   placeholder="e.g. 1.5"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
@@ -120,7 +120,7 @@ export default function CreateMap() {
                 <button
                   onClick={handleSubmit}
                   disabled={!formData.map_name.trim() || !formData.map_url.trim() || !formData.map_description.trim()}
-                  className="flex-1 py-3 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white rounded-md transition-all tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex-1 py-3 bg-purple-400/40 hover:bg-purple-400/60 border border-purple-300/40 text-white rounded-md transition-all tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Create Map
                 </button>

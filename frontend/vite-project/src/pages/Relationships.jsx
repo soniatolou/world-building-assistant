@@ -122,14 +122,14 @@ export default function Relationships() {
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <div className="w-1 h-8 bg-purple-500" />
+              <div className="w-1 h-8 bg-purple-700" />
               <h1 className="text-3xl font-bold text-white tracking-widest uppercase">
                 Relationships
               </h1>
             </div>
             <button
               onClick={() => setShowModal(true)}
-              className="px-5 py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white text-sm rounded-md transition-all tracking-wide"
+              className="px-5 py-2 bg-purple-800/40 hover:bg-purple-800/60 border border-purple-700/40 text-white text-sm rounded-md transition-all tracking-wide"
             >
               + Add Relationship
             </button>
@@ -157,7 +157,7 @@ export default function Relationships() {
                     }}
                     className={`text-left px-3 py-2 text-sm rounded-md transition-all tracking-wide border ${
                       selectedChar?.character_id === char.character_id
-                        ? "bg-purple-600/30 border-purple-500/40 text-white"
+                        ? "bg-purple-800/30 border-purple-700/40 text-white"
                         : "border-transparent text-white/50 hover:text-white/80 hover:bg-white/5"
                     }`}
                   >
@@ -197,12 +197,12 @@ export default function Relationships() {
                     return (
                       <div
                         key={rel.relationship_id}
-                        className="bg-white/5 border border-white/10 rounded-lg p-5 hover:border-purple-500/30 transition-all group relative"
+                        className="bg-white/5 border border-white/10 rounded-lg p-5 hover:border-purple-700/30 transition-all group relative"
                       >
                         <div className="flex items-center justify-between gap-2">
                           {/* Character A */}
                           <div className="flex flex-col items-center gap-2 flex-1">
-                            <div className="w-12 h-12 rounded-full bg-purple-500/20 border border-purple-500/30" />
+                            <div className="w-12 h-12 rounded-full bg-purple-700/20 border border-purple-700/30" />
                             <span className="text-white text-xs text-center tracking-wider">
                               {selectedChar.character_name}
                             </span>
@@ -210,7 +210,7 @@ export default function Relationships() {
 
                           {/* Connector */}
                           <div className="flex flex-col items-center gap-1 shrink-0">
-                            <span className="text-purple-400 text-xs tracking-widest uppercase border border-purple-500/30 bg-purple-500/10 px-2 py-1 rounded text-center">
+                            <span className="text-white text-xs tracking-widest uppercase border border-purple-700/30 bg-purple-700/10 px-2 py-1 rounded text-center">
                               {rel.relationship_type}
                             </span>
                             <div className="w-10 h-px bg-white/10" />
@@ -218,7 +218,7 @@ export default function Relationships() {
 
                           {/* Character B */}
                           <div className="flex flex-col items-center gap-2 flex-1">
-                            <div className="w-12 h-12 rounded-full bg-purple-500/20 border border-purple-500/30" />
+                            <div className="w-12 h-12 rounded-full bg-purple-700/20 border border-purple-700/30" />
                             <span className="text-white text-xs text-center tracking-wider">
                               {otherName}
                             </span>
@@ -267,7 +267,7 @@ export default function Relationships() {
                   onChange={(e) =>
                     setForm((f) => ({ ...f, character_a_id: e.target.value }))
                   }
-                  className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 ${createError && !form.character_a_id ? "border-red-500/60" : "border-white/10"}`}
+                  className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-700/50 ${createError && !form.character_a_id ? "border-red-500/60" : "border-white/10"}`}
                   style={{ fontFamily: "'Cinzel', serif" }}
                 >
                   <option
@@ -305,7 +305,7 @@ export default function Relationships() {
                       relationship_type: e.target.value,
                     }))
                   }
-                  className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 placeholder:text-white/20 ${createError && !form.relationship_type.trim() ? "border-red-500/60" : "border-white/10"}`}
+                  className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-700/50 placeholder:text-white/20 ${createError && !form.relationship_type.trim() ? "border-red-500/60" : "border-white/10"}`}
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
@@ -322,7 +322,7 @@ export default function Relationships() {
                   onChange={(e) =>
                     setForm((f) => ({ ...f, character_b_id: e.target.value }))
                   }
-                  className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 ${createError && !form.character_b_id ? "border-red-500/60" : "border-white/10"}`}
+                  className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-700/50 ${createError && !form.character_b_id ? "border-red-500/60" : "border-white/10"}`}
                   style={{ fontFamily: "'Cinzel', serif" }}
                 >
                   <option
@@ -354,7 +354,7 @@ export default function Relationships() {
             <div className="flex gap-3 mt-4">
               <button
                 onClick={handleCreate}
-                className="flex-1 px-4 py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white text-sm rounded-md transition-all tracking-wide"
+                className="flex-1 px-4 py-2 bg-purple-800/40 hover:bg-purple-800/60 border border-purple-700/40 text-white text-sm rounded-md transition-all tracking-wide"
               >
                 Create
               </button>

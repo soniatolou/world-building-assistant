@@ -140,14 +140,23 @@ export default function EventDetail() {
                                 </div>
                                 <button
                                     onClick={() => setShowEditModal(true)}
-                                    className="text-xs text-white/50 hover:text-white border border-white/10 hover:border-purple-500/40 px-3 py-1.5 rounded tracking-widest uppercase transition-all"
+                                    className="text-xs text-white/50 hover:text-white border border-white/10 hover:border-purple-300/40 px-3 py-1.5 rounded tracking-widest uppercase transition-all"
                                 >
                                     Edit
                                 </button>
                             </div>
 
                             {/* Main content */}
-                            <div className="flex flex-col gap-8 p-10 max-w-2xl">
+                            <div className="flex gap-8 p-10 items-start">
+                                {/* Left: placeholder */}
+                                <div className="w-80 shrink-0">
+                                    <div className="rounded-lg border border-white/10 bg-white/5 flex items-center justify-center" style={{ minHeight: "280px" }}>
+                                        <img src="/logo.svg" alt="logo" style={{ width: "80px", opacity: 0.55 }} />
+                                    </div>
+                                </div>
+
+                                {/* Right: info */}
+                                <div className="flex-1 flex flex-col gap-6">
                                 <div>
                                     {(event.start_year || event.end_year) && (
                                         <p className="text-purple-400 text-xs tracking-widest uppercase mb-3">
@@ -211,7 +220,7 @@ export default function EventDetail() {
                                         <select
                                             value={selectedCharId}
                                             onChange={(e) => setSelectedCharId(e.target.value)}
-                                            className="flex-1 bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
+                                            className="flex-1 bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-300/50"
                                             style={{ fontFamily: "'Cinzel', serif" }}
                                         >
                                             <option value="" style={{ backgroundColor: 'white', color: 'black' }}>Add character...</option>
@@ -226,13 +235,14 @@ export default function EventDetail() {
                                         <button
                                             onClick={handleAddCharacter}
                                             disabled={!selectedCharId}
-                                            className="px-4 py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white text-sm rounded-md transition-all tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
+                                            className="px-4 py-2 bg-purple-400/40 hover:bg-purple-400/60 border border-purple-300/40 text-white text-sm rounded-md transition-all tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
                                         >
                                             Add
                                         </button>
                                     </div>
                                 </div>
-                            </div>
+                                </div>{/* end flex-1 right column */}
+                            </div>{/* end flex gap-8 */}
                         </>
                     ) : (
                         <div className="flex items-center justify-center flex-1">
@@ -261,7 +271,7 @@ export default function EventDetail() {
                                     type="text"
                                     value={editForm.event_name}
                                     onChange={(e) => setEditForm({ ...editForm, event_name: e.target.value })}
-                                    className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${editError && !editForm.event_name.trim() ? "border-red-500/60" : "border-white/10"}`}
+                                    className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-300/60 ${editError && !editForm.event_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                                     style={{ fontFamily: "'Cinzel', serif" }}
                                 />
                             </div>
@@ -273,7 +283,7 @@ export default function EventDetail() {
                                     type="text"
                                     value={editForm.start_year}
                                     onChange={(e) => setEditForm({ ...editForm, start_year: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-300/60"
                                     style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
@@ -285,7 +295,7 @@ export default function EventDetail() {
                                     type="text"
                                     value={editForm.end_year}
                                     onChange={(e) => setEditForm({ ...editForm, end_year: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-300/60"
                                     style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
@@ -297,7 +307,7 @@ export default function EventDetail() {
                                     rows={4}
                                     value={editForm.event_description}
                                     onChange={(e) => setEditForm({ ...editForm, event_description: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 resize-none"
+                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-300/60 resize-none"
                                     style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
@@ -351,7 +361,7 @@ export default function EventDetail() {
                                 </button>
                                 <button
                                     onClick={handleUpdate}
-                                    className="text-xs text-white bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded tracking-widest uppercase transition-all"
+                                    className="text-xs text-white bg-purple-400 hover:bg-purple-300 px-4 py-2 rounded tracking-widest uppercase transition-all"
                                 >
                                     Save
                                 </button>

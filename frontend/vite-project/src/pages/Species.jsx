@@ -80,30 +80,67 @@ export default function SpeciesPage() {
                             <p className="text-white/40 text-sm" style={{ fontFamily: "'Montserrat', sans-serif" }}>No species yet. Create your first one!</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: "1.5rem" }}>
                             {speciesList.map((s) => (
                                 <div
                                     key={s.species_id}
                                     onClick={() => navigate(`/worlds/${worldId}/species/${s.species_id}`)}
-                                    className="bg-white/5 border border-white/10 rounded-lg overflow-hidden hover:border-purple-500/40 hover:bg-white/10 transition-all cursor-pointer group"
+                                    className="cursor-pointer group transition-all duration-300 flex flex-col"
+                                    style={{
+                                        borderRadius: "18px",
+                                        border: "1.5px solid rgba(148,163,184,0.25)",
+                                        boxShadow: "0 4px 32px rgba(0,0,0,0.45)",
+                                        background: "rgba(8,10,22,0.18)",
+                                        backdropFilter: "blur(12px)",
+                                        padding: "12px",
+                                    }}
+                                    onMouseEnter={e => {
+                                        e.currentTarget.style.border = "1.5px solid rgba(168,85,247,0.7)"
+                                        e.currentTarget.style.boxShadow = "0 0 24px rgba(168,85,247,0.3), 0 4px 32px rgba(0,0,0,0.5)"
+                                    }}
+                                    onMouseLeave={e => {
+                                        e.currentTarget.style.border = "1.5px solid rgba(148,163,184,0.25)"
+                                        e.currentTarget.style.boxShadow = "0 4px 32px rgba(0,0,0,0.45)"
+                                    }}
                                 >
-                                    {s.image_url ? (
-                                        <img
-                                            src={s.image_url}
-                                            alt={s.species_name}
-                                            className="w-full h-48 object-cover"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-48 bg-white/5 flex items-center justify-center">
-                                            <img src="/logo.svg" alt="logo" style={{ width: "56px", opacity: 0.55 }} />
-                                        </div>
-                                    )}
-                                    <div className="p-6">
-                                        <h2 className="text-lg font-bold text-white mb-2 group-hover:text-purple-300 transition-colors tracking-wide">
+                                    <div
+                                        style={{
+                                            border: "1.5px solid rgba(148,163,184,0.35)",
+                                            borderRadius: "10px",
+                                            overflow: "hidden",
+                                            aspectRatio: "1/1",
+                                            flexShrink: 0,
+                                            margin: "6px",
+                                        }}
+                                    >
+                                        {s.image_url ? (
+                                            <img
+                                                src={s.image_url}
+                                                alt={s.species_name}
+                                                className="w-full h-full transition-transform duration-500 group-hover:scale-105"
+                                                style={{ objectFit: "cover", objectPosition: "center", display: "block" }}
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                                <img src="/logo.svg" alt="logo" style={{ width: "52px", opacity: 0.55 }} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-col gap-2 mt-3 px-1 pb-1">
+                                        <h2
+                                            className="text-white leading-tight"
+                                            style={{
+                                                fontFamily: "'Cinzel', serif",
+                                                fontVariant: "small-caps",
+                                                fontSize: "2.4rem",
+                                                fontWeight: "700",
+                                                letterSpacing: "0.02em",
+                                            }}
+                                        >
                                             {s.species_name}
                                         </h2>
                                         {s.species_description && (
-                                            <p className="text-white/50 text-sm line-clamp-3" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                            <p className="text-white/65 leading-relaxed line-clamp-3" style={{ fontFamily: "sans-serif", fontSize: "0.95rem" }}>
                                                 {s.species_description}
                                             </p>
                                         )}

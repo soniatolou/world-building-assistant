@@ -71,7 +71,7 @@ export default function NoteDetail() {
                             </div>
                             <button
                                 onClick={() => setShowEditModal(true)}
-                                className="text-xs text-white/50 hover:text-white border border-white/10 hover:border-purple-500/40 px-3 py-1.5 rounded tracking-widest uppercase transition-all"
+                                className="text-xs text-white/50 hover:text-white border border-white/10 hover:border-purple-300/40 px-3 py-1.5 rounded tracking-widest uppercase transition-all"
                             >
                                 Edit
                             </button>
@@ -114,7 +114,7 @@ export default function NoteDetail() {
                                     type="text"
                                     value={editForm.note_name}
                                     onChange={(e) => setEditForm({ ...editForm, note_name: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-300/60"
                                     style={{ fontFamily: "'Cinzel', serif" }}
                                 />
                             </div>
@@ -124,7 +124,7 @@ export default function NoteDetail() {
                                     rows={8}
                                     value={editForm.note_text}
                                     onChange={(e) => setEditForm({ ...editForm, note_text: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 resize-none"
+                                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-300/60 resize-none"
                                     style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 />
                             </div>
@@ -164,7 +164,7 @@ export default function NoteDetail() {
                                 </button>
                                 <button
                                     onClick={handleUpdate}
-                                    className="text-xs text-white bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded tracking-widests uppercase transition-all"
+                                    className="text-xs text-white bg-purple-400 hover:bg-purple-300 px-4 py-2 rounded tracking-widests uppercase transition-all"
                                 >
                                     Save
                                 </button>

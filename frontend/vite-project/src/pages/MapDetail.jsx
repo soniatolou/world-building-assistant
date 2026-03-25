@@ -119,81 +119,80 @@ export default function MapDetail() {
                 </div>
                 <button
                   onClick={() => setShowEditModal(true)}
-                  className="text-xs text-white/50 hover:text-white border border-white/10 hover:border-purple-500/40 px-3 py-1.5 rounded tracking-widest uppercase transition-all"
+                  className="text-xs text-white/50 hover:text-white border border-white/10 hover:border-purple-300/40 px-3 py-1.5 rounded tracking-widest uppercase transition-all"
                 >
                   Edit
                 </button>
               </div>
 
               {/* Main content */}
-              <div className="flex flex-col gap-8 p-10">
-                <div>
-                  <h1 className="text-4xl font-bold text-white uppercase tracking-wide mb-2">
-                    {map.map_name}
-                  </h1>
-                  {map.scale_factor && (
-                    <p className="text-purple-400 text-xs tracking-widest uppercase">
-                      Scale: {map.scale_factor}
-                    </p>
+              <div className="flex gap-8 p-10 items-start">
+                {/* Left: map image */}
+                <div className="w-80 shrink-0">
+                  {map.map_url ? (
+                    <div className="rounded-lg overflow-hidden border border-white/10">
+                      <img src={map.map_url} alt={map.map_name} className="w-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="rounded-lg border border-white/10 bg-white/5 flex items-center justify-center" style={{ minHeight: "280px" }}>
+                      <img src="/logo.svg" alt="logo" style={{ width: "80px", opacity: 0.55 }} />
+                    </div>
                   )}
                 </div>
 
-                {map.map_url && (
-                  <div className="rounded-lg overflow-hidden border border-white/10">
-                    <img
-                      src={map.map_url}
-                      alt={map.map_name}
-                      className="w-full object-contain"
-                    />
+                {/* Right: info */}
+                <div className="flex-1 flex flex-col gap-6">
+                  <div>
+                    <h1 className="text-4xl font-bold text-white uppercase tracking-wide mb-2">
+                      {map.map_name}
+                    </h1>
+                    {map.scale_factor && (
+                      <p className="text-purple-400 text-xs tracking-widest uppercase">
+                        Scale: {map.scale_factor}
+                      </p>
+                    )}
                   </div>
-                )}
 
-                {map.map_description && (
-                  <div className="bg-white/5 border border-white/10 rounded-lg p-6 max-w-2xl">
-                    <p className="text-white/30 text-xs tracking-widest uppercase mb-3">
-                      Description
-                    </p>
-                    <p
-                      className="text-white/70 leading-relaxed text-sm"
-                      style={{
-                        fontFamily: "'Montserrat', sans-serif",
-                        whiteSpace: "pre-wrap",
-                      }}
-                    >
-                      {map.map_description}
-                    </p>
-                  </div>
-                )}
-
-                {mapLocations.length > 0 && (
-                  <div className="max-w-2xl">
-                    <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-3 border-b border-white/10 pb-2">
-                      Locations
-                    </h3>
-                    <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden">
-                      {mapLocations.map((loc) => (
-                        <div
-                          key={loc.location_id}
-                          onClick={() =>
-                            navigate(
-                              `/worlds/${worldId}/locations/${loc.location_id}`,
-                            )
-                          }
-                          className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 cursor-pointer transition-all border-b border-white/5 last:border-b-0"
-                        >
-                          {loc.location_type && (
-                            <span className="text-xs text-purple-400 border border-purple-500/30 rounded px-2 py-0.5 tracking-widest uppercase">
-                              {loc.location_type}
-                            </span>
-                          )}
-                          <span className="text-white/80 hover:text-purple-300 text-sm tracking-wide transition-colors">
-                            {loc.location_name}
-                          </span>
-                        </div>
-                      ))}
+                  {map.map_description && (
+                    <div className="bg-white/5 border border-white/10 rounded-lg p-6">
+                      <p className="text-white/30 text-xs tracking-widest uppercase mb-3">
+                        Description
+                      </p>
+                      <p
+                        className="text-white/70 leading-relaxed text-sm"
+                        style={{ fontFamily: "'Montserrat', sans-serif", whiteSpace: "pre-wrap" }}
+                      >
+                        {map.map_description}
+                      </p>
                     </div>
-                  </div>
-                )}
+                  )}
+
+                  {mapLocations.length > 0 && (
+                    <div>
+                      <h3 className="text-purple-400 text-xs tracking-widest uppercase mb-3 border-b border-white/10 pb-2">
+                        Locations
+                      </h3>
+                      <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden">
+                        {mapLocations.map((loc) => (
+                          <div
+                            key={loc.location_id}
+                            onClick={() => navigate(`/worlds/${worldId}/locations/${loc.location_id}`)}
+                            className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 cursor-pointer transition-all border-b border-white/5 last:border-b-0"
+                          >
+                            {loc.location_type && (
+                              <span className="text-xs text-purple-400 border border-purple-300/30 rounded px-2 py-0.5 tracking-widest uppercase">
+                                {loc.location_type}
+                              </span>
+                            )}
+                            <span className="text-white/80 hover:text-purple-300 text-sm tracking-wide transition-colors">
+                              {loc.location_name}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </>
           ) : (
@@ -233,7 +232,7 @@ export default function MapDetail() {
                   onChange={(e) =>
                     setEditForm({ ...editForm, map_name: e.target.value })
                   }
-                  className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${editError && !editForm.map_name.trim() ? "border-red-500/60" : "border-white/10"}`}
+                  className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-300/60 ${editError && !editForm.map_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                   style={{ fontFamily: "'Cinzel', serif" }}
                 />
               </div>
@@ -250,7 +249,7 @@ export default function MapDetail() {
                   onChange={(e) =>
                     setEditForm({ ...editForm, map_url: e.target.value })
                   }
-                  className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 ${editError && !editForm.map_url.trim() ? "border-red-500/60" : "border-white/10"}`}
+                  className={`w-full bg-white/5 border rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-300/60 ${editError && !editForm.map_url.trim() ? "border-red-500/60" : "border-white/10"}`}
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
@@ -270,7 +269,7 @@ export default function MapDetail() {
                       map_description: e.target.value,
                     })
                   }
-                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 resize-none"
+                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-300/60 resize-none"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
@@ -286,7 +285,7 @@ export default function MapDetail() {
                   onChange={(e) =>
                     setEditForm({ ...editForm, scale_factor: e.target.value })
                   }
-                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60"
+                  className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-300/60"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
@@ -345,7 +344,7 @@ export default function MapDetail() {
                 </button>
                 <button
                   onClick={handleUpdate}
-                  className="text-xs text-white bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded tracking-widest uppercase transition-all"
+                  className="text-xs text-white bg-purple-400 hover:bg-purple-300 px-4 py-2 rounded tracking-widest uppercase transition-all"
                 >
                   Save
                 </button>

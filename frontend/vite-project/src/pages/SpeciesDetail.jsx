@@ -87,29 +87,34 @@ export default function SpeciesDetail() {
                             </div>
 
                             {/* Content */}
-                            <div className="flex flex-col gap-8 p-10 max-w-2xl">
-                                {species.image_url ? (
-                                    <div className="rounded-lg overflow-hidden border border-white/10">
-                                        <img src={species.image_url} alt={species.species_name} className="w-full object-cover max-h-[400px]" />
-                                    </div>
-                                ) : (
-                                    <div className="rounded-lg border border-white/10 bg-white/5 flex items-center justify-center" style={{ minHeight: "200px" }}>
-                                        <img src="/logo.svg" alt="logo" style={{ width: "80px", opacity: 0.55 }} />
-                                    </div>
-                                )}
-                                <h1 className="text-4xl font-bold text-white uppercase tracking-wide">
-                                    {species.species_name}
-                                </h1>
+                            <div className="flex gap-8 p-10 items-start">
+                                {/* Left: image */}
+                                <div className="w-80 shrink-0">
+                                    {species.image_url ? (
+                                        <div className="rounded-lg overflow-hidden border border-white/10">
+                                            <img src={species.image_url} alt={species.species_name} className="w-full object-cover" />
+                                        </div>
+                                    ) : (
+                                        <div className="rounded-lg border border-white/10 bg-white/5 flex items-center justify-center" style={{ minHeight: "280px" }}>
+                                            <img src="/logo.svg" alt="logo" style={{ width: "80px", opacity: 0.55 }} />
+                                        </div>
+                                    )}
+                                </div>
 
-                                {species.species_description && (
-                                    <div className="bg-white/5 border border-white/10 rounded-lg p-6">
-                                        <p className="text-white/30 text-xs tracking-widest uppercase mb-3">Description</p>
-                                        <p className="text-white/70 leading-relaxed text-sm" style={{ fontFamily: "'Montserrat', sans-serif", whiteSpace: "pre-wrap" }}>
-                                            {species.species_description}
-                                        </p>
-                                    </div>
-                                )}
-
+                                {/* Right: info */}
+                                <div className="flex-1 flex flex-col gap-6">
+                                    <h1 className="text-4xl font-bold text-white uppercase tracking-wide">
+                                        {species.species_name}
+                                    </h1>
+                                    {species.species_description && (
+                                        <div className="bg-white/5 border border-white/10 rounded-lg p-6">
+                                            <p className="text-white/30 text-xs tracking-widest uppercase mb-3">Description</p>
+                                            <p className="text-white/70 leading-relaxed text-sm" style={{ fontFamily: "'Montserrat', sans-serif", whiteSpace: "pre-wrap" }}>
+                                                {species.species_description}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </>
                     ) : (

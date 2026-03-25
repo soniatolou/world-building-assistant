@@ -78,14 +78,14 @@ export default function Maps() {
         <div className="relative z-10 flex flex-col flex-1 p-10">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <div className="w-1 h-8 bg-purple-500" />
+              <div className="w-1 h-8 bg-purple-300" />
               <h1 className="text-3xl font-bold text-white tracking-widest uppercase">
                 Maps
               </h1>
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-5 py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white text-sm rounded-md transition-all tracking-wide"
+              className="px-5 py-2 bg-purple-400/40 hover:bg-purple-400/60 border border-purple-300/40 text-white text-sm rounded-md transition-all tracking-wide"
             >
               + New Map
             </button>
@@ -107,31 +107,69 @@ export default function Maps() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: "1.5rem" }}>
               {maps.map((map) => (
                 <div
                   key={map.map_id}
                   onClick={() =>
                     navigate(`/worlds/${worldId}/maps/${map.map_id}`)
                   }
-                  className="bg-white/5 border border-white/10 rounded-lg overflow-hidden hover:border-purple-500/40 hover:bg-white/10 transition-all cursor-pointer group"
+                  className="cursor-pointer group transition-all duration-300 flex flex-col"
+                  style={{
+                    borderRadius: "18px",
+                    border: "1.5px solid rgba(148,163,184,0.25)",
+                    boxShadow: "0 4px 32px rgba(0,0,0,0.45)",
+                    background: "rgba(8,10,22,0.18)",
+                    backdropFilter: "blur(12px)",
+                    padding: "12px",
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.border = "1.5px solid rgba(168,85,247,0.7)"
+                    e.currentTarget.style.boxShadow = "0 0 24px rgba(168,85,247,0.3), 0 4px 32px rgba(0,0,0,0.5)"
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.border = "1.5px solid rgba(148,163,184,0.25)"
+                    e.currentTarget.style.boxShadow = "0 4px 32px rgba(0,0,0,0.45)"
+                  }}
                 >
-                  {map.map_url && (
-                    <img
-                      src={map.map_url}
-                      alt={map.map_name}
-                      className="w-full h-48 object-cover"
-                    />
-                  )}
-                  <div className="p-5">
-                    <h2 className="text-lg font-bold text-white mb-1 group-hover:text-purple-300 transition-colors tracking-wide">
+                  <div
+                    style={{
+                      border: "1.5px solid rgba(148,163,184,0.35)",
+                      borderRadius: "10px",
+                      overflow: "hidden",
+                      aspectRatio: "1/1",
+                      flexShrink: 0,
+                      margin: "6px",
+                    }}
+                  >
+                    {map.map_url ? (
+                      <img
+                        src={map.map_url}
+                        alt={map.map_name}
+                        className="w-full h-full transition-transform duration-500 group-hover:scale-105"
+                        style={{ objectFit: "cover", objectPosition: "center", display: "block" }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <img src="/logo.svg" alt="logo" style={{ width: "52px", opacity: 0.55 }} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2 mt-3 px-1 pb-1">
+                    <h2
+                      className="text-white leading-tight"
+                      style={{
+                        fontFamily: "'Cinzel', serif",
+                        fontVariant: "small-caps",
+                        fontSize: "2.4rem",
+                        fontWeight: "700",
+                        letterSpacing: "0.02em",
+                      }}
+                    >
                       {map.map_name}
                     </h2>
                     {map.map_description && (
-                      <p
-                        className="text-white/50 text-sm line-clamp-2"
-                        style={{ fontFamily: "'Montserrat', sans-serif" }}
-                      >
+                      <p className="text-white/65 leading-relaxed line-clamp-3" style={{ fontFamily: "sans-serif", fontSize: "0.95rem" }}>
                         {map.map_description}
                       </p>
                     )}
@@ -167,7 +205,7 @@ export default function Maps() {
                   onChange={(e) =>
                     setCreateForm((f) => ({ ...f, map_name: e.target.value }))
                   }
-                  className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 ${createError && !createForm.map_name.trim() ? "border-red-500/60" : "border-white/10"}`}
+                  className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-300/50 ${createError && !createForm.map_name.trim() ? "border-red-500/60" : "border-white/10"}`}
                   style={{ fontFamily: "'Cinzel', serif" }}
                 />
               </div>
@@ -184,7 +222,7 @@ export default function Maps() {
                   onChange={(e) =>
                     setCreateForm((f) => ({ ...f, map_url: e.target.value }))
                   }
-                  className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 ${createError && !createForm.map_url.trim() ? "border-red-500/60" : "border-white/10"}`}
+                  className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-300/50 ${createError && !createForm.map_url.trim() ? "border-red-500/60" : "border-white/10"}`}
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
@@ -204,7 +242,7 @@ export default function Maps() {
                       map_description: e.target.value,
                     }))
                   }
-                  className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50 resize-none"
+                  className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-300/50 resize-none"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
@@ -223,7 +261,7 @@ export default function Maps() {
                       scale_factor: e.target.value,
                     }))
                   }
-                  className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/50"
+                  className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-300/50"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
               </div>
@@ -234,7 +272,7 @@ export default function Maps() {
             <div className="flex gap-3 mt-4">
               <button
                 onClick={handleCreate}
-                className="flex-1 px-4 py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white text-sm rounded-md transition-all tracking-wide"
+                className="flex-1 px-4 py-2 bg-purple-400/40 hover:bg-purple-400/60 border border-purple-300/40 text-white text-sm rounded-md transition-all tracking-wide"
               >
                 Create
               </button>

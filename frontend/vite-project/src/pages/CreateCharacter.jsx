@@ -73,7 +73,7 @@ export default function CreateCharacter() {
 
       <div className="relative z-10 flex flex-col flex-1 p-10">
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-1 h-8 bg-purple-500" />
+          <div className="w-1 h-8 bg-purple-300" />
           <h1 className="text-3xl font-bold text-white tracking-widest uppercase">
             New Character
           </h1>
@@ -90,7 +90,7 @@ export default function CreateCharacter() {
                 name="character_name"
                 value={formData.character_name}
                 onChange={handleChange}
-                className={`bg-white/10 border rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 ${submitted && !formData.character_name.trim() ? "border-red-500/60" : "border-white/20"}`}
+                className={`bg-white/10 border rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50 ${submitted && !formData.character_name.trim() ? "border-red-500/60" : "border-white/20"}`}
                 placeholder="Character name"
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
               />
@@ -105,7 +105,7 @@ export default function CreateCharacter() {
                 value={formData.character_description}
                 onChange={handleChange}
                 rows={4}
-                className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50 resize-none"
+                className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50 resize-none"
                 placeholder="Describe this character"
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
               />
@@ -120,7 +120,7 @@ export default function CreateCharacter() {
                 name="birth_year"
                 value={formData.birth_year}
                 onChange={handleChange}
-                className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50"
                 placeholder="e.g. 1205"
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
               />
@@ -135,7 +135,7 @@ export default function CreateCharacter() {
                 name="image_url"
                 value={formData.image_url}
                 onChange={handleChange}
-                className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50"
                 placeholder="https://..."
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
               />
@@ -150,7 +150,7 @@ export default function CreateCharacter() {
                   name="species_id"
                   value={formData.species_id}
                   onChange={handleChange}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white focus:outline-none focus:border-purple-500/50"
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white focus:outline-none focus:border-purple-300/50"
                   style={{ fontFamily: "'Cinzel', serif" }}
                 >
                   <option value="" style={{ backgroundColor: 'white', color: 'black' }}>No species</option>
@@ -168,7 +168,7 @@ export default function CreateCharacter() {
                 id="is_alive"
                 checked={formData.is_alive}
                 onChange={handleChange}
-                className="accent-purple-500 w-4 h-4"
+                className="accent-purple-300 w-4 h-4"
               />
               <label
                 htmlFor="is_alive"
@@ -191,7 +191,7 @@ export default function CreateCharacter() {
                   name="death_year"
                   value={formData.death_year}
                   onChange={handleChange}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-500/50"
+                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50"
                   placeholder="e.g. 1289"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
@@ -201,7 +201,7 @@ export default function CreateCharacter() {
             <div className="flex gap-3 mt-2">
               <button
                 onClick={handleSubmit}
-                className="flex-1 py-3 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white rounded-md transition-all tracking-wide"
+                className="flex-1 py-3 bg-purple-400/40 hover:bg-purple-400/60 border border-purple-300/40 text-white rounded-md transition-all tracking-wide"
               >
                 Create Character
               </button>

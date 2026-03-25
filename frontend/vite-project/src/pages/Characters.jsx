@@ -59,7 +59,7 @@ export default function Characters() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: "1.5rem" }}>
             {characters.map((character) => (
               <div
                 key={character.character_id}
@@ -68,30 +68,66 @@ export default function Characters() {
                     `/worlds/${worldId}/characters/${character.character_id}`,
                   )
                 }
-                className="bg-white/5 border border-white/10 rounded-lg overflow-hidden hover:border-purple-500/40 hover:bg-white/10 transition-all cursor-pointer group"
+                className="cursor-pointer group transition-all duration-300 flex flex-col"
+                style={{
+                  borderRadius: "18px",
+                  border: "1.5px solid rgba(148,163,184,0.25)",
+                  boxShadow: "0 4px 32px rgba(0,0,0,0.45)",
+                  background: "rgba(8,10,22,0.18)",
+                  backdropFilter: "blur(12px)",
+                  padding: "12px",
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.border = "1.5px solid rgba(168,85,247,0.7)"
+                  e.currentTarget.style.boxShadow = "0 0 24px rgba(168,85,247,0.3), 0 4px 32px rgba(0,0,0,0.5)"
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.border = "1.5px solid rgba(148,163,184,0.25)"
+                  e.currentTarget.style.boxShadow = "0 4px 32px rgba(0,0,0,0.45)"
+                }}
               >
-                {character.image_url ? (
-                  <img
-                    src={character.image_url}
-                    alt={character.character_name}
-                    className="w-full h-48 object-cover object-top"
-                  />
-                ) : (
-                  <div className="w-full h-48 bg-white/5 flex items-center justify-center">
-                    <img src="/logo.svg" alt="logo" style={{ width: "56px", opacity: 0.55 }} />
-                  </div>
-                )}
-                <div className="p-5">
-                  <h2 className="text-lg font-bold text-white mb-1 group-hover:text-purple-300 transition-colors">
+                <div
+                  style={{
+                    border: "1.5px solid rgba(148,163,184,0.35)",
+                    borderRadius: "10px",
+                    overflow: "hidden",
+                    aspectRatio: "1/1",
+                    flexShrink: 0,
+                    margin: "6px",
+                  }}
+                >
+                  {character.image_url ? (
+                    <img
+                      src={character.image_url}
+                      alt={character.character_name}
+                      className="w-full h-full transition-transform duration-500 group-hover:scale-105"
+                      style={{ objectFit: "cover", objectPosition: "center top", display: "block" }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <img src="/logo.svg" alt="logo" style={{ width: "52px", opacity: 0.55 }} />
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2 mt-3 px-1 pb-1">
+                  <h2
+                    className="text-white leading-tight"
+                    style={{
+                      fontFamily: "'Cinzel', serif",
+                      fontVariant: "small-caps",
+                      fontSize: "2.4rem",
+                      fontWeight: "700",
+                      letterSpacing: "0.02em",
+                    }}
+                  >
                     {character.character_name}
                   </h2>
-                  <p
-                    className="text-white/50 text-sm line-clamp-2"
-                    style={{ fontFamily: "'Montserrat', sans-serif" }}
-                  >
-                    {character.character_description}
-                  </p>
-                  <p className="text-white/30 text-xs mt-3 tracking-widest uppercase">
+                  {character.character_description && (
+                    <p className="text-white/65 leading-relaxed line-clamp-3" style={{ fontFamily: "sans-serif", fontSize: "0.95rem" }}>
+                      {character.character_description}
+                    </p>
+                  )}
+                  <p className="text-white/30 text-xs tracking-widest uppercase" style={{ fontFamily: "sans-serif" }}>
                     {character.is_alive ? "Alive" : "Deceased"}
                   </p>
                 </div>
