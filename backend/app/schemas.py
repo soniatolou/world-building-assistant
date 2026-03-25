@@ -141,12 +141,14 @@ class UpdateCharacter(BaseModel):
 # Relationships
 class CreateRelationship(BaseModel):
     relationship_type: str = Field(min_length=1)
+    reverse_relationship_type: Optional[str] = None
     character_a_id: int
     character_b_id: int
 
 
 class UpdateRelationship(BaseModel):
     relationship_type: Optional[str] = None
+    reverse_relationship_type: Optional[str] = None
     character_a_id: Optional[int] = None
     character_b_id: Optional[int] = None
 

@@ -228,7 +228,8 @@ def create_tables():
         relationship_id BIGSERIAL PRIMARY KEY NOT NULL,
         character_a_id BIGINT NOT NULL REFERENCES "characters"(character_id) ON DELETE CASCADE,
         character_b_id BIGINT NOT NULL REFERENCES "characters"(character_id) ON DELETE CASCADE,
-        relationship_type VARCHAR(255) NOT NULL
+        relationship_type VARCHAR(255) NOT NULL,
+        reverse_relationship_type VARCHAR(255)
         );
         """
     )

@@ -457,21 +457,22 @@ def delete_character(connection, character_id):
 
 
 # Relationships
-def create_relationship(connection, relationship_type, character_a_id, character_b_id):
+def create_relationship(connection, relationship_type, reverse_relationship_type, character_a_id, character_b_id):
     with connection:
         with connection.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """
-                INSERT 
+                INSERT
                 INTO relationships (
-                    relationship_type, 
-                    character_a_id, 
+                    relationship_type,
+                    reverse_relationship_type,
+                    character_a_id,
                     character_b_id
                 )
-                VALUES (%s, %s, %s)
+                VALUES (%s, %s, %s, %s)
                 RETURNING *;
                 """,
-                (relationship_type, character_a_id, character_b_id),
+                (relationship_type, reverse_relationship_type, character_a_id, character_b_id),
             )
             new_relationship = cursor.fetchone()
         return new_relationship
@@ -485,6 +486,7 @@ def get_relationships_for_character(connection, character_id):
                 SELECT
                     relationships.relationship_id,
                     relationships.relationship_type,
+                    relationships.reverse_relationship_type,
                     a.character_id AS character_a_id,
                     a.character_name AS character_a_name,
                     b.character_id AS character_b_id,
@@ -506,6 +508,7 @@ def update_relationship(
     connection,
     relationship_id,
     relationship_type=None,
+    reverse_relationship_type=None,
     character_a_id=None,
     character_b_id=None,
 ):
@@ -514,14 +517,15 @@ def update_relationship(
             cursor.execute(
                 """
                 UPDATE relationships
-                SET 
+                SET
                     relationship_type = COALESCE (%s, relationship_type),
+                    reverse_relationship_type = %s,
                     character_a_id = COALESCE (%s, character_a_id),
                     character_b_id = COALESCE (%s, character_b_id)
                 WHERE relationship_id = %s
                 RETURNING *;
                 """,
-                (relationship_type, character_a_id, character_b_id, relationship_id),
+                (relationship_type, reverse_relationship_type, character_a_id, character_b_id, relationship_id),
             )
             updated_relationship = cursor.fetchone()
         return updated_relationship

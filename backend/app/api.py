@@ -554,6 +554,7 @@ def create_relationship(
         new_relationship = db.create_relationship(
             connection,
             relationship.relationship_type,
+            relationship.reverse_relationship_type,
             relationship.character_a_id,
             relationship.character_b_id,
         )
@@ -602,6 +603,7 @@ def update_relationship(
             connection,
             relationship_id,
             relationship.relationship_type,
+            relationship.reverse_relationship_type,
             relationship.character_a_id,
             relationship.character_b_id,
         )
