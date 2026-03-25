@@ -123,11 +123,11 @@ export default function Characters() {
                     {character.character_name}
                   </h2>
                   {character.character_description && (
-                    <p className="text-white/65 leading-relaxed line-clamp-3" style={{ fontFamily: "sans-serif", fontSize: "0.95rem" }}>
+                    <p className="text-white/65 leading-relaxed line-clamp-3" style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "0.95rem" }}>
                       {character.character_description}
                     </p>
                   )}
-                  <p className="text-white/30 text-xs tracking-widest uppercase" style={{ fontFamily: "sans-serif" }}>
+                  <p className="text-white/30 text-xs tracking-widest uppercase" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     {character.is_alive ? "Alive" : "Deceased"}
                   </p>
                 </div>

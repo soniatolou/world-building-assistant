@@ -126,22 +126,9 @@ export default function MapDetail() {
               </div>
 
               {/* Main content */}
-              <div className="flex gap-8 p-10 items-start">
-                {/* Left: map image */}
-                <div className="w-80 shrink-0">
-                  {map.map_url ? (
-                    <div className="rounded-lg overflow-hidden border border-white/10">
-                      <img src={map.map_url} alt={map.map_name} className="w-full object-cover" />
-                    </div>
-                  ) : (
-                    <div className="rounded-lg border border-white/10 bg-white/5 flex items-center justify-center" style={{ minHeight: "280px" }}>
-                      <img src="/logo.svg" alt="logo" style={{ width: "80px", opacity: 0.55 }} />
-                    </div>
-                  )}
-                </div>
-
-                {/* Right: info */}
-                <div className="flex-1 flex flex-col gap-6">
+              <div className="flex flex-col gap-8 p-10">
+                {/* Top: info */}
+                <div className="flex flex-col gap-6">
                   <div>
                     <h1 className="text-4xl font-bold text-white uppercase tracking-wide mb-2">
                       {map.map_name}
@@ -193,6 +180,17 @@ export default function MapDetail() {
                     </div>
                   )}
                 </div>
+
+                {/* Bottom: map image */}
+                {map.map_url ? (
+                  <div className="rounded-lg overflow-hidden border border-white/10">
+                    <img src={map.map_url} alt={map.map_name} className="w-full object-contain" />
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-white/10 bg-white/5 flex items-center justify-center" style={{ minHeight: "280px" }}>
+                    <img src="/logo.svg" alt="logo" style={{ width: "80px", opacity: 0.55 }} />
+                  </div>
+                )}
               </div>
             </>
           ) : (

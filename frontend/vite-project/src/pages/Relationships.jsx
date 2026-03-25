@@ -5,6 +5,7 @@ import {
   getRelationshipsForCharacter,
   createRelationship,
   deleteRelationship,
+  updateRelationship,
 } from "../api/relationships";
 import WorldSidebar from "../components/WorldSidebar";
 import Navbar from "../components/Navbar";
@@ -16,12 +17,19 @@ export default function Relationships() {
   const [relationships, setRelationships] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+  const [editingRel, setEditingRel] = useState(null);
+  const [editRelType, setEditRelType] = useState("");
+  const [editReverseRelType, setEditReverseRelType] = useState("");
+  const [editCharAId, setEditCharAId] = useState("");
+  const [editCharBId, setEditCharBId] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [createError, setCreateError] = useState("");
+  const [editError, setEditError] = useState("");
   const [form, setForm] = useState({
     character_a_id: "",
     character_b_id: "",
     relationship_type: "",
+    reverse_relationship_type: "",
   });
 
   useEffect(() => {
@@ -63,6 +71,7 @@ export default function Relationships() {
     try {
       await createRelationship(form.character_a_id, {
         relationship_type: form.relationship_type.trim(),
+        reverse_relationship_type: form.reverse_relationship_type.trim() || null,
         character_a_id: parseInt(form.character_a_id),
         character_b_id: parseInt(form.character_b_id),
       });
@@ -71,6 +80,7 @@ export default function Relationships() {
         character_a_id: "",
         character_b_id: "",
         relationship_type: "",
+        reverse_relationship_type: "",
       });
       setCreateError("");
       setSuccessMsg("Relationship created!");
@@ -85,6 +95,35 @@ export default function Relationships() {
         );
         setRelationships(data);
       }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function handleEditSave() {
+    if (!editRelType.trim() || !editCharAId || !editCharBId) {
+      setEditError("Please make sure all the required fields are filled in.");
+      return;
+    }
+    setEditError("");
+    try {
+      await updateRelationship(editingRel.relationship_id, {
+        relationship_type: editRelType.trim(),
+        reverse_relationship_type: editReverseRelType.trim() || null,
+        character_a_id: parseInt(editCharAId),
+        character_b_id: parseInt(editCharBId),
+      });
+      setEditingRel(null);
+      setEditRelType("");
+      setEditReverseRelType("");
+      setEditCharAId("");
+      setEditCharBId("");
+      if (selectedChar) {
+        const data = await getRelationshipsForCharacter(selectedChar.character_id);
+        setRelationships(data);
+      }
+      setSuccessMsg("Relationship updated!");
+      setTimeout(() => setSuccessMsg(""), 3000);
     } catch (err) {
       console.error(err);
     }
@@ -190,17 +229,17 @@ export default function Relationships() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {relationships.map((rel) => {
-                    const otherName =
-                      rel.character_a_name === selectedChar.character_name
-                        ? rel.character_b_name
-                        : rel.character_a_name;
+                    const isCharA = rel.character_a_id === selectedChar.character_id;
+                    const otherName = isCharA ? rel.character_b_name : rel.character_a_name;
+                    const selectedToOther = isCharA ? rel.relationship_type : (rel.reverse_relationship_type || rel.relationship_type);
+                    const otherToSelected = isCharA ? (rel.reverse_relationship_type || rel.relationship_type) : rel.relationship_type;
                     return (
                       <div
                         key={rel.relationship_id}
                         className="bg-white/5 border border-white/10 rounded-lg p-5 hover:border-purple-700/30 transition-all group relative"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          {/* Character A */}
+                          {/* Selected character */}
                           <div className="flex flex-col items-center gap-2 flex-1">
                             <div className="w-12 h-12 rounded-full bg-purple-700/20 border border-purple-700/30" />
                             <span className="text-white text-xs text-center tracking-wider">
@@ -211,12 +250,14 @@ export default function Relationships() {
                           {/* Connector */}
                           <div className="flex flex-col items-center gap-1 shrink-0">
                             <span className="text-white text-xs tracking-widest uppercase border border-purple-700/30 bg-purple-700/10 px-2 py-1 rounded text-center">
-                              {rel.relationship_type}
+                              {selectedToOther} →
                             </span>
-                            <div className="w-10 h-px bg-white/10" />
+                            <span className="text-white/40 text-xs tracking-widest uppercase border border-white/10 bg-white/5 px-2 py-1 rounded text-center">
+                              ← {otherToSelected}
+                            </span>
                           </div>
 
-                          {/* Character B */}
+                          {/* Other character */}
                           <div className="flex flex-col items-center gap-2 flex-1">
                             <div className="w-12 h-12 rounded-full bg-purple-700/20 border border-purple-700/30" />
                             <span className="text-white text-xs text-center tracking-wider">
@@ -225,15 +266,29 @@ export default function Relationships() {
                           </div>
                         </div>
 
-                        {/* Delete button */}
-                        <button
-                          onClick={() =>
-                            setShowDeleteConfirm(rel.relationship_id)
-                          }
-                          className="absolute top-2 right-2 text-white/20 hover:text-red-400 text-xs transition-colors opacity-0 group-hover:opacity-100"
-                        >
-                          ✕
-                        </button>
+                        {/* Edit & Delete buttons */}
+                        <div className="absolute top-2 right-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => {
+                              setEditingRel(rel);
+                              setEditRelType(rel.relationship_type);
+                              setEditReverseRelType(rel.reverse_relationship_type || "");
+                              setEditCharAId(rel.character_a_id);
+                              setEditCharBId(rel.character_b_id);
+                            }}
+                            className="text-white/20 hover:text-purple-400 text-xs transition-colors"
+                          >
+                            ✎
+                          </button>
+                          <button
+                            onClick={() =>
+                              setShowDeleteConfirm(rel.relationship_id)
+                            }
+                            className="text-white/20 hover:text-red-400 text-xs transition-colors"
+                          >
+                            ✕
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -292,7 +347,7 @@ export default function Relationships() {
                 <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">
                   Relationship Type{" "}
                   <span className="text-white/20 normal-case tracking-normal">
-                    (required)
+                    (A → B, required)
                   </span>
                 </label>
                 <input
@@ -346,6 +401,28 @@ export default function Relationships() {
                     ))}
                 </select>
               </div>
+
+              <div>
+                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">
+                  Reverse Relationship Type{" "}
+                  <span className="text-white/20 normal-case tracking-normal">
+                    (B → A, optional)
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Son, Apprentice, Childhood friend..."
+                  value={form.reverse_relationship_type}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      reverse_relationship_type: e.target.value,
+                    }))
+                  }
+                  className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-700/50 placeholder:text-white/20"
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                />
+              </div>
             </div>
 
             {createError && (
@@ -365,8 +442,112 @@ export default function Relationships() {
                     character_a_id: "",
                     character_b_id: "",
                     relationship_type: "",
+                    reverse_relationship_type: "",
                   });
                   setCreateError("");
+                }}
+                className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 text-sm rounded-md transition-all tracking-wide"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Relationship Modal */}
+      {editingRel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div
+            className="bg-[#0d0f1c] border border-white/10 rounded-xl p-8 w-full max-w-sm shadow-2xl"
+            style={{ fontFamily: "'Cinzel', serif" }}
+          >
+            <h2 className="text-white text-lg tracking-widest uppercase mb-6">
+              Edit Relationship
+            </h2>
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">
+                  Character A
+                </label>
+                <select
+                  value={editCharAId}
+                  onChange={(e) => setEditCharAId(e.target.value)}
+                  className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-700/50 ${editError && !editCharAId ? "border-red-500/60" : "border-white/10"}`}
+                  style={{ fontFamily: "'Cinzel', serif" }}
+                >
+                  {characters.map((c) => (
+                    <option key={c.character_id} value={c.character_id} style={{ backgroundColor: "#0d0f1c", color: "white" }}>
+                      {c.character_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">
+                  Relationship Type{" "}
+                  <span className="text-white/20 normal-case tracking-normal">(A → B, required)</span>
+                </label>
+                <input
+                  type="text"
+                  value={editRelType}
+                  onChange={(e) => setEditRelType(e.target.value)}
+                  className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-700/50 placeholder:text-white/20 ${editError && !editRelType.trim() ? "border-red-500/60" : "border-white/10"}`}
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">
+                  Character B
+                </label>
+                <select
+                  value={editCharBId}
+                  onChange={(e) => setEditCharBId(e.target.value)}
+                  className={`w-full bg-white/5 border rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-700/50 ${editError && !editCharBId ? "border-red-500/60" : "border-white/10"}`}
+                  style={{ fontFamily: "'Cinzel', serif" }}
+                >
+                  {characters
+                    .filter((c) => c.character_id !== parseInt(editCharAId))
+                    .map((c) => (
+                      <option key={c.character_id} value={c.character_id} style={{ backgroundColor: "#0d0f1c", color: "white" }}>
+                        {c.character_name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-white/50 text-xs tracking-widest uppercase mb-1 block">
+                  Reverse Relationship Type{" "}
+                  <span className="text-white/20 normal-case tracking-normal">(B → A, optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={editReverseRelType}
+                  onChange={(e) => setEditReverseRelType(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-700/50 placeholder:text-white/20"
+                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                />
+              </div>
+            </div>
+            {editError && (
+              <p className="text-red-400 text-sm mt-4">{editError}</p>
+            )}
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={handleEditSave}
+                className="flex-1 px-4 py-2 bg-purple-800/40 hover:bg-purple-800/60 border border-purple-700/40 text-white text-sm rounded-md transition-all tracking-wide"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => {
+                  setEditingRel(null);
+                  setEditRelType("");
+                  setEditReverseRelType("");
+                  setEditCharAId("");
+                  setEditCharBId("");
+                  setEditError("");
                 }}
                 className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 text-sm rounded-md transition-all tracking-wide"
               >

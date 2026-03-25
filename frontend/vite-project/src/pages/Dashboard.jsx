@@ -113,7 +113,7 @@ export default function Dashboard() {
                                         {world.world_name}
                                     </h2>
                                     {world.world_description && (
-                                        <p className="text-white/65 leading-relaxed line-clamp-3" style={{ fontFamily: "sans-serif", fontSize: "0.95rem" }}>
+                                        <p className="text-white/65 leading-relaxed line-clamp-3" style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "0.95rem" }}>
                                             {world.world_description}
                                         </p>
                                     )}

@@ -86,7 +86,7 @@ export default function Locations() {
                             </h1>
                         </div>
                         <button
-                            onClick={() => setShowCreateModal(true)}
+                            onClick={() => navigate(`/worlds/${worldId}/locations/create`)}
                             className="px-5 py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white text-sm rounded-md transition-all tracking-wide"
                         >
                             + New Location
@@ -154,7 +154,7 @@ export default function Locations() {
                                     </div>
                                     <div className="flex flex-col gap-2 mt-3 px-1 pb-1">
                                         {loc.location_type && (
-                                            <p className="text-purple-400 text-xs tracking-widest uppercase" style={{ fontFamily: "sans-serif" }}>
+                                            <p className="text-purple-400 text-xs tracking-widest uppercase" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                                 {loc.location_type}
                                             </p>
                                         )}
@@ -171,7 +171,7 @@ export default function Locations() {
                                             {loc.location_name}
                                         </h2>
                                         {loc.location_description && (
-                                            <p className="text-white/65 leading-relaxed line-clamp-3" style={{ fontFamily: "sans-serif", fontSize: "0.95rem" }}>
+                                            <p className="text-white/65 leading-relaxed line-clamp-3" style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "0.95rem" }}>
                                                 {loc.location_description}
                                             </p>
                                         )}

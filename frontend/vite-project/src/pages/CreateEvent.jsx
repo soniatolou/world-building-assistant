@@ -13,14 +13,17 @@ export default function CreateEvent() {
     start_year: "",
     end_year: "",
   });
+  const [error, setError] = useState("");
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (!formData.event_name.trim()) return;
+  async function handleSubmit() {
+    if (!formData.event_name.trim()) {
+      setError("Please fill in all the required fields");
+      return;
+    }
     await createEvent(worldId, formData);
     navigate(`/worlds/${worldId}/events`);
   }
@@ -52,14 +55,14 @@ export default function CreateEvent() {
             <div className="flex flex-col gap-5">
               <div className="flex flex-col gap-2">
                 <label className="text-white/70 text-xs tracking-widest uppercase">
-                  Name
+                  Name <span className="text-white/40 normal-case tracking-normal">(required)</span>
                 </label>
                 <input
                   type="text"
                   name="event_name"
                   value={formData.event_name}
                   onChange={handleChange}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50"
+                  className={`bg-white/10 border rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50 ${error && !formData.event_name.trim() ? "border-red-500/60" : "border-white/20"}`}
                   placeholder="Event name"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
@@ -67,7 +70,7 @@ export default function CreateEvent() {
 
               <div className="flex flex-col gap-2">
                 <label className="text-white/70 text-xs tracking-widest uppercase">
-                  Start Year
+                  Start Year <span className="text-white/40 normal-case tracking-normal">(optional)</span>
                 </label>
                 <input
                   type="text"
@@ -82,7 +85,7 @@ export default function CreateEvent() {
 
               <div className="flex flex-col gap-2">
                 <label className="text-white/70 text-xs tracking-widest uppercase">
-                  End Year
+                  End Year <span className="text-white/40 normal-case tracking-normal">(optional)</span>
                 </label>
                 <input
                   type="text"
@@ -97,7 +100,7 @@ export default function CreateEvent() {
 
               <div className="flex flex-col gap-2">
                 <label className="text-white/70 text-xs tracking-widest uppercase">
-                  Description
+                  Description <span className="text-white/40 normal-case tracking-normal">(optional)</span>
                 </label>
                 <textarea
                   name="event_description"
@@ -110,11 +113,14 @@ export default function CreateEvent() {
                 />
               </div>
 
+              {error && (
+                <p className="text-red-400 text-sm">{error}</p>
+              )}
+
               <div className="flex gap-3 mt-2">
                 <button
                   onClick={handleSubmit}
-                  disabled={!formData.event_name.trim()}
-                  className="flex-1 py-3 bg-purple-400/40 hover:bg-purple-400/60 border border-purple-300/40 text-white rounded-md transition-all tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex-1 py-3 bg-purple-400/40 hover:bg-purple-400/60 border border-purple-300/40 text-white rounded-md transition-all tracking-wide"
                 >
                   Create Event
                 </button>

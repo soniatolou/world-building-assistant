@@ -19,6 +19,17 @@ export async function createRelationship(characterId, data) {
     return res.json()
 }
 
+export async function updateRelationship(relationshipId, data) {
+    const res = await fetch(`${BASE_URL}/relationships/${relationshipId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(data),
+    })
+    if (!res.ok) throw new Error("Failed to update relationship")
+    return res.json()
+}
+
 export async function deleteRelationship(relationshipId) {
     const res = await fetch(`${BASE_URL}/relationships/${relationshipId}`, {
         method: "DELETE",

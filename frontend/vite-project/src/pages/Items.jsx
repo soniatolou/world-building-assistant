@@ -62,7 +62,7 @@ export default function Items() {
                             <h1 className="text-3xl font-bold text-white tracking-widest uppercase">Items</h1>
                         </div>
                         <button
-                            onClick={() => setShowCreateModal(true)}
+                            onClick={() => navigate(`/worlds/${worldId}/items/create`)}
                             className="px-5 py-2 bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/40 text-white text-sm rounded-md transition-all tracking-wide"
                         >
                             + New Item
@@ -140,7 +140,7 @@ export default function Items() {
                                             {item.item_name}
                                         </h2>
                                         {item.item_description && (
-                                            <p className="text-white/65 leading-relaxed line-clamp-3" style={{ fontFamily: "sans-serif", fontSize: "0.95rem" }}>
+                                            <p className="text-white/65 leading-relaxed line-clamp-3" style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "0.95rem" }}>
                                                 {item.item_description}
                                             </p>
                                         )}

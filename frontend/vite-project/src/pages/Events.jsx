@@ -72,7 +72,7 @@ export default function Events() {
                             </h1>
                         </div>
                         <button
-                            onClick={() => setShowCreateModal(true)}
+                            onClick={() => navigate(`/worlds/${worldId}/events/create`)}
                             className="px-5 py-2 bg-purple-400/40 hover:bg-purple-400/60 border border-purple-300/40 text-white text-sm rounded-md transition-all tracking-wide"
                         >
                             + New Event
@@ -131,7 +131,7 @@ export default function Events() {
                                     </div>
                                     <div className="flex flex-col gap-2 mt-3 px-1 pb-1">
                                         {(event.start_year || event.end_year) && (
-                                            <p className="text-purple-400 text-xs tracking-widest uppercase" style={{ fontFamily: "sans-serif" }}>
+                                            <p className="text-purple-400 text-xs tracking-widest uppercase" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                                 {event.start_year && event.end_year
                                                     ? `${event.start_year} – ${event.end_year}`
                                                     : event.start_year || event.end_year}
@@ -150,7 +150,7 @@ export default function Events() {
                                             {event.event_name}
                                         </h2>
                                         {event.event_description && (
-                                            <p className="text-white/65 leading-relaxed line-clamp-3" style={{ fontFamily: "sans-serif", fontSize: "0.95rem" }}>
+                                            <p className="text-white/65 leading-relaxed line-clamp-3" style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "0.95rem" }}>
                                                 {event.event_description}
                                             </p>
                                         )}

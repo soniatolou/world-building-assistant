@@ -306,10 +306,13 @@ export default function CharacterDetail() {
                               const isA = rel.character_a_id === parseInt(characterId);
                               const otherId = isA ? rel.character_b_id : rel.character_a_id;
                               const otherName = isA ? rel.character_b_name : rel.character_a_name;
+                              const displayType = isA
+                                ? (rel.reverse_relationship_type || rel.relationship_type)
+                                : rel.relationship_type;
                               return (
                                 <div key={rel.relationship_id} className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-all">
                                   <span className="text-purple-400 text-xs tracking-widest uppercase border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 rounded shrink-0">
-                                    {rel.relationship_type}
+                                    {displayType}
                                   </span>
                                   <span className="text-white/30 text-xs">→</span>
                                   <button

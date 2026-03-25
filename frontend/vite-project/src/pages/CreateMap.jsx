@@ -13,18 +13,21 @@ export default function CreateMap() {
     map_description: "",
     scale_factor: "",
   });
+  const [error, setError] = useState("");
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (!formData.map_name.trim() || !formData.map_url.trim() || !formData.map_description.trim()) return;
+  async function handleSubmit() {
+    if (!formData.map_name.trim() || !formData.map_url.trim()) {
+      setError("Please fill in all the required fields");
+      return;
+    }
     await createMap(worldId, {
       map_name: formData.map_name,
       map_url: formData.map_url,
-      map_description: formData.map_description,
+      map_description: formData.map_description || null,
       scale_factor: formData.scale_factor ? parseFloat(formData.scale_factor) : null,
     });
     navigate(`/worlds/${worldId}/maps`);
@@ -57,14 +60,14 @@ export default function CreateMap() {
             <div className="flex flex-col gap-5">
               <div className="flex flex-col gap-2">
                 <label className="text-white/70 text-xs tracking-widest uppercase">
-                  Name
+                  Name <span className="text-white/40 normal-case tracking-normal">(required)</span>
                 </label>
                 <input
                   type="text"
                   name="map_name"
                   value={formData.map_name}
                   onChange={handleChange}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50"
+                  className={`bg-white/10 border rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50 ${error && !formData.map_name.trim() ? "border-red-500/60" : "border-white/20"}`}
                   placeholder="Map name"
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
@@ -72,14 +75,14 @@ export default function CreateMap() {
 
               <div className="flex flex-col gap-2">
                 <label className="text-white/70 text-xs tracking-widest uppercase">
-                  Map Image URL
+                  Map Image URL <span className="text-white/40 normal-case tracking-normal">(required)</span>
                 </label>
                 <input
                   type="text"
                   name="map_url"
                   value={formData.map_url}
                   onChange={handleChange}
-                  className="bg-white/10 border border-white/20 rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50"
+                  className={`bg-white/10 border rounded-md px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:border-purple-300/50 ${error && !formData.map_url.trim() ? "border-red-500/60" : "border-white/20"}`}
                   placeholder="https://..."
                   style={{ fontFamily: "'Montserrat', sans-serif" }}
                 />
@@ -87,7 +90,7 @@ export default function CreateMap() {
 
               <div className="flex flex-col gap-2">
                 <label className="text-white/70 text-xs tracking-widest uppercase">
-                  Description
+                  Description <span className="text-white/40 normal-case tracking-normal">(optional)</span>
                 </label>
                 <textarea
                   name="map_description"
@@ -102,7 +105,7 @@ export default function CreateMap() {
 
               <div className="flex flex-col gap-2">
                 <label className="text-white/70 text-xs tracking-widest uppercase">
-                  Scale Factor <span className="text-white/30">(optional)</span>
+                  Scale Factor <span className="text-white/40 normal-case tracking-normal">(optional)</span>
                 </label>
                 <input
                   type="number"
@@ -116,11 +119,14 @@ export default function CreateMap() {
                 />
               </div>
 
+              {error && (
+                <p className="text-red-400 text-sm">{error}</p>
+              )}
+
               <div className="flex gap-3 mt-2">
                 <button
                   onClick={handleSubmit}
-                  disabled={!formData.map_name.trim() || !formData.map_url.trim() || !formData.map_description.trim()}
-                  className="flex-1 py-3 bg-purple-400/40 hover:bg-purple-400/60 border border-purple-300/40 text-white rounded-md transition-all tracking-wide disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex-1 py-3 bg-purple-400/40 hover:bg-purple-400/60 border border-purple-300/40 text-white rounded-md transition-all tracking-wide"
                 >
                   Create Map
                 </button>

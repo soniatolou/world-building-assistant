@@ -84,7 +84,7 @@ export default function Maps() {
               </h1>
             </div>
             <button
-              onClick={() => setShowCreateModal(true)}
+              onClick={() => navigate(`/worlds/${worldId}/maps/create`)}
               className="px-5 py-2 bg-purple-400/40 hover:bg-purple-400/60 border border-purple-300/40 text-white text-sm rounded-md transition-all tracking-wide"
             >
               + New Map
@@ -169,7 +169,7 @@ export default function Maps() {
                       {map.map_name}
                     </h2>
                     {map.map_description && (
-                      <p className="text-white/65 leading-relaxed line-clamp-3" style={{ fontFamily: "sans-serif", fontSize: "0.95rem" }}>
+                      <p className="text-white/65 leading-relaxed line-clamp-3" style={{ fontFamily: "'Montserrat', sans-serif", fontSize: "0.95rem" }}>
                         {map.map_description}
                       </p>
                     )}

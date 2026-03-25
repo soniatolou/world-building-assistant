@@ -405,7 +405,7 @@ export default function WorldDetail() {
                                 }
                                 rows={3}
                                 className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-purple-500/60 resize-none"
-                                style={{ fontFamily: "sans-serif" }}
+                                style={{ fontFamily: "'Montserrat', sans-serif" }}
                                 autoFocus
                               />
                               <div className="flex gap-2">
@@ -430,7 +430,7 @@ export default function WorldDetail() {
                             <p
                               className="text-white/70 text-sm flex-1"
                               style={{
-                                fontFamily: "sans-serif",
+                                fontFamily: "'Montserrat', sans-serif",
                                 whiteSpace: "pre-wrap",
                               }}
                             >
