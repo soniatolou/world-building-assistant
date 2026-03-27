@@ -6,6 +6,7 @@ from psycopg2 import errors
 from db.db import pwd_hash
 from app import consistency
 import app.schemas as schemas
+from app.settings import settings
 from db import db
 import anthropic
 
@@ -13,7 +14,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[settings.CORS_ORIGINS],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
